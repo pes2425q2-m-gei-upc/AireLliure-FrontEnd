@@ -26,6 +26,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.front_pes.features.login.LoginScreenDestination
 import com.front_pes.features.map.MapScreenDestination
+import com.front_pes.features.register.RegisterScreen
+import com.front_pes.features.register.RegisterScreenDestination
 
 
 class MainActivity : ComponentActivity() {
@@ -53,12 +55,18 @@ private fun AppNavigation() {
         startDestination = LoginScreenDestination,)
     {
         composable(LoginScreenDestination){
-            LoginScreen(onNavigateToMap = {
-                navController.navigate(MapScreenDestination)
-            })
+            LoginScreen(
+                onNavigateToMap = {
+                    navController.navigate(MapScreenDestination)
+                },
+                onNavigateToRegister = { navController.navigate(RegisterScreenDestination) }
+            )
         }
         composable(MapScreenDestination){
             MapScreen()
+        }
+        composable(RegisterScreenDestination){
+            RegisterScreen()
         }
     }
 }

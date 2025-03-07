@@ -31,7 +31,7 @@ const val LoginScreenDestination = "Login"
 
 @Composable
 fun LoginScreen(viewModel: LoginViewModel = viewModel(),
-                onNavigateToMap: () -> Unit,) {
+                onNavigateToMap: () -> Unit, onNavigateToRegister: () -> Unit, ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -73,6 +73,7 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(),
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        //De momento este boton navega a la pantalla de map
         Button(
             onClick = {onNavigateToMap()},
             modifier = Modifier
@@ -131,8 +132,9 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(),
         Text("If you don't have an account")
         Spacer(modifier = Modifier.height(10.dp))
 
+        //Aquest boto et porta cap a la pantalla de Register
         Button(
-            onClick = {},
+            onClick = {onNavigateToRegister()},
             modifier = Modifier.shadow(2.dp, RoundedCornerShape(10.dp)),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C853)),
             shape = RoundedCornerShape(8.dp)

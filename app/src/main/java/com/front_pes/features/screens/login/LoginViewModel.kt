@@ -1,4 +1,4 @@
-package com.front_pes.features.login
+package com.front_pes.features.screens.login
 
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateOf

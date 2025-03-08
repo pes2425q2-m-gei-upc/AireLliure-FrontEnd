@@ -1,4 +1,4 @@
-package com.front_pes.features.login
+package com.front_pes.features.screens.login
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -17,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -78,8 +80,17 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(),
             onClick = {onNavigateToMap()},
             modifier = Modifier
                 .fillMaxWidth()
-                .shadow(2.dp, RoundedCornerShape(10.dp)),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C853)),
+                .shadow(2.dp, RoundedCornerShape(8.dp))
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xFF05C7F2),
+                            Color(0xFF07F285)
+                        )
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
             shape = RoundedCornerShape(8.dp)
         ) {
             Text("SIGN IN", color = Color.White)
@@ -92,9 +103,9 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(),
                 onClick = {},
                 colors = ButtonDefaults.buttonColors(Color(0xFF3B5998)),
                 modifier = Modifier
-                    .shadow(2.dp, RoundedCornerShape(10.dp))
+                    .shadow(2.dp, RoundedCornerShape(8.dp))
                     .weight(0.7f),
-                shape = RoundedCornerShape(10.dp)
+                shape = RoundedCornerShape(8.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
@@ -110,10 +121,10 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(),
             Button(
                 onClick = {},
                 modifier = Modifier
-                    .shadow(2.dp, RoundedCornerShape(10.dp))
+                    .shadow(2.dp, RoundedCornerShape(8.dp))
                     .weight(0.7f),
                 colors = ButtonDefaults.buttonColors(Color(0xFFFDFDFD)),
-                shape = RoundedCornerShape(10.dp)
+                shape = RoundedCornerShape(8.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
@@ -135,9 +146,19 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(),
         //Aquest boto et porta cap a la pantalla de Register
         Button(
             onClick = {onNavigateToRegister()},
-            modifier = Modifier.shadow(2.dp, RoundedCornerShape(10.dp)),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C853)),
-            shape = RoundedCornerShape(8.dp)
+            modifier = Modifier
+                .shadow(2.dp, RoundedCornerShape(8.dp))
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xFF05C7F2),
+                            Color(0xFF07F285)
+                        )
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+            shape = RoundedCornerShape(8.dp),
         ) {
             Text("SIGN UP", color = Color.White)
         }

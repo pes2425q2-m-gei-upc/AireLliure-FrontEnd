@@ -1,4 +1,4 @@
-package com.front_pes.features.map
+package com.front_pes.features.screens.map
 
 import androidx.lifecycle.ViewModel
 

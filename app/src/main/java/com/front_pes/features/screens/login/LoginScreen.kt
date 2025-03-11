@@ -32,17 +32,18 @@ import com.front_pes.R
 const val LoginScreenDestination = "Login"
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel = viewModel(),
-                onNavigateToMap: () -> Unit, onNavigateToRegister: () -> Unit, ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+fun LoginScreen(
+    viewModel: LoginViewModel = viewModel(),
+    onNavigateToMap: () -> Unit,
+    onNavigateToRegister: () -> Unit)
+{
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
 
         // Logo (Reemplazar por tu recurso local si tienes uno)
@@ -57,8 +58,8 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(),
         Spacer(modifier = Modifier.height(20.dp))
 
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = viewModel.email,
+            onValueChange = { viewModel.onEmailChange(it) },
             label = { Text("Email") },
             modifier = Modifier.fillMaxWidth()
         )
@@ -66,8 +67,8 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(),
         Spacer(modifier = Modifier.height(10.dp))
 
         OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
+            value = viewModel.password,
+            onValueChange = { viewModel.onPasswordChange(it) },
             label = { Text("Password") },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
@@ -77,7 +78,11 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(),
 
         //De momento este boton navega a la pantalla de map
         Button(
-            onClick = {onNavigateToMap()},
+            onClick = {
+                viewModel.login {
+                    onNavigateToMap()  // Navega si el login es exitoso
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .shadow(2.dp, RoundedCornerShape(8.dp))
@@ -95,6 +100,12 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(),
         ) {
             Text("SIGN IN", color = Color.White)
         }
+
+        // Mostrar mensaje de error si hay un fallo en el login
+        if (viewModel.errorMessage != null) {
+            Text(viewModel.errorMessage!!, color = Color.Red, modifier = Modifier.padding(top = 10.dp))
+        }
+
 
         Spacer(modifier = Modifier.height(20.dp))
 

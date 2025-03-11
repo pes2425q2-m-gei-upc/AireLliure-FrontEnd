@@ -35,7 +35,7 @@ import com.front_pes.R
 const val UserPageScreenDestination = "UserPage"
 
 @Composable
-fun UserPageScreen () {
+fun UserPageScreen (onNavigateToLogin : () -> Unit) {
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -52,7 +52,7 @@ fun UserPageScreen () {
             horizontalArrangement = Arrangement.End
         ) {
             Button(
-                onClick = {},
+                onClick = {onNavigateToLogin()},
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF461B1B)),
                 shape = RoundedCornerShape(8.dp)
             ) {

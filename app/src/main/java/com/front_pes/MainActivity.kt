@@ -60,13 +60,21 @@ private fun AppNavigation(modifer: Modifier = Modifier) {
             MapScreen()
         }
         composable(RegisterScreenDestination){
-            RegisterScreen()
+            RegisterScreen( onNavigateToMap = {
+                navController.navigate(MainScreenDestination)
+            })
         }
         composable(UserPageScreenDestination) {
-            UserPageScreen()
+            UserPageScreen(
+                onNavigateToLogin = {
+                    navController.navigate(LoginScreenDestination)
+                }
+            )
         }
         composable(MainScreenDestination) {
-            MainScreen()
+            MainScreen(onNavigateToLogin = {
+                navController.navigate(LoginScreenDestination)
+            })
         }
     }
 }

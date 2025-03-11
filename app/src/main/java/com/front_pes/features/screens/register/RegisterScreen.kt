@@ -26,7 +26,7 @@ import com.front_pes.R
 const val RegisterScreenDestination = "Register"
 
 @Composable
-fun RegisterScreen(viewModel: RegisterViewModel = viewModel()) {
+fun RegisterScreen(viewModel: RegisterViewModel = viewModel(), onNavigateToMap: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var repeat_password by remember { mutableStateOf("") }
@@ -88,7 +88,7 @@ fun RegisterScreen(viewModel: RegisterViewModel = viewModel()) {
         Spacer(modifier = Modifier.height(20.dp))
 
         Button(
-            onClick = { },
+            onClick = {onNavigateToMap()},
             modifier = Modifier
                 .fillMaxWidth()
                 .shadow(2.dp, RoundedCornerShape(10.dp))

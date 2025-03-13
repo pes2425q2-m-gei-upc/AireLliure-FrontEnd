@@ -1,16 +1,14 @@
-package com.example.frontaire
+package com.front_pes.features.screens.login
 
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
-class SignupViewModel : ViewModel() {
+class LoginViewModel : ViewModel() {
     var email by mutableStateOf("")
         private set
     var password by mutableStateOf("")
-        private set
-    var repeat_password by mutableStateOf("")
         private set
 
     fun onEmailChange(newEmail: String) {

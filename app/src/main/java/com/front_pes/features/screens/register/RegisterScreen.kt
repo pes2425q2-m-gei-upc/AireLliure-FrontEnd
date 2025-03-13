@@ -1,7 +1,7 @@
-// SignupScreen.kt
-package com.example.frontaire
+package com.front_pes.features.screens.register
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -20,10 +21,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.front_pes.R
 
+const val RegisterScreenDestination = "Register"
 
 @Composable
-fun Signup(viewModel: SignupViewModel = viewModel()) {
+fun RegisterScreen(viewModel: RegisterViewModel = viewModel(), onNavigateToMap: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var repeat_password by remember { mutableStateOf("") }
@@ -46,6 +49,15 @@ fun Signup(viewModel: SignupViewModel = viewModel()) {
         Text("Sign Up", fontSize = 24.sp, fontWeight = FontWeight.Bold)
 
         Spacer(modifier = Modifier.height(20.dp))
+
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Username") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
 
         OutlinedTextField(
             value = email,
@@ -76,20 +88,23 @@ fun Signup(viewModel: SignupViewModel = viewModel()) {
         Spacer(modifier = Modifier.height(20.dp))
 
         Button(
-            onClick = { },
+            onClick = {onNavigateToMap()},
             modifier = Modifier
                 .fillMaxWidth()
-                .shadow(2.dp, RoundedCornerShape(10.dp)),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C853)),
+                .shadow(2.dp, RoundedCornerShape(10.dp))
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xFF05C7F2),
+                            Color(0xFF07F285)
+                        )
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
             shape = RoundedCornerShape(8.dp)
         ) {
             Text("SIGN UP", color = Color.White)
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewSignupScreen() {
-    Signup()
 }

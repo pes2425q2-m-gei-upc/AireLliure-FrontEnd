@@ -1,4 +1,4 @@
-package com.example.frontaire
+package com.front_pes
 
 import org.junit.Test
 

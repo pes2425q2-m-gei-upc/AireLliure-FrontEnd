@@ -1,4 +1,4 @@
-package com.example.frontaire.ui.theme
+package com.front_pes.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

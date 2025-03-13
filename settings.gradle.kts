@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "FrontAire"
+rootProject.name = "FRONT-PES"
 include(":app")
  

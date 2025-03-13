@@ -19,6 +19,7 @@ import com.front_pes.features.screens.register.RegisterScreen
 import com.front_pes.features.screens.register.RegisterScreenDestination
 import com.front_pes.features.screens.MainScreen
 import com.front_pes.features.screens.MainScreenDestination
+import com.front_pes.features.screens.login.LoginViewModel
 import com.front_pes.features.screens.user.UserPageScreen
 import com.front_pes.features.screens.user.UserPageScreenDestination
 

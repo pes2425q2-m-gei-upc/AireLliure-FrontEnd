@@ -61,6 +61,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
 @Composable
 fun ContentScreen(modifier: Modifier, selectedIndex: Int) {
+
     when (selectedIndex) {
         0 -> UserPageScreen()
         1 -> MapScreen()

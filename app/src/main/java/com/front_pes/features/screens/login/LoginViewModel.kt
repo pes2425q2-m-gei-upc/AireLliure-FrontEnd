@@ -29,6 +29,9 @@ class LoginViewModel : ViewModel() {
         password = newPassword
     }
 
+    var username by mutableStateOf("")
+        private set
+
     fun login(onSuccess: () -> Unit) {
         viewModelScope.launch {
             val call = RetrofitClient.apiService.login(LoginRequest(correu = email, password = password))
@@ -37,7 +40,8 @@ class LoginViewModel : ViewModel() {
                     if (response.code() == 200) {
                         // Si el código de respuesta es 200, se considera un éxito
                         loginSuccess = true
-                        onSuccess()  // Llamamos a onSuccess() cuando recibimos un 200 OK
+                        username = "canviat"
+                        //onSuccess()  // Llamamos a onSuccess() cuando recibimos un 200 OK
                     } else {
                         // Si el código no es 200, muestra el mensaje adecuado
                         errorMessage = when (response.code()) {

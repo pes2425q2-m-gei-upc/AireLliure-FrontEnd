@@ -1,3 +1,10 @@
 package com.front_pes.features.screens.login
 
-data class LoginResponse(val success: Boolean, val token: String?)
+data class LoginResponse(
+    val correu: String,
+    val password: String,
+    val nom: String,
+    val about: String,
+    val estat: String,
+    val punts: Int
+)

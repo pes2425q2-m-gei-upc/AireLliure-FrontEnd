@@ -25,7 +25,7 @@ import com.front_pes.features.screens.user.UserPageScreen
 const val MainScreenDestination = "Main"
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, onNavigateToLogin: () -> Unit) {
+fun MainScreen(modifier: Modifier = Modifier) {
 
     val navItemList = listOf(
         NavItem("Profile", Icons.Default.Person),
@@ -56,14 +56,15 @@ fun MainScreen(modifier: Modifier = Modifier, onNavigateToLogin: () -> Unit) {
             }
         }
     ) { innerPadding ->
-        ContentScreen(modifier = Modifier.padding(innerPadding), selectedIndex, onNavigateToLogin)
+        ContentScreen(modifier = Modifier.padding(innerPadding), selectedIndex)
     }
 }
 
 @Composable
-fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () -> Unit) {
+fun ContentScreen(modifier: Modifier, selectedIndex: Int) {
+
     when (selectedIndex) {
-        0 -> UserPageScreen(onNavigateToLogin = onNavigateToLogin)
+        0 -> UserPageScreen()
         1 -> MapScreen()
         2 -> SettingsScreen()
     }

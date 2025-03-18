@@ -100,18 +100,10 @@ private fun AppNavigation(modifer: Modifier = Modifier) {
             })
         }
         composable(UserPageScreenDestination) {
-            UserPageScreen(
-                onNavigateToLogin = {
-                    navController.navigate(LoginScreenDestination)
-                }
-            )
+            UserPageScreen()
         }
         composable(MainScreenDestination) {
-            MainScreen(onNavigateToLogin = {
-                navController.navigate(LoginScreenDestination)
-            })
+            MainScreen()
         }
     }
 }
-
-//android.Manifest.permission.

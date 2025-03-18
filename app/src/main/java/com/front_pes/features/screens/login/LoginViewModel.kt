@@ -40,6 +40,7 @@ class LoginViewModel : ViewModel() {
                             CurrentUser.correu = userData.correu
                             CurrentUser.password = userData.password
                             CurrentUser.nom = userData.nom
+                            CurrentUser.about = userData.about
                             CurrentUser.estat = userData.estat
                             CurrentUser.punts = userData.punts
                         }

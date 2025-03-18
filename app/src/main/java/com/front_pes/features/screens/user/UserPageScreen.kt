@@ -3,7 +3,6 @@ package com.front_pes.features.screens.user
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,12 +29,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.front_pes.CurrentUser
 import com.front_pes.R
 
 const val UserPageScreenDestination = "UserPage"
 
 @Composable
-fun UserPageScreen (onNavigateToLogin : () -> Unit) {
+fun UserPageScreen () {
+
+    val nom = CurrentUser.nom;
+    val punts = CurrentUser.punts;
+    val correu = CurrentUser.correu;
+
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -44,21 +49,6 @@ fun UserPageScreen (onNavigateToLogin : () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(end = 10.dp),
-            horizontalArrangement = Arrangement.End
-        ) {
-            Button(
-                onClick = {onNavigateToLogin()},
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF461B1B)),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text("Log Out", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            }
-        }
 
         Column (
             modifier = Modifier
@@ -78,11 +68,11 @@ fun UserPageScreen (onNavigateToLogin : () -> Unit) {
 
             Spacer(modifier = Modifier.height(25.dp))
 
-            Text(text = "Test User", fontSize = 26.sp, fontWeight = FontWeight.Bold)
+            Text(text = "${nom}", fontSize = 26.sp, fontWeight = FontWeight.Bold)
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            Text(text = "User Bio", fontSize = 18.sp)
+            Text(text = "Punts: ${punts}", fontSize = 18.sp)
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -119,11 +109,14 @@ fun UserPageScreen (onNavigateToLogin : () -> Unit) {
                     horizontalArrangement = Arrangement.Start
                 ) {
                     Text(
-                        text = "Your Preferences: \n\n\n",
+                        text = "Dades Personals:",
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
                 }
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(text = "Correu: ${correu}", fontSize = 16.sp, modifier = Modifier.padding(start = 15.dp))
             }
         }
     }

@@ -1,9 +1,9 @@
 package com.front_pes.features.screens.map
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Location
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,11 +15,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
-
-
-import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.foundation.background
 import androidx.compose.ui.unit.dp
 
 const val MapScreenDestination = "Map"
@@ -33,12 +28,25 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
     var locationPermissionGranted by remember { mutableStateOf(false) }
     var showPermissionRequest by remember { mutableStateOf(false) }
 
+    // Lista mutable para estaciones
+    val estacions = remember { mutableStateListOf<EstacioQualitatAireResponse>() }
+
     val cameraPositionState = rememberCameraPositionState()
 
-    // Coordenadas de Plaza Cataluña en Barcelona
     val plazaCatalunya = LatLng(41.3825, 2.1912)
 
-    // Verificar los permisos y obtener la ubicación
+    // Obtener estaciones de calidad del aire
+    LaunchedEffect(Unit) {
+        viewModel.fetchEstacionsQualitatAire(
+            onSuccess = { estaciones ->
+                estacions.clear()
+                estacions.addAll(estaciones)
+            },
+            onError = { errorMessage -> }
+        )
+    }
+
+    // Verificar permisos y obtener la ubicación del usuario
     LaunchedEffect(Unit) {
         when {
             ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED -> {
@@ -54,27 +62,37 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
             else -> {
                 locationPermissionGranted = false
                 showPermissionRequest = true
-                // Centrar el mapa en Plaza Cataluña si no hay permisos
                 cameraPositionState.position = CameraPosition.fromLatLngZoom(plazaCatalunya, 16f)
             }
         }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Mostrar el mapa que ocupa toda la pantalla
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
             properties = MapProperties(isMyLocationEnabled = locationPermissionGranted)
-        )
+        ) {
+            // Dibujar Markers solo si hay estaciones disponibles
+            estacions.forEach { estacio ->
+                Marker(
+                    state = MarkerState(
+                        position = LatLng(estacio.latitud, estacio.longitud)
+                    ),
+                    title = estacio.nom_estacio,
+                    snippet = "Índice de calidad del aire: ${estacio.index_qualitat_aire}",
+                    onClick = { false }
+                )
+            }
+        }
 
-        // Si no se tienen permisos, mostrar mensaje para pedir permisos
+        // Mensaje de permisos si no están concedidos
         if (showPermissionRequest) {
             Text(
                 text = "Para acceder a tu ubicación, por favor otórganos los permisos.",
-                style = MaterialTheme.typography.bodyLarge, // Cambié de body1 a bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)  // Alineamos al centro en la parte inferior
+                    .align(Alignment.BottomCenter)
                     .padding(16.dp)
                     .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f))
                     .padding(16.dp)

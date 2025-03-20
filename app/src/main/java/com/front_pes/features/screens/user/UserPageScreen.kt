@@ -292,11 +292,12 @@ fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
 
 fun updateUserProfile(
     context: android.content.Context,
-    newName: String,
-    newAbout: String,
+    newName: String? = null,
+    newAbout: String? = null,
+    newStatus: String? = null,
     onSuccess: (UpdateProfileResponse) -> Unit)
 {
-    val request = UpdateProfileRequest(nom = newName, about = newAbout)
+    val request = UpdateProfileRequest(nom = newName, about = newAbout, estat = newStatus)
     val call = RetrofitClient.apiService.updateProfile(CurrentUser.correu, request)
 
     call.enqueue(object : Callback<UpdateProfileResponse> {

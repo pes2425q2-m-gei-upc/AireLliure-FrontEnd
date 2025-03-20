@@ -1,6 +1,7 @@
 package com.front_pes.features.screens.user
 
 data class UpdateProfileRequest(
-    val nom: String?,
-    val about: String?
+    val nom: String? = null,
+    val about: String? = null,
+    val estat: String? = null
 )

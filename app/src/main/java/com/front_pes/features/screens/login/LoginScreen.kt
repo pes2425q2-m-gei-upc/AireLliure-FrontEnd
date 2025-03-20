@@ -29,6 +29,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.R
 
+import com.front_pes.features.screens.settings.updateUserStatus
+import androidx.compose.ui.platform.LocalContext
+
 const val LoginScreenDestination = "Login"
 
 @Composable
@@ -37,7 +40,7 @@ fun LoginScreen(
     onNavigateToMap: () -> Unit,
     onNavigateToRegister: () -> Unit)
 {
-
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -80,7 +83,9 @@ fun LoginScreen(
         Button(
             onClick = {
                 viewModel.login {
-                    onNavigateToMap()  // Navega si el login es exitoso
+                    updateUserStatus(context, newEstat = "actiu") {
+                        onNavigateToMap()
+                    }
                 }
             },
             modifier = Modifier

@@ -105,7 +105,7 @@ private fun AppNavigation(modifer: Modifier = Modifier) {
             UserPageScreen()
         }
         composable(MainScreenDestination) {
-            MainScreen()
+            MainScreen(onNavigateToLogin = { navController.navigate(LoginScreenDestination) })
         }
     }
 }

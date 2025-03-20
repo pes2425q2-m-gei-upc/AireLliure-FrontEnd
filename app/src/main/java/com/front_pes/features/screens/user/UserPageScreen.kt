@@ -42,14 +42,19 @@ import com.front_pes.R
 import com.front_pes.network.RetrofitClient
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.front_pes.features.screens.settings.LanguageViewModel
+import com.front_pes.getString
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.Locale
 
 const val UserPageScreenDestination = "UserPage"
 
 @Composable
-fun UserPageScreen () {
+fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
 
     //val nom = CurrentUser.nom;
     val punts = CurrentUser.punts;
@@ -62,12 +67,15 @@ fun UserPageScreen () {
 
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
+    var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xe3e3e3))
-            .padding(top = 40.dp),
+            .padding(top = 75.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
@@ -87,7 +95,7 @@ fun UserPageScreen () {
 
         Row {
             Column(horizontalAlignment = Alignment.CenterHorizontally,) {
-                Text(text = "Friends", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(text = getString(context, R.string.friends, selectedLanguage), fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(5.dp))
                 Text(
                     text = "0",
@@ -98,7 +106,7 @@ fun UserPageScreen () {
             Spacer(modifier = Modifier.width(30.dp))
 
             Column(horizontalAlignment = Alignment.CenterHorizontally,) {
-                Text(text = "Points", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(text = getString(context, R.string.points, selectedLanguage), fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(5.dp))
                 Text(
                     text = "${punts}",
@@ -125,7 +133,7 @@ fun UserPageScreen () {
             colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
             shape = RoundedCornerShape(8.dp)
         ) {
-            Text("Edit Profile", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(text = getString(context, R.string.edit_p, selectedLanguage), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
 
         if (showDialog) {
@@ -144,7 +152,7 @@ fun UserPageScreen () {
 
         Spacer(modifier = Modifier.height(30.dp))
 
-        Text(text = "User Info", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text(text = getString(context, R.string.user_info, selectedLanguage), fontSize = 20.sp, fontWeight = FontWeight.Bold)
 
         Spacer(modifier = Modifier.height(10.dp))
 
@@ -161,7 +169,7 @@ fun UserPageScreen () {
                     horizontalArrangement = Arrangement.Start
                 ) {
                     Text(
-                        text = "About me:",
+                        text = getString(context, R.string.about, selectedLanguage) + ": ",
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp
                     )
@@ -177,7 +185,7 @@ fun UserPageScreen () {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "State: ",
+                        text = getString(context, R.string.state, selectedLanguage) + ": ",
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp
                     )
@@ -192,7 +200,7 @@ fun UserPageScreen () {
                                 .padding(4.dp), // Espaciado interno para el texto
                         ) {
                             Text(
-                                text = "Online",  //HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
+                                text = getString(context, R.string.online, selectedLanguage),  //HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 15.sp
                             )
@@ -207,7 +215,7 @@ fun UserPageScreen () {
                                 .padding(4.dp), // Espaciado interno para el texto
                         ) {
                             Text(
-                                text = "Offline",  //HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
+                                text = getString(context, R.string.offline, selectedLanguage),  //HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 15.sp
                             )
@@ -219,7 +227,7 @@ fun UserPageScreen () {
                     horizontalArrangement = Arrangement.Start
                 ) {
                     Text(
-                        text = "Ratings: ",
+                        text = getString(context, R.string.ratings, selectedLanguage) + ": ",
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp
                     )
@@ -234,7 +242,7 @@ fun UserPageScreen () {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "User Type: ",
+                        text = getString(context, R.string.usertype, selectedLanguage) + ": ",
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp
                     )
@@ -247,7 +255,7 @@ fun UserPageScreen () {
                             .padding(4.dp), // Espaciado interno para el texto
                     ) {
                         Text(
-                            text = "Administrator",  //HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
+                            text = getString(context, R.string.admin, selectedLanguage),  //HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp
                         )
@@ -262,14 +270,18 @@ fun UserPageScreen () {
 fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
     var newName by remember { mutableStateOf(CurrentUser.nom) }
     var newAbout by remember { mutableStateOf(CurrentUser.about) }
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+    val context = LocalContext.current
+
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Edit Profile") },
+        title = { Text(stringResource(R.string.edit_p)) },
         text = {
             Column {
-                OutlinedTextField(value = newName, onValueChange = { newName = it }, label = { Text("Name") })
-                OutlinedTextField(value = newAbout, onValueChange = { newAbout = it }, label = { Text("About") })
+                OutlinedTextField(value = newName, onValueChange = { newName = it }, label = { Text(text = getString(context, R.string.username, selectedLanguage)) })
+                OutlinedTextField(value = newAbout, onValueChange = { newAbout = it }, label = { Text(text = getString(context, R.string.about, selectedLanguage)) })
             }
         },
         confirmButton = {

@@ -20,7 +20,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,15 +30,23 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.R
+import com.front_pes.features.screens.settings.LanguageViewModel
+import com.front_pes.getString
 
 const val LoginScreenDestination = "Login"
 
 @Composable
 fun LoginScreen(
+    title: String,
     viewModel: LoginViewModel = viewModel(),
     onNavigateToMap: () -> Unit,
     onNavigateToRegister: () -> Unit)
 {
+
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+    val context = LocalContext.current
+
 
     Column(
         modifier = Modifier
@@ -53,7 +63,7 @@ fun LoginScreen(
             modifier = Modifier.size(300.dp)
         )
 
-        Text("Sign In", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Text(text = getString(context, R.string.login, selectedLanguage), fontSize = 24.sp, fontWeight = FontWeight.Bold)
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -69,7 +79,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = viewModel.password,
             onValueChange = { viewModel.onPasswordChange(it) },
-            label = { Text("Password") },
+            label = { Text(text = getString(context, R.string.password, selectedLanguage)) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
@@ -98,7 +108,7 @@ fun LoginScreen(
             colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
             shape = RoundedCornerShape(8.dp)
         ) {
-            Text("SIGN IN", color = Color.White)
+            Text(text = getString(context, R.string.LOGIN, selectedLanguage), color = Color.White)
         }
 
         // Mostrar mensaje de error si hay un fallo en el login
@@ -150,7 +160,8 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Text("If you don't have an account")
+        Text(text = getString(context, R.string.no_ac, selectedLanguage))
+
         Spacer(modifier = Modifier.height(10.dp))
 
         //Aquest boto et porta cap a la pantalla de Register
@@ -170,7 +181,7 @@ fun LoginScreen(
             colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
             shape = RoundedCornerShape(8.dp),
         ) {
-            Text("SIGN UP", color = Color.White)
+            Text(text = getString(context, R.string.SIGNUP, selectedLanguage), color = Color.White)
         }
     }
 }

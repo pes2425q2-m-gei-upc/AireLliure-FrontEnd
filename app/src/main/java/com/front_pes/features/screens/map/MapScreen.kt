@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 const val MapScreenDestination = "Map"
 
 @Composable
-fun MapScreen(viewModel: MapViewModel = viewModel()) {
+fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 

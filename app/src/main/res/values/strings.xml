@@ -1,3 +1,32 @@
 <resources>
     <string name="app_name">FRONT-PES</string>
+    <string name="login">Inicia Sesión</string>
+    <string name="password">Contraseña</string>
+    <string name="LOGIN">INICIA SESIÓN</string>
+    <string name="no_ac">Si no tienes cuenta</string>
+    <string name="SIGNUP">REGÍSTRATE</string>
+    <string name="signup">Regístrate</string>
+    <string name="username">Nombre de Usuario</string>
+    <string name="rpassword">Repite Contraseña</string>
+    <string name="profile">Perfil</string>
+    <string name="map">Mapa</string>
+    <string name="settings">Ajustes</string>
+    <string name="chats">Conversaciones</string>
+    <string name="friends">Amigos</string>
+    <string name="airQ">Calidad del Aire</string>
+    <string name="routes">Rutas</string>
+    <string name="points">Puntos</string>
+    <string name="edit_p">Editar Perfil</string>
+    <string name="user_info">Información de Usuario</string>
+    <string name="about">Sobre mi</string>
+    <string name="state">Estado</string>
+    <string name="ratings">Valoraciones</string>
+    <string name="usertype">Tipo de Usuario</string>
+    <string name="online">En línea</string>
+    <string name="offline">Desconectado</string>
+    <string name="admin">Administrador</string>
+    <string name="common">Común</string>
+    <string name="language">Idioma</string>
+    <string name="logout">Cerrar Sesión</string>
+    <string name="delete_user">Eliminar Usuario</string>
 </resources>

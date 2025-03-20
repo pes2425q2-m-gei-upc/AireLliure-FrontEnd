@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,9 +28,6 @@ const val RegisterScreenDestination = "Register"
 
 @Composable
 fun RegisterScreen(viewModel: RegisterViewModel = viewModel(), onNavigateToMap: () -> Unit) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var repeat_password by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -51,26 +49,29 @@ fun RegisterScreen(viewModel: RegisterViewModel = viewModel(), onNavigateToMap: 
         Spacer(modifier = Modifier.height(20.dp))
 
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Username") },
+            value = viewModel.email,
+            onValueChange = { viewModel.email = it },
+            label = { Text("Correu") },
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+
+            )
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        OutlinedTextField(
+            value = viewModel.username,
+            onValueChange = { viewModel.username = it },
+            label = { Text("Usuari") },
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
+            value = viewModel.password,
+            onValueChange = { viewModel.password = it },
             label = { Text("Password") },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
@@ -78,17 +79,12 @@ fun RegisterScreen(viewModel: RegisterViewModel = viewModel(), onNavigateToMap: 
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedTextField(
-            value = repeat_password,
-            onValueChange = { repeat_password = it },
-            label = { Text("Repeat Password") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
         Spacer(modifier = Modifier.height(20.dp))
 
         Button(
-            onClick = {onNavigateToMap()},
+            onClick = {viewModel.register {
+                onNavigateToMap()  // Navega si el register es exitoso
+            }},
             modifier = Modifier
                 .fillMaxWidth()
                 .shadow(2.dp, RoundedCornerShape(10.dp))
@@ -105,6 +101,10 @@ fun RegisterScreen(viewModel: RegisterViewModel = viewModel(), onNavigateToMap: 
             shape = RoundedCornerShape(8.dp)
         ) {
             Text("SIGN UP", color = Color.White)
+        }
+
+        if (viewModel.errorMessage != null) {
+            Text(viewModel.errorMessage!!, color = Color.Red, modifier = Modifier.padding(top = 10.dp))
         }
     }
 }

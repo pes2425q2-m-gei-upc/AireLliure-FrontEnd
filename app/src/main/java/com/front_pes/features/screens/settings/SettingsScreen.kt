@@ -1,5 +1,6 @@
 package com.front_pes.features.screens.settings
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -8,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -17,7 +19,9 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,126 +55,147 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit) {
     val options = listOf("Español", "Català", "English")
     var selectedOption by remember { mutableStateOf(options[0]) }
     val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFEFEFEF)) // Light gray background
-            .padding(top = 100.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
-    ) {
-
-        Icon(
-            imageVector = Icons.Default.Settings,
-            contentDescription = "Settings Icon",
-            tint = Color.Black,
-            modifier = Modifier.size(100.dp)
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("Confirm Delete") },
+            text = { Text("Are you sure you want to delete your account? This action is not reversible.") },
+            confirmButton = {
+                TextButton (onClick = {
+                    showDialog = false
+                    deleteUser(context) { onNavigateToLogin() }
+                }) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("No")
+                }
+            }
         )
-        Spacer(modifier = Modifier.height(10.dp))
-        Text(text = "Settings", fontSize = 26.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(10.dp))
+    }
 
-        // White container with rounded edges
-        Card(
+
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth(0.9f) // Adjust width
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp), // Rounded edges
-            colors = CardDefaults.cardColors(containerColor = Color.White)
-        ) {
-            Column(
-                modifier = Modifier.padding(10.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Row(
-                    modifier = Modifier.padding(5.dp),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Language:",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
+                .fillMaxSize()
 
-                    ExposedDropdownMenuBox(
-                        expanded = expanded,
-                        onExpandedChange = { expanded = !expanded }
+                .padding(top = 100.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
+        ) {
+
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = "Settings Icon",
+                tint = Color.Black,
+                modifier = Modifier.size(100.dp)
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(text = "Settings", fontSize = 26.sp, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // White container with rounded edges
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f) // Adjust width
+                    .padding(16.dp),
+                shape = RoundedCornerShape(16.dp), // Rounded edges
+                colors = CardDefaults.cardColors(containerColor = Color.White)
+            ) {
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        modifier = Modifier.padding(5.dp),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Language:",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+
+                        ExposedDropdownMenuBox(
+                            expanded = expanded,
+                            onExpandedChange = { expanded = !expanded }
+                        ) {
+                            Button(
+                                onClick = { expanded = true },
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .width(100.dp) // Cambia el ancho del botón
+                                    .height(35.dp) // Cambia la altura del botón
+                                    .background(
+                                        Brush.linearGradient(
+                                            colors = listOf(
+                                                Color(0xFF05C7F2),
+                                                Color(0xFF07F285)
+                                            )
+                                        ),
+                                        shape = RoundedCornerShape(12.dp)
+
+                                    )
+                                    .padding(0.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                                shape = RoundedCornerShape(12.dp),
+                            ) {
+                                Text(selectedOption)
+
+                            }
+
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                                modifier = Modifier
+                                    .width(100.dp) // Ajusta el ancho del menú
+                                    .offset(x = (10).dp, y = 5.dp)
+                            ) {
+                                options.forEach { option ->
+                                    DropdownMenuItem(
+                                        text = { Text(option) },
+                                        onClick = {
+                                            selectedOption = option
+                                            expanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(75.dp))
+                    Row (
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center // Centra los elementos en la fila
                     ) {
                         Button(
-                            onClick = { expanded = true },
-                            modifier = Modifier
-                                .menuAnchor()
-                                .width(100.dp) // Cambia el ancho del botón
-                                .height(35.dp) // Cambia la altura del botón
-                                .background(
-                                    Brush.linearGradient(
-                                        colors = listOf(
-                                            Color(0xFF05C7F2),
-                                            Color(0xFF07F285)
-                                        )
-                                    ),
-                                    shape = RoundedCornerShape(12.dp)
-
-                                )
-                                .padding(0.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                            shape = RoundedCornerShape(12.dp),
+                            onClick = { onNavigateToLogin() },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFA500)),
+                            shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text(selectedOption)
-
-                        }
-
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                            modifier = Modifier
-                                .width(100.dp) // Ajusta el ancho del menú
-                                .offset(x = (10).dp, y = 5.dp)
-                        ) {
-                            options.forEach { option ->
-                                DropdownMenuItem(
-                                    text = { Text(option) },
-                                    onClick = {
-                                        selectedOption = option
-                                        expanded = false
-                                    }
-                                )
-                            }
+                            Text("Log Out", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         }
                     }
-                }
-                Spacer(modifier = Modifier.height(75.dp))
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center // Centra los elementos en la fila
-                ) {
-                    Button(
-                        onClick = {
-                            updateUserStatus(context, newEstat = "offline") { response ->
-                                onNavigateToLogin()
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFA500)),
-                        shape = RoundedCornerShape(8.dp)
+                    Row (
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center // Centra los elementos en la fila
                     ) {
-                        Text("Log Out", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    }
-                }
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center // Centra los elementos en la fila
-                ) {
-                    Button(
-                        onClick = {onNavigateToLogin()},
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC62828)),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text("Delete User", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Button(
+                            onClick = {showDialog = true},
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC62828)),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("Delete User", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        }
                     }
                 }
             }
@@ -212,7 +237,10 @@ fun updateUserStatus(
     val call = RetrofitClient.apiService.updateProfile(CurrentUser.correu, request)
 
     call.enqueue(object : Callback<UpdateProfileResponse> {
-        override fun onResponse(call: Call<UpdateProfileResponse>, response: Response<UpdateProfileResponse>) {
+        override fun onResponse(
+            call: Call<UpdateProfileResponse>,
+            response: Response<UpdateProfileResponse>
+        ) {
             if (response.isSuccessful) {
                 val updatedUser = response.body()
                 if (updatedUser != null) {
@@ -226,6 +254,25 @@ fun updateUserStatus(
         }
 
         override fun onFailure(call: Call<UpdateProfileResponse>, t: Throwable) {
+            Toast.makeText(context, "Network error", Toast.LENGTH_SHORT).show()
+        }
+    })
+}
+
+fun deleteUser(context: Context, onSuccess: () -> Unit) {
+    val call: Call<Void> = RetrofitClient.apiService.deleteUser(CurrentUser.correu)
+
+    call.enqueue(object : Callback<Void> {
+        override fun onResponse(call: Call<Void>, response: Response<Void>) {
+            if (response.isSuccessful) {
+                Toast.makeText(context, "Account deleted successfully", Toast.LENGTH_SHORT).show()
+                onSuccess()
+            } else {
+                Toast.makeText(context, "Error deleting account", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        override fun onFailure(call: Call<Void>, t: Throwable) {
             Toast.makeText(context, "Network error", Toast.LENGTH_SHORT).show()
         }
     })

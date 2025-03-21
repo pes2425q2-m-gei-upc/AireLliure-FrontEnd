@@ -9,6 +9,7 @@ import com.front_pes.features.screens.user.UpdateProfileRequest
 import com.front_pes.features.screens.user.UpdateProfileResponse
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
@@ -29,4 +30,7 @@ interface ApiService {
 
     @POST("usuaris/create/")
     fun register(@Body request: RegisterRequest): Call<RegisterResponse>
+
+    @DELETE("usuaris/{pk}/delete/")
+    fun deleteUser(@Path("pk") userId: String): Call<Void>
 }

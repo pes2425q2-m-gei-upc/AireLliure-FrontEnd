@@ -65,7 +65,6 @@ fun UserPageScreen () {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xe3e3e3))
                 .padding(top = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top

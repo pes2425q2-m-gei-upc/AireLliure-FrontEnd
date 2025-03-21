@@ -2,6 +2,7 @@ package com.front_pes.ui.theme
 
 import android.app.Activity
 import android.os.Build
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -16,14 +17,16 @@ private val DarkColorScheme = darkColorScheme(
     primary = Color.Black,
     secondary = Color.Black,
     tertiary = Color.Black,
-    surface = Color.Gray
+    surface = Color(0xFFEFEFEF),
+    onSurface = Color(0xFF646464)
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = Color.Black,
     secondary = Color.Black,
     tertiary = Color.Black,
-    surface = Color.Gray
+    surface = Color(0xFFEFEFEF),
+    onSurface = Color(0xFF646464)
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

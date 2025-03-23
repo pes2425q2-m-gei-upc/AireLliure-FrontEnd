@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 
 const val MapScreenDestination = "Map"
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(viewModel: MapViewModel = viewModel()) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -34,6 +35,9 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
     val cameraPositionState = rememberCameraPositionState()
 
     val plazaCatalunya = LatLng(41.3825, 2.1912)
+
+    var selectedEstacio by remember { mutableStateOf<EstacioQualitatAireResponse?>(null) }
+    var isBottomSheetVisible by remember { mutableStateOf(false) }
 
     // Obtener estaciones de calidad del aire
     LaunchedEffect(Unit) {
@@ -67,6 +71,35 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
         }
     }
 
+    if (isBottomSheetVisible && selectedEstacio != null) {
+        ModalBottomSheet(
+            onDismissRequest = { isBottomSheetVisible = false }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = selectedEstacio!!.nom_estacio,
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Índice de calidad del aire: ${selectedEstacio!!.index_qualitat_aire}",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = { isBottomSheetVisible = false },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text("Cerrar")
+                }
+            }
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
@@ -81,7 +114,11 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                     ),
                     title = estacio.nom_estacio,
                     snippet = "Índice de calidad del aire: ${estacio.index_qualitat_aire}",
-                    onClick = { false }
+                    onClick = {
+                        selectedEstacio = estacio
+                        isBottomSheetVisible = true
+                        true
+                    }
                 )
             }
         }

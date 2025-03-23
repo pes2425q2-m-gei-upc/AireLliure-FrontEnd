@@ -64,7 +64,8 @@ fun LoginScreen(
             value = viewModel.email,
             onValueChange = { viewModel.onEmailChange(it) },
             label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -74,7 +75,8 @@ fun LoginScreen(
             onValueChange = { viewModel.onPasswordChange(it) },
             label = { Text("Password") },
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
 
         Spacer(modifier = Modifier.height(20.dp))

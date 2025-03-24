@@ -45,25 +45,53 @@ class MapViewModel : ViewModel() {
                 ) {
                     if (response.isSuccessful) {
                         response.body()?.let { rutas ->
-                            android.util.Log.d("API_RUTES", "Datos recibidos: $rutas")
                             onSuccess(rutas)
                         } ?: run {
                             onError("Respuesta vacía de la API")
-                            android.util.Log.e("API_RUTES", "Respuesta vacía")
                         }
                     } else {
                         onError("Error: ${response.code()}")
-                        android.util.Log.e("API_RUTES", "Código error: ${response.code()}")
                     }
                 }
 
                 override fun onFailure(call: Call<List<RutasResponse>>, t: Throwable) {
                     onError("Error de red: ${t.message}")
-                    android.util.Log.e("API_RUTES", "Fallo en la petición: ${t.message}")
                 }
             })
         }
     }
+
+    fun fetchPuntByID(
+        pk: Int,
+        onSuccess: (PuntsResponse) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            val call = RetrofitClient.apiService.getPuntByID(pk)
+            call.enqueue(object : Callback<PuntsResponse> {
+                override fun onResponse(
+                    call: Call<PuntsResponse>,
+                    response: Response<PuntsResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        response.body()?.let { punt ->
+                            onSuccess(punt)
+                        } ?: run {
+                            onError("Respuesta vacía")
+                        }
+                    } else {
+                        onError("Error respuesta: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<PuntsResponse>, t: Throwable) {
+                    onError("Fallo de red: ${t.message}")
+                }
+            })
+        }
+    }
+
+
 
 
 }

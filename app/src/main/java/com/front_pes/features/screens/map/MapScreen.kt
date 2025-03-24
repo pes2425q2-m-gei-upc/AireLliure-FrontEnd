@@ -16,8 +16,14 @@ import com.google.maps.android.compose.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 
 const val MapScreenDestination = "Map"
+
+data class RutaAmbPunt(
+    val ruta: RutasResponse,
+    val punt: PuntsResponse
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,11 +35,8 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
     var locationPermissionGranted by remember { mutableStateOf(false) }
     var showPermissionRequest by remember { mutableStateOf(false) }
 
-    // Lista mutable para estaciones
     val estacions = remember { mutableStateListOf<EstacioQualitatAireResponse>() }
-
-    val rutes = remember { mutableStateListOf<RutasResponse>() }
-
+    val rutesAmbPunt = remember { mutableStateListOf<RutaAmbPunt>() }
 
     val cameraPositionState = rememberCameraPositionState()
 
@@ -42,7 +45,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
     var selectedEstacio by remember { mutableStateOf<EstacioQualitatAireResponse?>(null) }
     var isBottomSheetVisible by remember { mutableStateOf(false) }
 
-    // Obtener estaciones de calidad del aire
+    // Obtener estaciones de calidad del aire y rutas con puntos de inicio
     LaunchedEffect(Unit) {
         viewModel.fetchEstacionsQualitatAire(
             onSuccess = { estaciones ->
@@ -51,13 +54,22 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
             },
             onError = { errorMessage -> }
         )
-        // Obtener rutas
+
         viewModel.fetchRutes(
             onSuccess = { rutesList ->
-                rutes.clear()
-                rutes.addAll(rutesList)
                 rutesList.forEach { ruta ->
-                    android.util.Log.d("MAP_SCREEN", "Ruta ID: ${ruta.id}")
+                    ruta.punt_inici?.let { puntId ->
+                        viewModel.fetchPuntByID(
+                            pk = puntId,
+                            onSuccess = { punt ->
+                                rutesAmbPunt.add(RutaAmbPunt(ruta = ruta, punt = punt))
+                                android.util.Log.d("MAP_SCREEN", "Ruta: ${ruta.nom} - Punto: (${punt.latitud}, ${punt.longitud})")
+                            },
+                            onError = { errorMsg ->
+                                android.util.Log.e("MAP_SCREEN", "Error obteniendo punt_inici: $errorMsg")
+                            }
+                        )
+                    }
                 }
             },
             onError = { errorMsg ->
@@ -122,7 +134,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
             cameraPositionState = cameraPositionState,
             properties = MapProperties(isMyLocationEnabled = locationPermissionGranted)
         ) {
-            // Dibujar Markers solo si hay estaciones disponibles
+            // Markers para estaciones de calidad del aire
             estacions.forEach { estacio ->
                 Marker(
                     state = MarkerState(
@@ -134,12 +146,23 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                         selectedEstacio = estacio
                         isBottomSheetVisible = true
                         true
-                    }
+                    },
+                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
+                )
+            }
+
+            // Markers para rutas
+            rutesAmbPunt.forEach { (ruta, punt) ->
+                Marker(
+                    state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
+                    title = ruta.nom,
+                    snippet = "Distancia: ${ruta.dist_km} km",
+                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
                 )
             }
         }
 
-        // Mensaje de permisos si no están concedidos
+        // Mensaje si los permisos no están concedidos
         if (showPermissionRequest) {
             Text(
                 text = "Para acceder a tu ubicación, por favor otórganos los permisos.",

@@ -35,4 +35,35 @@ class MapViewModel : ViewModel() {
         }
     }
 
+    fun fetchRutes(onSuccess: (List<RutasResponse>) -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            val call = RetrofitClient.apiService.getRutas()
+            call.enqueue(object : Callback<List<RutasResponse>> {
+                override fun onResponse(
+                    call: Call<List<RutasResponse>>,
+                    response: Response<List<RutasResponse>>
+                ) {
+                    if (response.isSuccessful) {
+                        response.body()?.let { rutas ->
+                            android.util.Log.d("API_RUTES", "Datos recibidos: $rutas")
+                            onSuccess(rutas)
+                        } ?: run {
+                            onError("Respuesta vacía de la API")
+                            android.util.Log.e("API_RUTES", "Respuesta vacía")
+                        }
+                    } else {
+                        onError("Error: ${response.code()}")
+                        android.util.Log.e("API_RUTES", "Código error: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<List<RutasResponse>>, t: Throwable) {
+                    onError("Error de red: ${t.message}")
+                    android.util.Log.e("API_RUTES", "Fallo en la petición: ${t.message}")
+                }
+            })
+        }
+    }
+
+
 }

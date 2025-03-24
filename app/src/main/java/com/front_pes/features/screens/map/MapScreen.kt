@@ -32,6 +32,9 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
     // Lista mutable para estaciones
     val estacions = remember { mutableStateListOf<EstacioQualitatAireResponse>() }
 
+    val rutes = remember { mutableStateListOf<RutasResponse>() }
+
+
     val cameraPositionState = rememberCameraPositionState()
 
     val plazaCatalunya = LatLng(41.3825, 2.1912)
@@ -47,6 +50,19 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                 estacions.addAll(estaciones)
             },
             onError = { errorMessage -> }
+        )
+        // Obtener rutas
+        viewModel.fetchRutes(
+            onSuccess = { rutesList ->
+                rutes.clear()
+                rutes.addAll(rutesList)
+                rutesList.forEach { ruta ->
+                    android.util.Log.d("MAP_SCREEN", "Ruta ID: ${ruta.id}")
+                }
+            },
+            onError = { errorMsg ->
+                android.util.Log.e("MAP_SCREEN", "Error cargando rutas: $errorMsg")
+            }
         )
     }
 

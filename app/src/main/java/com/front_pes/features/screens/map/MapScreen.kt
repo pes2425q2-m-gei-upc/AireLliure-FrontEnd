@@ -43,6 +43,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
     val plazaCatalunya = LatLng(41.3825, 2.1912)
 
     var selectedEstacio by remember { mutableStateOf<EstacioQualitatAireResponse?>(null) }
+    var selectedRuta by remember { mutableStateOf<RutaAmbPunt?>(null) }
     var isBottomSheetVisible by remember { mutableStateOf(false) }
 
     // Obtener estaciones de calidad del aire y rutas con puntos de inicio
@@ -99,24 +100,42 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
         }
     }
 
-    if (isBottomSheetVisible && selectedEstacio != null) {
+    if (isBottomSheetVisible && (selectedEstacio != null || selectedRuta != null)) {
         ModalBottomSheet(
-            onDismissRequest = { isBottomSheetVisible = false }
+            onDismissRequest = {
+                isBottomSheetVisible = false
+                selectedEstacio = null
+                selectedRuta = null
+            }
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                Text(
-                    text = selectedEstacio!!.nom_estacio,
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Índice de calidad del aire: ${selectedEstacio!!.index_qualitat_aire}",
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                selectedEstacio?.let {
+                    Text(
+                        text = it.nom_estacio,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Índice de calidad del aire: ${it.index_qualitat_aire}",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+
+                selectedRuta?.let {
+                    Text(
+                        text = it.ruta.nom,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Distancia: ${it.ruta.dist_km} km",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = { isBottomSheetVisible = false },
@@ -141,7 +160,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                         position = LatLng(estacio.latitud, estacio.longitud)
                     ),
                     title = estacio.nom_estacio,
-                    snippet = "Índice de calidad del aire: ${estacio.index_qualitat_aire}",
+                    //snippet = "Índice de calidad del aire: ${estacio.index_qualitat_aire}",
                     onClick = {
                         selectedEstacio = estacio
                         isBottomSheetVisible = true
@@ -156,8 +175,13 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                 Marker(
                     state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
                     title = ruta.nom,
-                    snippet = "Distancia: ${ruta.dist_km} km",
-                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+                    //snippet = "Distancia: ${ruta.dist_km} km",
+                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
+                    onClick = {
+                        selectedRuta = RutaAmbPunt(ruta, punt)
+                        isBottomSheetVisible = true
+                        true
+                    }
                 )
             }
         }

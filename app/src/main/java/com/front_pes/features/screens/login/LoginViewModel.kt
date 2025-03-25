@@ -9,6 +9,8 @@ import com.front_pes.CurrentUser
 import com.front_pes.features.screens.login.LoginRequest
 import com.front_pes.features.screens.login.LoginResponse
 import com.front_pes.network.RetrofitClient
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -28,13 +30,18 @@ class LoginViewModel : ViewModel() {
         password = newPassword
     }
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     var errorMessage by mutableStateOf<String?>(null)
 
     fun login(onSuccess: () -> Unit) {
+        _isLoading.value = true
         viewModelScope.launch {
             val call = RetrofitClient.apiService.login(LoginRequest(correu = email, password = password))
             call.enqueue(object : Callback<LoginResponse> {
                 override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                    _isLoading.value = false
                     if (response.code() == 200) {
                         response.body()?.let { userData ->
                             CurrentUser.correu = userData.correu
@@ -56,6 +63,7 @@ class LoginViewModel : ViewModel() {
                 }
 
                 override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                    _isLoading.value = false
                     errorMessage = "Network error: ${t.message}"
                 }
             })

@@ -41,6 +41,8 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit)
 {
     val context = LocalContext.current
+    val isLoading by viewModel.isLoading.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -111,6 +113,11 @@ fun LoginScreen(
         // Mostrar mensaje de error si hay un fallo en el login
         if (viewModel.errorMessage != null) {
             Text(viewModel.errorMessage!!, color = Color.Red, modifier = Modifier.padding(top = 10.dp))
+        }
+
+        if (isLoading) {
+            Spacer(modifier = Modifier.height(10.dp))
+            CircularProgressIndicator()
         }
 
         Spacer(modifier = Modifier.height(20.dp))

@@ -42,14 +42,81 @@ import com.front_pes.R
 import com.front_pes.network.RetrofitClient
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.front_pes.features.screens.settings.LanguageViewModel
+import com.front_pes.getString
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.Locale
 
 const val UserPageScreenDestination = "UserPage"
 
 @Composable
-fun UserPageScreen () {
+fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
+    var newName by remember { mutableStateOf(CurrentUser.nom) }
+    var newAbout by remember { mutableStateOf(CurrentUser.about) }
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+    val context = LocalContext.current
+
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.edit_p)) },
+        text = {
+            Column {
+                OutlinedTextField(value = newName, onValueChange = { newName = it }, label = { Text(text = getString(context, R.string.username, selectedLanguage)) })
+                OutlinedTextField(value = newAbout, onValueChange = { newAbout = it }, label = { Text(text = getString(context, R.string.about, selectedLanguage)) })
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onSave(newName, newAbout) }) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+fun updateUserProfile(
+    context: android.content.Context,
+    newName: String? = null,
+    newAbout: String? = null,
+    newStatus: String? = null,
+    onSuccess: (UpdateProfileResponse) -> Unit)
+{
+    val request = UpdateProfileRequest(nom = newName, about = newAbout, estat = newStatus)
+    val call = RetrofitClient.apiService.updateProfile(CurrentUser.correu, request)
+
+    call.enqueue(object : Callback<UpdateProfileResponse> {
+        override fun onResponse(call: Call<UpdateProfileResponse>, response: Response<UpdateProfileResponse>) {
+            if (response.isSuccessful) {
+                val updatedUser = response.body()
+                if (updatedUser != null) {
+                    CurrentUser.nom = updatedUser.nom
+                    CurrentUser.about = updatedUser.about
+                    onSuccess(updatedUser)
+                    Toast.makeText(context, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(context, "Error updating profile", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        override fun onFailure(call: Call<UpdateProfileResponse>, t: Throwable) {
+            Toast.makeText(context, "Network error", Toast.LENGTH_SHORT).show()
+        }
+    })
+}
+
+@Composable
+fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
 
     val punts = CurrentUser.punts;
     val correu = CurrentUser.correu;
@@ -60,12 +127,14 @@ fun UserPageScreen () {
 
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
+    var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xe3e3e3))
                 .padding(top = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
@@ -86,7 +155,7 @@ fun UserPageScreen () {
 
             Row {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Friends", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(text = getString(context, R.string.friends, selectedLanguage), fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(5.dp))
                     Text(
                         text = "0",
@@ -97,7 +166,7 @@ fun UserPageScreen () {
                 Spacer(modifier = Modifier.width(30.dp))
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Points", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(text = getString(context, R.string.points, selectedLanguage), fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(5.dp))
                     Text(
                         text = "${punts}",
@@ -125,7 +194,7 @@ fun UserPageScreen () {
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
-                    "Edit Profile",
+                    text = getString(context, R.string.edit_p, selectedLanguage),
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
@@ -148,7 +217,7 @@ fun UserPageScreen () {
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            Text(text = "User Info", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(text = getString(context, R.string.user_info, selectedLanguage), fontSize = 20.sp, fontWeight = FontWeight.Bold)
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -165,7 +234,7 @@ fun UserPageScreen () {
                         horizontalArrangement = Arrangement.Start
                     ) {
                         Text(
-                            text = "About me:",
+                            text = getString(context, R.string.about, selectedLanguage) + ": ",
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp
                         )
@@ -181,141 +250,83 @@ fun UserPageScreen () {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "State: ",
+                            text = getString(context, R.string.state, selectedLanguage) + ": ",
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp
                         )
 
-                        if (estat == "actiu") {
-                            Box(
-                                modifier = Modifier
-                                    .background(
-                                        Color(0xFF00C853),
-                                        shape = RoundedCornerShape(12.dp)
-                                    ) // Color de fondo
-                                    .padding(4.dp), // Espaciado interno para el texto
-                            ) {
-                                Text(
-                                    text = "Online",  //HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 15.sp
-                                )
-                            }
-                        } else {
-                            Box(
-                                modifier = Modifier
-                                    .background(
-                                        Color.LightGray,
-                                        shape = RoundedCornerShape(12.dp)
-                                    ) // Color de fondo
-                                    .padding(4.dp), // Espaciado interno para el texto
-                            ) {
-                                Text(
-                                    text = "Offline",  //HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 15.sp
-                                )
-                            }
-                        }
-                    }
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        Text(
-                            text = "Ratings: ",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp
-                        )
-                        Text(
-                            text = "0",  //HA DE CONCORDAR AMBM EL NOMBRE DE VALORACIONS POSADES PER L'USUARI
-                            fontSize = 15.sp
-                        )
-                    }
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "User Type: ",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp
-                        )
+                    if (estat == "actiu") {
                         Box(
                             modifier = Modifier
                                 .background(
-                                    Color(0xFFFF5252),
+                                    Color(0xFF00C853),
                                     shape = RoundedCornerShape(12.dp)
                                 ) // Color de fondo
                                 .padding(4.dp), // Espaciado interno para el texto
                         ) {
                             Text(
-                                text = "Administrator",  //HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
+                                text = getString(context, R.string.online, selectedLanguage),  //HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp
+                            )
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .background(
+                                    Color.LightGray,
+                                    shape = RoundedCornerShape(12.dp)
+                                ) // Color de fondo
+                                .padding(4.dp), // Espaciado interno para el texto
+                        ) {
+                            Text(
+                                text = getString(context, R.string.offline, selectedLanguage),  //HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 15.sp
                             )
                         }
                     }
                 }
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    Text(
+                        text = getString(context, R.string.ratings, selectedLanguage) + ": ",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp
+                    )
+                    Text(
+                        text = "0",  //HA DE CONCORDAR AMBM EL NOMBRE DE VALORACIONS POSADES PER L'USUARI
+                        fontSize = 15.sp
+                    )
+                }
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = getString(context, R.string.usertype, selectedLanguage) + ": ",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp
+                    )
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                Color(0xFFFF5252),
+                                shape = RoundedCornerShape(12.dp)
+                            ) // Color de fondo
+                            .padding(4.dp), // Espaciado interno para el texto
+                    ) {
+                        Text(
+                            text = getString(context, R.string.admin, selectedLanguage),  //HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp
+                        )
+                    }
+                }
             }
         }
     }
-}
-
-@Composable
-fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
-    var newName by remember { mutableStateOf(CurrentUser.nom) }
-    var newAbout by remember { mutableStateOf(CurrentUser.about) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Edit Profile") },
-        text = {
-            Column {
-                OutlinedTextField(value = newName, onValueChange = { newName = it }, label = { Text("Name") })
-                OutlinedTextField(value = newAbout, onValueChange = { newAbout = it }, label = { Text("About") })
-            }
-        },
-        confirmButton = {
-            Button(onClick = { onSave(newName, newAbout) }) {
-                Text("Save")
-            }
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
-
-fun updateUserProfile(
-    context: android.content.Context,
-    newName: String,
-    newAbout: String,
-    onSuccess: (UpdateProfileResponse) -> Unit)
-{
-    val request = UpdateProfileRequest(nom = newName, about = newAbout)
-    val call = RetrofitClient.apiService.updateProfile(CurrentUser.correu, request)
-
-    call.enqueue(object : Callback<UpdateProfileResponse> {
-        override fun onResponse(call: Call<UpdateProfileResponse>, response: Response<UpdateProfileResponse>) {
-            if (response.isSuccessful) {
-                val updatedUser = response.body()
-                if (updatedUser != null) {
-                    CurrentUser.nom = updatedUser.nom
-                    CurrentUser.about = updatedUser.about
-                    onSuccess(updatedUser)
-                    Toast.makeText(context, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                Toast.makeText(context, "Error updating profile", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        override fun onFailure(call: Call<UpdateProfileResponse>, t: Throwable) {
-            Toast.makeText(context, "Network error", Toast.LENGTH_SHORT).show()
-        }
-    })
-}
+}}

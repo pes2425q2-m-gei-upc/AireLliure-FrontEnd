@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "8587200690",
+    "project_id": "airelliurepes",
+    "storage_bucket": "airelliurepes.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:8587200690:android:dad72389ca0ad3e52121ab",
+        "android_client_info": {
+          "package_name": "com.front_pes"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "8587200690-earg2nvnltfetnb4ng8pl1uil25r12sc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.front_pes",
+            "certificate_hash": "f5ec5852e68c036a89ca02ee1d7aad0c591550f9"
+          }
+        },
+        {
+          "client_id": "8587200690-n4o3qjmpcp8lemk9kgki9v8drpepmlb3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChgCcboHWISXn1rvj0HLOzBN05mXNaUMI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "8587200690-n4o3qjmpcp8lemk9kgki9v8drpepmlb3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

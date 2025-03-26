@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">FRONT-PES</string>
+    <string name="login">Inicia Sessió</string>
+    <string name="password">Contrasenya</string>
+    <string name="LOGIN">INICIA SESSIÓ</string>
+    <string name="no_ac">Si no tens un compte</string>
+    <string name="SIGNUP">REGISTRA\'T</string>
+    <string name="signup">Registra\'t</string>
+    <string name="username">Nom d\'Usuari</string>
+    <string name="rpassword">Repeteix Contrasenya</string>
+    <string name="profile">Perfil</string>
+    <string name="map">Mapa</string>
+    <string name="settings">Configuració</string>
+    <string name="chats">Conversacions</string>
+    <string name="friends">Amics</string>
+    <string name="airQ">Qualitat de l\'Aire</string>
+    <string name="routes">Rutes</string>
+    <string name="points">Punts</string>
+    <string name="edit_p">Editar Perfil</string>
+    <string name="user_info">Informació d\'Usuari</string>
+    <string name="about">Sobre mi</string>
+    <string name="state">Estat</string>
+    <string name="ratings">Valoracions</string>
+    <string name="usertype">Tipus d\'Usuari</string>
+    <string name="online">En línia</string>
+    <string name="offline">Desconnectat</string>
+    <string name="admin">Administrador</string>
+    <string name="common">Comú</string>
+    <string name="language">Idioma</string>
+    <string name="logout">Tancar Sessió</string>
+    <string name="delete_user">Eliminar Usuari</string>
+</resources>

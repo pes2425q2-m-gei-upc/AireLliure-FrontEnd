@@ -8,6 +8,12 @@ plugins {
 
     //Pasar del local.properties al AndroidManifest
     alias(libs.plugins.secrets.gradle.plugin)
+
+    //Google
+    id("com.google.gms.google-services")
+
+
+
 }
 
 android {
@@ -56,6 +62,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.play.services.location)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.common.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -78,9 +86,18 @@ dependencies {
     implementation(libs.google.maps.compose)
     implementation(libs.play.services.maps)
 
+    //Google Services
+    implementation ("com.google.android.gms:play-services-auth:20.7.0")
+
     //Compose
     implementation(libs.compose.navigation)
 
+    //Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.11.0"))
+    implementation("com.google.firebase:firebase-auth-ktx")
+
     //Kotlin
     implementation(libs.kotlin.serialization.json)
+
+
 }

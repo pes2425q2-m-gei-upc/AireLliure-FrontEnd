@@ -1,5 +1,8 @@
 package com.front_pes.features.screens.login
 
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -32,6 +35,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.R
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.getString
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.auth.api.signin.internal.GoogleSignInOptionsExtensionParcelable
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.GoogleAuthProvider
 
 const val LoginScreenDestination = "Login"
 
@@ -42,10 +50,25 @@ fun LoginScreen(
     onNavigateToMap: () -> Unit,
     onNavigateToRegister: () -> Unit)
 {
-
+    val token = "8587200690-n4o3qjmpcp8lemk9kgki9v8drpepmlb3.apps.googleusercontent.com"
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts
+        .StartActivityForResult()
+    ) {
+        val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+            viewModel.signInWithGoogleCredential(credential) {
+                onNavigateToMap()
+            }
+        }
+        catch (ex: Exception) {
+            Log.d("AireLliure", "GoogleSignIn ha fallat")
+        }
+    }
 
 
     Column(
@@ -139,7 +162,16 @@ fun LoginScreen(
             }
             Spacer(modifier = Modifier.width(20.dp))
             Button(
-                onClick = {},
+                onClick = {
+                    val opciones = GoogleSignInOptions.Builder(
+                        GoogleSignInOptions.DEFAULT_SIGN_IN
+                    )
+                        .requestIdToken(token)
+                        .requestEmail()
+                        .build()
+                    val googleSignInCliente = GoogleSignIn.getClient(context, opciones)
+                    launcher.launch(googleSignInCliente.signInIntent)
+                },
                 modifier = Modifier
                     .shadow(2.dp, RoundedCornerShape(8.dp))
                     .weight(0.7f),

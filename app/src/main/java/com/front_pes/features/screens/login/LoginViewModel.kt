@@ -1,5 +1,6 @@
 package com.front_pes.features.screens.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.compose.runtime.mutableStateOf
@@ -9,16 +10,42 @@ import com.front_pes.CurrentUser
 import com.front_pes.features.screens.login.LoginRequest
 import com.front_pes.features.screens.login.LoginResponse
 import com.front_pes.network.RetrofitClient
+import com.google.firebase.Firebase
+import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class LoginViewModel : ViewModel() {
+    private val auth: FirebaseAuth = Firebase.auth
     var email by mutableStateOf("")
         private set
     var password by mutableStateOf("")
         private set
+
+    fun signInWithGoogleCredential(credential: AuthCredential, home:() -> Unit)
+    = viewModelScope.launch {
+        try {
+            auth.signInWithCredential(credential)
+                .addOnCompleteListener { task->
+                    if (task.isSuccessful) {
+                        Log.d("AireLliure", "Loguejat amb Google Exitòs!")
+                        home()
+                    }
+                }
+                .addOnFailureListener {
+                    Log.d("AireLliure", "Errada en loguejar amb Google")
+                }
+
+        }
+        catch (ex:Exception) {
+            Log.d("AireLliure", "Excepció al loguejar amb Google" +
+            "${ex.localizedMessage}")
+        }
+    }
 
     fun onEmailChange(newEmail: String) {
         email = newEmail

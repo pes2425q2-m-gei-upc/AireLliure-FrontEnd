@@ -3,6 +3,7 @@ package com.front_pes.features.screens.map
 import android.Manifest
 import android.content.pm.PackageManager
 import android.location.Location
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -17,6 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.front_pes.utils.SelectorIndex
+
+
 
 const val MapScreenDestination = "Map"
 
@@ -28,6 +32,10 @@ data class RutaAmbPunt(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
+
+    val selectedIndex by remember { derivedStateOf { SelectorIndex.selectedIndex } }
+
+
     val context = androidx.compose.ui.platform.LocalContext.current
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
@@ -39,14 +47,13 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
     val rutesAmbPunt = remember { mutableStateListOf<RutaAmbPunt>() }
 
     val cameraPositionState = rememberCameraPositionState()
-
     val plazaCatalunya = LatLng(41.3825, 2.1912)
 
     var selectedEstacio by remember { mutableStateOf<EstacioQualitatAireResponse?>(null) }
     var selectedRuta by remember { mutableStateOf<RutaAmbPunt?>(null) }
     var isBottomSheetVisible by remember { mutableStateOf(false) }
 
-    // Obtener estaciones de calidad del aire y rutas con puntos de inicio
+    // Cargar datos de la API
     LaunchedEffect(Unit) {
         viewModel.fetchEstacionsQualitatAire(
             onSuccess = { estaciones ->
@@ -64,22 +71,21 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                             pk = puntId,
                             onSuccess = { punt ->
                                 rutesAmbPunt.add(RutaAmbPunt(ruta = ruta, punt = punt))
-                                android.util.Log.d("MAP_SCREEN", "Ruta: ${ruta.nom} - Punto: (${punt.latitud}, ${punt.longitud})")
                             },
                             onError = { errorMsg ->
-                                android.util.Log.e("MAP_SCREEN", "Error obteniendo punt_inici: $errorMsg")
+                                Log.e("MAP_SCREEN", "Error obteniendo punt_inici: $errorMsg")
                             }
                         )
                     }
                 }
             },
             onError = { errorMsg ->
-                android.util.Log.e("MAP_SCREEN", "Error cargando rutas: $errorMsg")
+                Log.e("MAP_SCREEN", "Error cargando rutas: $errorMsg")
             }
         )
     }
 
-    // Verificar permisos y obtener la ubicación del usuario
+    // Ubicación del usuario
     LaunchedEffect(Unit) {
         when {
             ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED -> {
@@ -100,6 +106,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
         }
     }
 
+    // Modal inferior
     if (isBottomSheetVisible && (selectedEstacio != null || selectedRuta != null)) {
         ModalBottomSheet(
             onDismissRequest = {
@@ -114,28 +121,17 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                     .padding(16.dp)
             ) {
                 selectedEstacio?.let {
-                    Text(
-                        text = it.nom_estacio,
-                        style = MaterialTheme.typography.headlineSmall
-                    )
+                    Text(it.nom_estacio, style = MaterialTheme.typography.headlineSmall)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Índice de calidad del aire: ${it.index_qualitat_aire}",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                    Text("Índice de calidad del aire: ${it.index_qualitat_aire}", style = MaterialTheme.typography.bodyLarge)
                 }
 
                 selectedRuta?.let {
-                    Text(
-                        text = it.ruta.nom,
-                        style = MaterialTheme.typography.headlineSmall
-                    )
+                    Text(it.ruta.nom, style = MaterialTheme.typography.headlineSmall)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Distancia: ${it.ruta.dist_km} km",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                    Text("Distancia: ${it.ruta.dist_km} km", style = MaterialTheme.typography.bodyLarge)
                 }
+
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = { isBottomSheetVisible = false },
@@ -147,46 +143,70 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
         }
     }
 
+    // Mapa
     Box(modifier = Modifier.fillMaxSize()) {
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
             properties = MapProperties(isMyLocationEnabled = locationPermissionGranted)
         ) {
-            // Markers para estaciones de calidad del aire
-            estacions.forEach { estacio ->
-                Marker(
-                    state = MarkerState(
-                        position = LatLng(estacio.latitud, estacio.longitud)
-                    ),
-                    title = estacio.nom_estacio,
-                    //snippet = "Índice de calidad del aire: ${estacio.index_qualitat_aire}",
-                    onClick = {
-                        selectedEstacio = estacio
-                        isBottomSheetVisible = true
-                        true
-                    },
-                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
-                )
-            }
-
-            // Markers para rutas
-            rutesAmbPunt.forEach { (ruta, punt) ->
-                Marker(
-                    state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
-                    title = ruta.nom,
-                    //snippet = "Distancia: ${ruta.dist_km} km",
-                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
-                    onClick = {
-                        selectedRuta = RutaAmbPunt(ruta, punt)
-                        isBottomSheetVisible = true
-                        true
-                    }
-                )
+            if (selectedIndex == 0) {
+                // Solo estaciones
+                estacions.forEach { estacio ->
+                    Marker(
+                        state = MarkerState(position = LatLng(estacio.latitud, estacio.longitud)),
+                        title = estacio.nom_estacio,
+                        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
+                        onClick = {
+                            selectedEstacio = estacio
+                            isBottomSheetVisible = true
+                            true
+                        }
+                    )
+                }
+            } else if (selectedIndex == 1) {
+                // Solo rutas
+                rutesAmbPunt.forEach { (ruta, punt) ->
+                    Marker(
+                        state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
+                        title = ruta.nom,
+                        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
+                        onClick = {
+                            selectedRuta = RutaAmbPunt(ruta, punt)
+                            isBottomSheetVisible = true
+                            true
+                        }
+                    )
+                }
+            } else {
+                // Ambas
+                estacions.forEach { estacio ->
+                    Marker(
+                        state = MarkerState(position = LatLng(estacio.latitud, estacio.longitud)),
+                        title = estacio.nom_estacio,
+                        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
+                        onClick = {
+                            selectedEstacio = estacio
+                            isBottomSheetVisible = true
+                            true
+                        }
+                    )
+                }
+                rutesAmbPunt.forEach { (ruta, punt) ->
+                    Marker(
+                        state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
+                        title = ruta.nom,
+                        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
+                        onClick = {
+                            selectedRuta = RutaAmbPunt(ruta, punt)
+                            isBottomSheetVisible = true
+                            true
+                        }
+                    )
+                }
             }
         }
 
-        // Mensaje si los permisos no están concedidos
         if (showPermissionRequest) {
             Text(
                 text = "Para acceder a tu ubicación, por favor otórganos los permisos.",

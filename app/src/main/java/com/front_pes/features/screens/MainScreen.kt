@@ -1,5 +1,6 @@
 package com.front_pes.features.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -57,6 +58,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.front_pes.CurrentUser
 import com.front_pes.R
 import com.front_pes.features.screens.login.LoginScreenDestination
 import com.front_pes.features.screens.map.MapScreen
@@ -67,7 +69,11 @@ import com.front_pes.getString
 import kotlinx.coroutines.launch
 import java.util.Locale
 
+import com.front_pes.utils.SelectorIndex
+
+
 const val MainScreenDestination = "Main"
+
 
 @Composable
 fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () -> Unit) {
@@ -114,8 +120,8 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
                 .padding(bottom = 8.dp),
             tint = Color.Unspecified
         )
-        Text("User", fontSize = 18.sp, color = Color.Black)
-        Text("user@gmail.com", fontSize = 14.sp, color = Color.Gray)
+        Text(CurrentUser.nom, fontSize = 18.sp, color = Color.Black)
+        Text(CurrentUser.correu, fontSize = 14.sp, color = Color.Gray)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -210,7 +216,7 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
                 selectedIndex = selectedIndex,
                 onItemClicked = { index ->
                     selectedIndex = index
-                    scope.launch { drawerState.close() } // Cerrar menú después de elegir
+                    scope.launch { drawerState.close() }
                 }
             )
         },
@@ -219,16 +225,16 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                Column( // Agregamos un Column para darle más espacio superior
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color(0xFFEEEDF4))
-                        .padding(top = 10.dp) // Aumentamos el padding superior
+                        .padding(top = 10.dp)
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFFEEEDF4)) // Color de fondo similar a la imagen
+                            .background(Color(0xFFEEEDF4))
                             .padding(horizontal = 0.dp, vertical = 5.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -241,7 +247,6 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
                             )
                         }
                         if (!hideBars) {
-                            // Barra de búsqueda
                             Box(
                                 modifier = Modifier
                                     .weight(1f)
@@ -287,9 +292,18 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
                 if (!hideBars) {
                     NavigationBar {
                         navItemList.forEachIndexed { index, navItem ->
+                            val isSelected = SelectorIndex.selectedIndex == index
+
                             NavigationBarItem(
-                                selected = selectedIndex == index,
-                                onClick = { selectedIndex = index },
+                                selected = isSelected,
+                                onClick = {
+                                    if (isSelected) {
+                                        // Deselecciona si ya estaba activo
+                                        SelectorIndex.selectedIndex = -1
+                                    } else {
+                                        SelectorIndex.selectedIndex = index
+                                    }
+                                },
                                 icon = {
                                     Icon(imageVector = navItem.icon, contentDescription = "Icon")
                                 },

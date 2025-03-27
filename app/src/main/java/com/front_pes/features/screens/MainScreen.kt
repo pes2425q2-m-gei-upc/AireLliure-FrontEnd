@@ -305,10 +305,10 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
                                     }
                                 },
                                 icon = {
-                                    Icon(imageVector = navItem.icon, contentDescription = "Icon")
+                                    Icon(imageVector = navItem.icon, contentDescription = "Icon", tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
                                 },
                                 label = {
-                                    Text(text = navItem.label)
+                                    Text(text = navItem.label, color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
                                 }
                             )
                         }

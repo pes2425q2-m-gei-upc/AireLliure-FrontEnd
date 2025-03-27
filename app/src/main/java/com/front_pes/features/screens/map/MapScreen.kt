@@ -105,118 +105,119 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
             }
         }
     }
-
-    // Modal inferior
-    if (isBottomSheetVisible && (selectedEstacio != null || selectedRuta != null)) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                isBottomSheetVisible = false
-                selectedEstacio = null
-                selectedRuta = null
-            }
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+    Surface(modifier = Modifier.fillMaxSize()) {
+        // Modal inferior
+        if (isBottomSheetVisible && (selectedEstacio != null || selectedRuta != null)) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    isBottomSheetVisible = false
+                    selectedEstacio = null
+                    selectedRuta = null
+                }
             ) {
-                selectedEstacio?.let {
-                    Text(it.nom_estacio, style = MaterialTheme.typography.headlineSmall)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Índice de calidad del aire: ${it.index_qualitat_aire}", style = MaterialTheme.typography.bodyLarge)
-                }
-
-                selectedRuta?.let {
-                    Text(it.ruta.nom, style = MaterialTheme.typography.headlineSmall)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Distancia: ${it.ruta.dist_km} km", style = MaterialTheme.typography.bodyLarge)
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = { isBottomSheetVisible = false },
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
                 ) {
-                    Text("Cerrar")
-                }
-            }
-        }
-    }
+                    selectedEstacio?.let {
+                        Text(it.nom_estacio, style = MaterialTheme.typography.headlineSmall)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Índice de calidad del aire: ${it.index_qualitat_aire}", style = MaterialTheme.typography.bodyLarge)
+                    }
 
-    // Mapa
-    Box(modifier = Modifier.fillMaxSize()) {
-        GoogleMap(
-            modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState,
-            properties = MapProperties(isMyLocationEnabled = locationPermissionGranted)
-        ) {
-            if (selectedIndex == 0) {
-                // Solo estaciones
-                estacions.forEach { estacio ->
-                    Marker(
-                        state = MarkerState(position = LatLng(estacio.latitud, estacio.longitud)),
-                        title = estacio.nom_estacio,
-                        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
-                        onClick = {
-                            selectedEstacio = estacio
-                            isBottomSheetVisible = true
-                            true
-                        }
-                    )
-                }
-            } else if (selectedIndex == 1) {
-                // Solo rutas
-                rutesAmbPunt.forEach { (ruta, punt) ->
-                    Marker(
-                        state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
-                        title = ruta.nom,
-                        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
-                        onClick = {
-                            selectedRuta = RutaAmbPunt(ruta, punt)
-                            isBottomSheetVisible = true
-                            true
-                        }
-                    )
-                }
-            } else {
-                // Ambas
-                estacions.forEach { estacio ->
-                    Marker(
-                        state = MarkerState(position = LatLng(estacio.latitud, estacio.longitud)),
-                        title = estacio.nom_estacio,
-                        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
-                        onClick = {
-                            selectedEstacio = estacio
-                            isBottomSheetVisible = true
-                            true
-                        }
-                    )
-                }
-                rutesAmbPunt.forEach { (ruta, punt) ->
-                    Marker(
-                        state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
-                        title = ruta.nom,
-                        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
-                        onClick = {
-                            selectedRuta = RutaAmbPunt(ruta, punt)
-                            isBottomSheetVisible = true
-                            true
-                        }
-                    )
+                    selectedRuta?.let {
+                        Text(it.ruta.nom, style = MaterialTheme.typography.headlineSmall)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Distancia: ${it.ruta.dist_km} km", style = MaterialTheme.typography.bodyLarge)
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = { isBottomSheetVisible = false },
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        Text("Cerrar")
+                    }
                 }
             }
         }
 
-        if (showPermissionRequest) {
-            Text(
-                text = "Para acceder a tu ubicación, por favor otórganos los permisos.",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(16.dp)
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f))
-                    .padding(16.dp)
-            )
+        // Mapa
+        Box(modifier = Modifier.fillMaxSize()) {
+            GoogleMap(
+                modifier = Modifier.fillMaxSize(),
+                cameraPositionState = cameraPositionState,
+                properties = MapProperties(isMyLocationEnabled = locationPermissionGranted)
+            ) {
+                if (selectedIndex == 0) {
+                    // Solo estaciones
+                    estacions.forEach { estacio ->
+                        Marker(
+                            state = MarkerState(position = LatLng(estacio.latitud, estacio.longitud)),
+                            title = estacio.nom_estacio,
+                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
+                            onClick = {
+                                selectedEstacio = estacio
+                                isBottomSheetVisible = true
+                                true
+                            }
+                        )
+                    }
+                } else if (selectedIndex == 1) {
+                    // Solo rutas
+                    rutesAmbPunt.forEach { (ruta, punt) ->
+                        Marker(
+                            state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
+                            title = ruta.nom,
+                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
+                            onClick = {
+                                selectedRuta = RutaAmbPunt(ruta, punt)
+                                isBottomSheetVisible = true
+                                true
+                            }
+                        )
+                    }
+                } else {
+                    // Ambas
+                    estacions.forEach { estacio ->
+                        Marker(
+                            state = MarkerState(position = LatLng(estacio.latitud, estacio.longitud)),
+                            title = estacio.nom_estacio,
+                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
+                            onClick = {
+                                selectedEstacio = estacio
+                                isBottomSheetVisible = true
+                                true
+                            }
+                        )
+                    }
+                    rutesAmbPunt.forEach { (ruta, punt) ->
+                        Marker(
+                            state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
+                            title = ruta.nom,
+                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
+                            onClick = {
+                                selectedRuta = RutaAmbPunt(ruta, punt)
+                                isBottomSheetVisible = true
+                                true
+                            }
+                        )
+                    }
+                }
+            }
+
+            if (showPermissionRequest) {
+                Text(
+                    text = "Para acceder a tu ubicación, por favor otórganos los permisos.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(16.dp)
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f))
+                        .padding(16.dp)
+                )
+            }
         }
     }
 }

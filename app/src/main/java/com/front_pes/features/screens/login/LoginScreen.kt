@@ -75,159 +75,160 @@ fun LoginScreen(
         }
     }
 
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
-    ) {
-
-        // Logo (Reemplazar por tu recurso local si tienes uno)
-        Image(
-            painter = painterResource(id = R.drawable.airelliurelogo), // Cambia 'logo' por el nombre de tu recurso
-            contentDescription = "Logo",
-            modifier = Modifier.size(300.dp)
-        )
-
-        Text(text = getString(context, R.string.login, selectedLanguage), fontSize = 24.sp, fontWeight = FontWeight.Bold)
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        OutlinedTextField(
-            value = viewModel.email,
-            onValueChange = { viewModel.onEmailChange(it) },
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        OutlinedTextField(
-            value = viewModel.password,
-            onValueChange = { viewModel.onPasswordChange(it) },
-            label = { Text(text = getString(context, R.string.password, selectedLanguage)) },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        //De momento este boton navega a la pantalla de map
-        Button(
-            onClick = {
-                viewModel.login {
-                    updateUserStatus(context, newEstat = "actiu") {
-                        onNavigateToMap()
-                    }
-                }
-            },
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .shadow(2.dp, RoundedCornerShape(8.dp))
-                .background(
-                    Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFF05C7F2),
-                            Color(0xFF07F285)
-                        )
-                    ),
-                    shape = RoundedCornerShape(8.dp)
-                ),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-            shape = RoundedCornerShape(8.dp)
+                .fillMaxSize()
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
         ) {
-            Text(text = getString(context, R.string.LOGIN, selectedLanguage), color = Color.White)
-        }
 
-        // Mostrar mensaje de error si hay un fallo en el login
-        if (viewModel.errorMessage != null) {
-            Text(viewModel.errorMessage!!, color = Color.Red, modifier = Modifier.padding(top = 10.dp))
-        }
+            // Logo (Reemplazar por tu recurso local si tienes uno)
+            Image(
+                painter = painterResource(id = R.drawable.airelliurelogo), // Cambia 'logo' por el nombre de tu recurso
+                contentDescription = "Logo",
+                modifier = Modifier.size(300.dp)
+            )
 
-        if (isLoading) {
+            Text(text = getString(context, R.string.login, selectedLanguage), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            OutlinedTextField(
+                value = viewModel.email,
+                onValueChange = { viewModel.onEmailChange(it) },
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
             Spacer(modifier = Modifier.height(10.dp))
-            CircularProgressIndicator()
-        }
 
-        Spacer(modifier = Modifier.height(20.dp))
+            OutlinedTextField(
+                value = viewModel.password,
+                onValueChange = { viewModel.onPasswordChange(it) },
+                label = { Text(text = getString(context, R.string.password, selectedLanguage)) },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
 
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            Button(
-                onClick = {},
-                colors = ButtonDefaults.buttonColors(Color(0xFF3B5998)),
-                modifier = Modifier
-                    .shadow(2.dp, RoundedCornerShape(8.dp))
-                    .weight(0.7f),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(id = R.drawable.fb36), // Reemplaza por tu recurso de logo de Google
-                        contentDescription = "Facebook",
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(15.dp))
-                    Text(text = "Facebook", color = Color.White)
-                }
-            }
-            Spacer(modifier = Modifier.width(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+
+            //De momento este boton navega a la pantalla de map
             Button(
                 onClick = {
-                    val opciones = GoogleSignInOptions.Builder(
-                        GoogleSignInOptions.DEFAULT_SIGN_IN
-                    )
-                        .requestIdToken(token)
-                        .requestEmail()
-                        .build()
-                    val googleSignInCliente = GoogleSignIn.getClient(context, opciones)
-                    launcher.launch(googleSignInCliente.signInIntent)
+                    viewModel.login {
+                        updateUserStatus(context, newEstat = "actiu") {
+                            onNavigateToMap()
+                        }
+                    }
                 },
                 modifier = Modifier
+                    .fillMaxWidth()
                     .shadow(2.dp, RoundedCornerShape(8.dp))
-                    .weight(0.7f),
-                colors = ButtonDefaults.buttonColors(Color(0xFFFDFDFD)),
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(
+                                Color(0xFF05C7F2),
+                                Color(0xFF07F285)
+                            )
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(id = R.drawable.goog), // Reemplaza por tu recurso de logo de Google
-                        contentDescription = "Google",
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "Google", color = Color.Black)
+                Text(text = getString(context, R.string.LOGIN, selectedLanguage), color = Color.White)
+            }
+
+            // Mostrar mensaje de error si hay un fallo en el login
+            if (viewModel.errorMessage != null) {
+                Text(viewModel.errorMessage!!, color = Color.Red, modifier = Modifier.padding(top = 10.dp))
+            }
+
+            if (isLoading) {
+                Spacer(modifier = Modifier.height(10.dp))
+                CircularProgressIndicator()
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(Color(0xFF3B5998)),
+                    modifier = Modifier
+                        .shadow(2.dp, RoundedCornerShape(8.dp))
+                        .weight(0.7f),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(id = R.drawable.fb36), // Reemplaza por tu recurso de logo de Google
+                            contentDescription = "Facebook",
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(15.dp))
+                        Text(text = "Facebook", color = Color.White)
+                    }
+                }
+                Spacer(modifier = Modifier.width(20.dp))
+                Button(
+                    onClick = {
+                        val opciones = GoogleSignInOptions.Builder(
+                            GoogleSignInOptions.DEFAULT_SIGN_IN
+                        )
+                            .requestIdToken(token)
+                            .requestEmail()
+                            .build()
+                        val googleSignInCliente = GoogleSignIn.getClient(context, opciones)
+                        launcher.launch(googleSignInCliente.signInIntent)
+                    },
+                    modifier = Modifier
+                        .shadow(2.dp, RoundedCornerShape(8.dp))
+                        .weight(0.7f),
+                    colors = ButtonDefaults.buttonColors(Color(0xFFFDFDFD)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(id = R.drawable.goog), // Reemplaza por tu recurso de logo de Google
+                            contentDescription = "Google",
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = "Google", color = Color.Black)
+                    }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-        Text(text = getString(context, R.string.no_ac, selectedLanguage))
+            Text(text = getString(context, R.string.no_ac, selectedLanguage), color = MaterialTheme.colorScheme.onSurface)
 
-        Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-        //Aquest boto et porta cap a la pantalla de Register
-        Button(
-            onClick = {onNavigateToRegister()},
-            modifier = Modifier
-                .shadow(2.dp, RoundedCornerShape(8.dp))
-                .background(
-                    Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFF05C7F2),
-                            Color(0xFF07F285)
-                        )
+            //Aquest boto et porta cap a la pantalla de Register
+            Button(
+                onClick = {onNavigateToRegister()},
+                modifier = Modifier
+                    .shadow(2.dp, RoundedCornerShape(8.dp))
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(
+                                Color(0xFF05C7F2),
+                                Color(0xFF07F285)
+                            )
+                        ),
+                        shape = RoundedCornerShape(8.dp)
                     ),
-                    shape = RoundedCornerShape(8.dp)
-                ),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-            shape = RoundedCornerShape(8.dp),
-        ) {
-            Text(text = getString(context, R.string.SIGNUP, selectedLanguage), color = Color.White)
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                shape = RoundedCornerShape(8.dp),
+            ) {
+                Text(text = getString(context, R.string.SIGNUP, selectedLanguage), color = Color.White)
+            }
         }
     }
 }

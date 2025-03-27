@@ -1,5 +1,8 @@
 package com.front_pes.features.screens.login
 
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,7 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,6 +33,13 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.R
+import com.front_pes.features.screens.settings.LanguageViewModel
+import com.front_pes.getString
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.auth.api.signin.internal.GoogleSignInOptionsExtensionParcelable
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.GoogleAuthProvider
 
 import com.front_pes.features.screens.settings.updateUserStatus
 import androidx.compose.ui.platform.LocalContext
@@ -36,11 +48,34 @@ const val LoginScreenDestination = "Login"
 
 @Composable
 fun LoginScreen(
+    title: String,
     viewModel: LoginViewModel = viewModel(),
     onNavigateToMap: () -> Unit,
     onNavigateToRegister: () -> Unit)
 {
+
+    val isLoading by viewModel.isLoading.collectAsState()
+    val token = "8587200690-n4o3qjmpcp8lemk9kgki9v8drpepmlb3.apps.googleusercontent.com"
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts
+        .StartActivityForResult()
+    ) {
+        val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+            viewModel.signInWithGoogleCredential(credential) {
+                onNavigateToMap()
+            }
+        }
+        catch (ex: Exception) {
+            Log.d("AireLliure", "GoogleSignIn ha fallat")
+        }
+    }
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -56,7 +91,7 @@ fun LoginScreen(
             modifier = Modifier.size(300.dp)
         )
 
-        Text("Sign In", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Text(text = getString(context, R.string.login, selectedLanguage), fontSize = 24.sp, fontWeight = FontWeight.Bold)
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -64,7 +99,8 @@ fun LoginScreen(
             value = viewModel.email,
             onValueChange = { viewModel.onEmailChange(it) },
             label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -72,9 +108,10 @@ fun LoginScreen(
         OutlinedTextField(
             value = viewModel.password,
             onValueChange = { viewModel.onPasswordChange(it) },
-            label = { Text("Password") },
+            label = { Text(text = getString(context, R.string.password, selectedLanguage)) },
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -103,12 +140,17 @@ fun LoginScreen(
             colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
             shape = RoundedCornerShape(8.dp)
         ) {
-            Text("SIGN IN", color = Color.White)
+            Text(text = getString(context, R.string.LOGIN, selectedLanguage), color = Color.White)
         }
 
         // Mostrar mensaje de error si hay un fallo en el login
         if (viewModel.errorMessage != null) {
             Text(viewModel.errorMessage!!, color = Color.Red, modifier = Modifier.padding(top = 10.dp))
+        }
+
+        if (isLoading) {
+            Spacer(modifier = Modifier.height(10.dp))
+            CircularProgressIndicator()
         }
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -134,7 +176,16 @@ fun LoginScreen(
             }
             Spacer(modifier = Modifier.width(20.dp))
             Button(
-                onClick = {},
+                onClick = {
+                    val opciones = GoogleSignInOptions.Builder(
+                        GoogleSignInOptions.DEFAULT_SIGN_IN
+                    )
+                        .requestIdToken(token)
+                        .requestEmail()
+                        .build()
+                    val googleSignInCliente = GoogleSignIn.getClient(context, opciones)
+                    launcher.launch(googleSignInCliente.signInIntent)
+                },
                 modifier = Modifier
                     .shadow(2.dp, RoundedCornerShape(8.dp))
                     .weight(0.7f),
@@ -155,7 +206,8 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Text("If you don't have an account")
+        Text(text = getString(context, R.string.no_ac, selectedLanguage))
+
         Spacer(modifier = Modifier.height(10.dp))
 
         //Aquest boto et porta cap a la pantalla de Register
@@ -175,7 +227,7 @@ fun LoginScreen(
             colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
             shape = RoundedCornerShape(8.dp),
         ) {
-            Text("SIGN UP", color = Color.White)
+            Text(text = getString(context, R.string.SIGNUP, selectedLanguage), color = Color.White)
         }
     }
 }

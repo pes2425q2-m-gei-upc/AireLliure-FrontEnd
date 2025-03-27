@@ -16,11 +16,18 @@ import com.google.maps.android.compose.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 
 const val MapScreenDestination = "Map"
 
+data class RutaAmbPunt(
+    val ruta: RutasResponse,
+    val punt: PuntsResponse
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MapScreen(viewModel: MapViewModel = viewModel()) {
+fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
@@ -28,14 +35,18 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
     var locationPermissionGranted by remember { mutableStateOf(false) }
     var showPermissionRequest by remember { mutableStateOf(false) }
 
-    // Lista mutable para estaciones
     val estacions = remember { mutableStateListOf<EstacioQualitatAireResponse>() }
+    val rutesAmbPunt = remember { mutableStateListOf<RutaAmbPunt>() }
 
     val cameraPositionState = rememberCameraPositionState()
 
     val plazaCatalunya = LatLng(41.3825, 2.1912)
 
-    // Obtener estaciones de calidad del aire
+    var selectedEstacio by remember { mutableStateOf<EstacioQualitatAireResponse?>(null) }
+    var selectedRuta by remember { mutableStateOf<RutaAmbPunt?>(null) }
+    var isBottomSheetVisible by remember { mutableStateOf(false) }
+
+    // Obtener estaciones de calidad del aire y rutas con puntos de inicio
     LaunchedEffect(Unit) {
         viewModel.fetchEstacionsQualitatAire(
             onSuccess = { estaciones ->
@@ -43,6 +54,28 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
                 estacions.addAll(estaciones)
             },
             onError = { errorMessage -> }
+        )
+
+        viewModel.fetchRutes(
+            onSuccess = { rutesList ->
+                rutesList.forEach { ruta ->
+                    ruta.punt_inici?.let { puntId ->
+                        viewModel.fetchPuntByID(
+                            pk = puntId,
+                            onSuccess = { punt ->
+                                rutesAmbPunt.add(RutaAmbPunt(ruta = ruta, punt = punt))
+                                android.util.Log.d("MAP_SCREEN", "Ruta: ${ruta.nom} - Punto: (${punt.latitud}, ${punt.longitud})")
+                            },
+                            onError = { errorMsg ->
+                                android.util.Log.e("MAP_SCREEN", "Error obteniendo punt_inici: $errorMsg")
+                            }
+                        )
+                    }
+                }
+            },
+            onError = { errorMsg ->
+                android.util.Log.e("MAP_SCREEN", "Error cargando rutas: $errorMsg")
+            }
         )
     }
 
@@ -67,26 +100,93 @@ fun MapScreen(viewModel: MapViewModel = viewModel()) {
         }
     }
 
+    if (isBottomSheetVisible && (selectedEstacio != null || selectedRuta != null)) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                isBottomSheetVisible = false
+                selectedEstacio = null
+                selectedRuta = null
+            }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                selectedEstacio?.let {
+                    Text(
+                        text = it.nom_estacio,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Índice de calidad del aire: ${it.index_qualitat_aire}",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+
+                selectedRuta?.let {
+                    Text(
+                        text = it.ruta.nom,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Distancia: ${it.ruta.dist_km} km",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = { isBottomSheetVisible = false },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text("Cerrar")
+                }
+            }
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
             properties = MapProperties(isMyLocationEnabled = locationPermissionGranted)
         ) {
-            // Dibujar Markers solo si hay estaciones disponibles
+            // Markers para estaciones de calidad del aire
             estacions.forEach { estacio ->
                 Marker(
                     state = MarkerState(
                         position = LatLng(estacio.latitud, estacio.longitud)
                     ),
                     title = estacio.nom_estacio,
-                    snippet = "Índice de calidad del aire: ${estacio.index_qualitat_aire}",
-                    onClick = { false }
+                    //snippet = "Índice de calidad del aire: ${estacio.index_qualitat_aire}",
+                    onClick = {
+                        selectedEstacio = estacio
+                        isBottomSheetVisible = true
+                        true
+                    },
+                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
+                )
+            }
+
+            // Markers para rutas
+            rutesAmbPunt.forEach { (ruta, punt) ->
+                Marker(
+                    state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
+                    title = ruta.nom,
+                    //snippet = "Distancia: ${ruta.dist_km} km",
+                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
+                    onClick = {
+                        selectedRuta = RutaAmbPunt(ruta, punt)
+                        isBottomSheetVisible = true
+                        true
+                    }
                 )
             }
         }
 
-        // Mensaje de permisos si no están concedidos
+        // Mensaje si los permisos no están concedidos
         if (showPermissionRequest) {
             Text(
                 text = "Para acceder a tu ubicación, por favor otórganos los permisos.",

@@ -9,6 +9,13 @@ import com.front_pes.features.screens.register.RegisterRequest
 import com.front_pes.features.screens.register.RegisterResponse
 import com.front_pes.features.screens.user.UpdateProfileRequest
 import com.front_pes.features.screens.user.UpdateProfileResponse
+
+import com.front_pes.features.screens.xat.MissatgeRequest
+import com.front_pes.features.screens.xat.MissatgeResponse
+import com.front_pes.features.screens.xat.XatRequest
+import com.front_pes.features.screens.xat.XatResponse
+import com.front_pes.features.screens.xat.ChatMessages
+
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -43,4 +50,12 @@ interface ApiService {
     fun getPuntByID(
         @Path("pk") pk: Int
     ): Call<PuntsResponse>
+
+    @GET("xats/{pk}/")
+    fun getXatByID(
+        @Path("pk") pk: Int
+    ): Call<XatResponse>
+
+
+
 }

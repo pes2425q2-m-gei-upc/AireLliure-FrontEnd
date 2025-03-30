@@ -19,6 +19,9 @@ import com.google.maps.android.compose.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import com.front_pes.R
+import com.front_pes.features.screens.settings.LanguageViewModel
+import com.front_pes.getString
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.front_pes.utils.SelectorIndex
 
@@ -51,6 +54,9 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
     var selectedEstacio by remember { mutableStateOf<EstacioQualitatAireResponse?>(null) }
     var selectedRuta by remember { mutableStateOf<RutaAmbPunt?>(null) }
     var isBottomSheetVisible by remember { mutableStateOf(false) }
+
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -153,13 +159,13 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                     selectedEstacio?.let {
                         Text(it.nom_estacio, style = MaterialTheme.typography.headlineSmall)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Índice de calidad del aire: ${it.index_qualitat_aire}", style = MaterialTheme.typography.bodyLarge)
+                        Text(text = getString(context, R.string.icalidad, selectedLanguage) + ": ${it.index_qualitat_aire}", style = MaterialTheme.typography.bodyLarge)
                     }
 
                     selectedRuta?.let {
                         Text(it.ruta.nom, style = MaterialTheme.typography.headlineSmall)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Distancia: ${it.ruta.dist_km} km", style = MaterialTheme.typography.bodyLarge)
+                        Text(text = getString(context, R.string.dist, selectedLanguage) + ": ${it.ruta.dist_km} km", style = MaterialTheme.typography.bodyLarge)
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -167,7 +173,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                         onClick = { isBottomSheetVisible = false },
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     ) {
-                        Text("Cerrar")
+                        Text(text = getString(context, R.string.cerrar, selectedLanguage))
                     }
                 }
             }
@@ -239,11 +245,11 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
         if (showLocationDeniedDialog) {
             AlertDialog(
                 onDismissRequest = { showLocationDeniedDialog = false },
-                title = { Text("Permiso de ubicación requerido") },
-                text = { Text("Habilita los permisos de localización para poder utilizar de manera completa la aplicación.") },
+                title = { Text(text = getString(context, R.string.u_perm, selectedLanguage)) },
+                text = { Text(text = getString(context, R.string.hab, selectedLanguage)) },
                 confirmButton = {
                     TextButton(onClick = { showLocationDeniedDialog = false }) {
-                        Text("Aceptar")
+                        Text(text = getString(context, R.string.aceptar, selectedLanguage))
                     }
                 }
             )

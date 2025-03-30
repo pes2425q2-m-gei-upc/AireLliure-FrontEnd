@@ -1,6 +1,7 @@
 package com.front_pes.features.screens
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -106,7 +107,7 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
         modifier = Modifier
             .fillMaxHeight()
             .width(280.dp)
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally // Centra todo el contenido
 
@@ -120,8 +121,8 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
                 .padding(bottom = 8.dp),
             tint = Color.Unspecified
         )
-        Text(CurrentUser.nom, fontSize = 18.sp, color = Color.Black)
-        Text(CurrentUser.correu, fontSize = 14.sp, color = Color.Gray)
+        Text(CurrentUser.nom, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
+        Text(CurrentUser.correu, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -139,13 +140,14 @@ fun DrawerItem(text: String, icon: ImageVector, selected: Boolean, onClick: () -
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp, horizontal = 16.dp)
-            .background(if (selected) Color(0xFFDFFFE0) else Color.Transparent)
-            .clickable { onClick() },
+            .background(if (selected) Color(0xFF6B6B6B) else Color.Transparent, shape = RoundedCornerShape(12.dp))
+            .clickable { onClick() }
+            .padding(horizontal = 4.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, contentDescription = null, tint = if (selected) Color(0xFF2ECC71) else Color.Gray, modifier = Modifier.size(24.dp))
+        Icon(icon, contentDescription = null, tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(24.dp))
         Spacer(modifier = Modifier.width(16.dp))
-        Text(text, fontSize = 16.sp, color = if (selected) Color(0xFF2ECC71) else Color.Black)
+        Text(text, fontSize = 16.sp, color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
     }
 }
 
@@ -209,6 +211,10 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
     var textSearch by remember { mutableStateOf("") }
     val hideBars = selectedIndex == 0 || selectedIndex == 2
 
+    BackHandler {
+        selectedIndex = 1
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -220,71 +226,25 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
                 }
             )
         },
-        gesturesEnabled = false
+        gesturesEnabled = drawerState.isOpen
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                Column(
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color(0xFFEEEDF4))
-                        .padding(top = 10.dp)
+                        .padding(start = 16.dp, top = 32.dp) // Separación de los bordes
+                        .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp)) // Fondo blanco con bordes redondeados
+                        .padding(8.dp) // Espacio interno para no pegar el icono al fondo
+                        .size(40.dp)
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFEEEDF4))
-                            .padding(horizontal = 0.dp, vertical = 5.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(
-                                imageVector = Icons.Filled.Menu,
-                                contentDescription = "User Profile",
-                                modifier = Modifier.size(26.dp),
-                                tint = Color.Black
-                            )
-                        }
-                        if (!hideBars) {
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(35.dp)
-                                    .background(Color.White, shape = RoundedCornerShape(18.dp)),
-                                contentAlignment = Alignment.CenterStart
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(horizontal = 10.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Search,
-                                        contentDescription = "Search",
-                                        tint = Color.Gray,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    TextField(
-                                        value = textSearch,
-                                        onValueChange = { textSearch = it },
-                                        placeholder = { Text("Buscar", color = Color.Gray) },
-                                        singleLine = true,
-                                        colors = TextFieldDefaults.colors(
-                                            focusedContainerColor = Color.Transparent,
-                                            unfocusedContainerColor = Color.Transparent,
-                                            cursorColor = Color.Black,
-                                            focusedIndicatorColor = Color.Transparent,
-                                            unfocusedIndicatorColor = Color.Transparent
-                                        ),
-                                        textStyle = MaterialTheme.typography.bodySmall.copy(color = Color.Black),
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(35.dp)
-                                    )
-                                }
-                            }
-                        }
+                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                        Icon(
+                            imageVector = Icons.Filled.Menu,
+                            contentDescription = "User Profile",
+                            modifier = Modifier.size(26.dp),
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 }
             },

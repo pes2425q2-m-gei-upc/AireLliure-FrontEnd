@@ -88,7 +88,7 @@ fun LoginScreen(
             Image(
                 painter = painterResource(id = R.drawable.airelliurelogo), // Cambia 'logo' por el nombre de tu recurso
                 contentDescription = "Logo",
-                modifier = Modifier.size(300.dp)
+                modifier = Modifier.size(250.dp)
             )
 
             Text(text = getString(context, R.string.login, selectedLanguage), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
@@ -116,41 +116,41 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            //De momento este boton navega a la pantalla de map
-            Button(
-                onClick = {
-                    viewModel.login {
-                        updateUserStatus(context, newEstat = "actiu") {
-                            onNavigateToMap()
+            if (isLoading) {
+                Spacer(modifier = Modifier.height(12.dp))
+                CircularProgressIndicator()
+            }
+            else {
+                Button(
+                    onClick = {
+                        viewModel.login {
+                            updateUserStatus(context, newEstat = "actiu") {
+                                onNavigateToMap()
+                            }
                         }
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(2.dp, RoundedCornerShape(8.dp))
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(
-                                Color(0xFF05C7F2),
-                                Color(0xFF07F285)
-                            )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .shadow(2.dp, RoundedCornerShape(8.dp))
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(
+                                    Color(0xFF05C7F2),
+                                    Color(0xFF07F285)
+                                )
+                            ),
+                            shape = RoundedCornerShape(8.dp)
                         ),
-                        shape = RoundedCornerShape(8.dp)
-                    ),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(text = getString(context, R.string.LOGIN, selectedLanguage), color = Color.White)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(text = getString(context, R.string.LOGIN, selectedLanguage), color = Color.White)
+                }
             }
 
             // Mostrar mensaje de error si hay un fallo en el login
             if (viewModel.errorMessage != null) {
                 Text(viewModel.errorMessage!!, color = Color.Red, modifier = Modifier.padding(top = 10.dp))
-            }
-
-            if (isLoading) {
-                Spacer(modifier = Modifier.height(10.dp))
-                CircularProgressIndicator()
             }
 
             Spacer(modifier = Modifier.height(20.dp))

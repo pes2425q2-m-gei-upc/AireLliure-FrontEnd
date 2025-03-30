@@ -8,6 +8,9 @@ import retrofit2.Callback
 import retrofit2.Response
 import androidx.lifecycle.viewModelScope
 
+
+
+
 class MapViewModel : ViewModel() {
     fun fetchEstacionsQualitatAire(onSuccess: (List<EstacioQualitatAireResponse>) -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
@@ -83,15 +86,12 @@ class MapViewModel : ViewModel() {
                         onError("Error respuesta: ${response.code()}")
                     }
                 }
-
                 override fun onFailure(call: Call<PuntsResponse>, t: Throwable) {
                     onError("Fallo de red: ${t.message}")
                 }
             })
         }
     }
-
-
-
-
+    var alreadyAskedPermission = false
+    var hasShownPermissionWarning = false
 }

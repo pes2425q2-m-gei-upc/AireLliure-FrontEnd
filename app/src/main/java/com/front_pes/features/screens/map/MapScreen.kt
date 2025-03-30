@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.location.Location
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -20,8 +22,6 @@ import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.front_pes.utils.SelectorIndex
 
-
-
 const val MapScreenDestination = "Map"
 
 data class RutaAmbPunt(
@@ -35,13 +35,12 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
 
     val selectedIndex by remember { derivedStateOf { SelectorIndex.selectedIndex } }
 
-
     val context = androidx.compose.ui.platform.LocalContext.current
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
     var userLocation by remember { mutableStateOf<LatLng?>(null) }
     var locationPermissionGranted by remember { mutableStateOf(false) }
-    var showPermissionRequest by remember { mutableStateOf(false) }
+    var showLocationDeniedDialog by remember { mutableStateOf(false) }
 
     val estacions = remember { mutableStateListOf<EstacioQualitatAireResponse>() }
     val rutesAmbPunt = remember { mutableStateListOf<RutaAmbPunt>() }
@@ -52,6 +51,27 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
     var selectedEstacio by remember { mutableStateOf<EstacioQualitatAireResponse?>(null) }
     var selectedRuta by remember { mutableStateOf<RutaAmbPunt?>(null) }
     var isBottomSheetVisible by remember { mutableStateOf(false) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        locationPermissionGranted = isGranted
+        if (isGranted) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                location?.let {
+                    val newLocation = LatLng(it.latitude, it.longitude)
+                    userLocation = newLocation
+                    cameraPositionState.position = CameraPosition.fromLatLngZoom(newLocation, 16f)
+                }
+            }
+        } else {
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(plazaCatalunya, 16f)
+            if (!viewModel.hasShownPermissionWarning) {
+                showLocationDeniedDialog = true
+                viewModel.hasShownPermissionWarning = true
+            }
+        }
+    }
 
     // Cargar datos de la API
     LaunchedEffect(Unit) {
@@ -85,26 +105,36 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
         )
     }
 
-    // Ubicación del usuario
+    // Solicitar permiso de ubicación una sola vez por sesión
     LaunchedEffect(Unit) {
-        when {
-            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED -> {
-                locationPermissionGranted = true
-                fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
-                    location?.let {
-                        val newLocation = LatLng(it.latitude, it.longitude)
-                        userLocation = newLocation
-                        cameraPositionState.position = CameraPosition.fromLatLngZoom(newLocation, 16f)
-                    }
+        val permissionStatus = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_FINE_LOCATION
+        )
+
+        if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
+            locationPermissionGranted = true
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                location?.let {
+                    val newLocation = LatLng(it.latitude, it.longitude)
+                    userLocation = newLocation
+                    cameraPositionState.position = CameraPosition.fromLatLngZoom(newLocation, 16f)
                 }
             }
-            else -> {
-                locationPermissionGranted = false
-                showPermissionRequest = true
-                cameraPositionState.position = CameraPosition.fromLatLngZoom(plazaCatalunya, 16f)
+        } else {
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(plazaCatalunya, 16f) // ✅ Siempre mover la cámara
+
+            if (!viewModel.alreadyAskedPermission) {
+                viewModel.alreadyAskedPermission = true
+                permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            } else {
+                if (!viewModel.hasShownPermissionWarning) {
+                    viewModel.hasShownPermissionWarning = true
+                    showLocationDeniedDialog = true
+                }
             }
         }
     }
+
     Surface(modifier = Modifier.fillMaxSize()) {
         // Modal inferior
         if (isBottomSheetVisible && (selectedEstacio != null || selectedRuta != null)) {
@@ -151,7 +181,6 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                 properties = MapProperties(isMyLocationEnabled = locationPermissionGranted)
             ) {
                 if (selectedIndex == 0) {
-                    // Solo estaciones
                     estacions.forEach { estacio ->
                         Marker(
                             state = MarkerState(position = LatLng(estacio.latitud, estacio.longitud)),
@@ -165,7 +194,6 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                         )
                     }
                 } else if (selectedIndex == 1) {
-                    // Solo rutas
                     rutesAmbPunt.forEach { (ruta, punt) ->
                         Marker(
                             state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
@@ -179,7 +207,6 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                         )
                     }
                 } else {
-                    // Ambas
                     estacions.forEach { estacio ->
                         Marker(
                             state = MarkerState(position = LatLng(estacio.latitud, estacio.longitud)),
@@ -206,18 +233,20 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                     }
                 }
             }
+        }
 
-            if (showPermissionRequest) {
-                Text(
-                    text = "Para acceder a tu ubicación, por favor otórganos los permisos.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(16.dp)
-                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f))
-                        .padding(16.dp)
-                )
-            }
+        // Aviso si denegó el permiso (una vez por sesión)
+        if (showLocationDeniedDialog) {
+            AlertDialog(
+                onDismissRequest = { showLocationDeniedDialog = false },
+                title = { Text("Permiso de ubicación requerido") },
+                text = { Text("Habilita los permisos de localización para poder utilizar de manera completa la aplicación.") },
+                confirmButton = {
+                    TextButton(onClick = { showLocationDeniedDialog = false }) {
+                        Text("Aceptar")
+                    }
+                }
+            )
         }
     }
 }

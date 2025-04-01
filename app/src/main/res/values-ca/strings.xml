@@ -29,4 +29,10 @@
     <string name="language">Idioma</string>
     <string name="logout">Tancar Sessió</string>
     <string name="delete_user">Eliminar Usuari</string>
+    <string name="icalidad">Índex de qualitat de l\'aire</string>
+    <string name="dist">Distància</string>
+    <string name="cerrar">Tancar</string>
+    <string name="u_perm">Permís d\'ubicació requerit</string>
+    <string name="hab">Habilita els permissos de localització per poder utilitzar de manera completa l\'aplicació.</string>
+    <string name="aceptar">Acceptar</string>
 </resources>

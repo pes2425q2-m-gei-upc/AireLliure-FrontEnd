@@ -1,5 +1,7 @@
 package com.front_pes.features.screens
 
+import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -57,6 +59,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.front_pes.CurrentUser
 import com.front_pes.R
 import com.front_pes.features.screens.login.LoginScreenDestination
 import com.front_pes.features.screens.map.MapScreen
@@ -67,7 +70,11 @@ import com.front_pes.getString
 import kotlinx.coroutines.launch
 import java.util.Locale
 
+import com.front_pes.utils.SelectorIndex
+
+
 const val MainScreenDestination = "Main"
+
 
 @Composable
 fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () -> Unit) {
@@ -100,7 +107,7 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
         modifier = Modifier
             .fillMaxHeight()
             .width(280.dp)
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally // Centra todo el contenido
 
@@ -114,8 +121,8 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
                 .padding(bottom = 8.dp),
             tint = Color.Unspecified
         )
-        Text("User", fontSize = 18.sp, color = Color.Black)
-        Text("user@gmail.com", fontSize = 14.sp, color = Color.Gray)
+        Text(CurrentUser.nom, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
+        Text(CurrentUser.correu, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -133,13 +140,14 @@ fun DrawerItem(text: String, icon: ImageVector, selected: Boolean, onClick: () -
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp, horizontal = 16.dp)
-            .background(if (selected) Color(0xFFDFFFE0) else Color.Transparent)
-            .clickable { onClick() },
+            .background(if (selected) Color(0xFF6B6B6B) else Color.Transparent, shape = RoundedCornerShape(12.dp))
+            .clickable { onClick() }
+            .padding(horizontal = 4.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, contentDescription = null, tint = if (selected) Color(0xFF2ECC71) else Color.Gray, modifier = Modifier.size(24.dp))
+        Icon(icon, contentDescription = null, tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(24.dp))
         Spacer(modifier = Modifier.width(16.dp))
-        Text(text, fontSize = 16.sp, color = if (selected) Color(0xFF2ECC71) else Color.Black)
+        Text(text, fontSize = 16.sp, color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
     }
 }
 
@@ -203,6 +211,10 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
     var textSearch by remember { mutableStateOf("") }
     val hideBars = selectedIndex == 0 || selectedIndex == 2
 
+    BackHandler {
+        selectedIndex = 1
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -210,76 +222,29 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
                 selectedIndex = selectedIndex,
                 onItemClicked = { index ->
                     selectedIndex = index
-                    scope.launch { drawerState.close() } // Cerrar menú después de elegir
+                    scope.launch { drawerState.close() }
                 }
             )
         },
-        gesturesEnabled = false
+        gesturesEnabled = drawerState.isOpen
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                Column( // Agregamos un Column para darle más espacio superior
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color(0xFFEEEDF4))
-                        .padding(top = 10.dp) // Aumentamos el padding superior
+                        .padding(start = 16.dp, top = 32.dp) // Separación de los bordes
+                        .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp)) // Fondo blanco con bordes redondeados
+                        .padding(8.dp) // Espacio interno para no pegar el icono al fondo
+                        .size(40.dp)
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFEEEDF4)) // Color de fondo similar a la imagen
-                            .padding(horizontal = 0.dp, vertical = 5.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(
-                                imageVector = Icons.Filled.Menu,
-                                contentDescription = "User Profile",
-                                modifier = Modifier.size(26.dp),
-                                tint = Color.Black
-                            )
-                        }
-                        if (!hideBars) {
-                            // Barra de búsqueda
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(35.dp)
-                                    .background(Color.White, shape = RoundedCornerShape(18.dp)),
-                                contentAlignment = Alignment.CenterStart
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(horizontal = 10.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Search,
-                                        contentDescription = "Search",
-                                        tint = Color.Gray,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    TextField(
-                                        value = textSearch,
-                                        onValueChange = { textSearch = it },
-                                        placeholder = { Text("Buscar", color = Color.Gray) },
-                                        singleLine = true,
-                                        colors = TextFieldDefaults.colors(
-                                            focusedContainerColor = Color.Transparent,
-                                            unfocusedContainerColor = Color.Transparent,
-                                            cursorColor = Color.Black,
-                                            focusedIndicatorColor = Color.Transparent,
-                                            unfocusedIndicatorColor = Color.Transparent
-                                        ),
-                                        textStyle = MaterialTheme.typography.bodySmall.copy(color = Color.Black),
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(35.dp)
-                                    )
-                                }
-                            }
-                        }
+                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                        Icon(
+                            imageVector = Icons.Filled.Menu,
+                            contentDescription = "User Profile",
+                            modifier = Modifier.size(26.dp),
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 }
             },
@@ -287,14 +252,23 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
                 if (!hideBars) {
                     NavigationBar {
                         navItemList.forEachIndexed { index, navItem ->
+                            val isSelected = SelectorIndex.selectedIndex == index
+
                             NavigationBarItem(
-                                selected = selectedIndex == index,
-                                onClick = { selectedIndex = index },
+                                selected = isSelected,
+                                onClick = {
+                                    if (isSelected) {
+                                        // Deselecciona si ya estaba activo
+                                        SelectorIndex.selectedIndex = -1
+                                    } else {
+                                        SelectorIndex.selectedIndex = index
+                                    }
+                                },
                                 icon = {
-                                    Icon(imageVector = navItem.icon, contentDescription = "Icon")
+                                    Icon(imageVector = navItem.icon, contentDescription = "Icon", tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
                                 },
                                 label = {
-                                    Text(text = navItem.label)
+                                    Text(text = navItem.label, color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
                                 }
                             )
                         }

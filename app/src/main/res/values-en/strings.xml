@@ -29,4 +29,10 @@
     <string name="language">Language</string>
     <string name="logout">Log Out</string>
     <string name="delete_user">Delete User</string>
+    <string name="icalidad">Air quality index</string>
+    <string name="dist">Distance</string>
+    <string name="cerrar">Close</string>
+    <string name="u_perm">Location permit required</string>
+    <string name="hab">Enable location permissions to fully use the app.</string>
+    <string name="aceptar">Accept</string>
 </resources>

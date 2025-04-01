@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -39,82 +41,84 @@ fun RegisterScreen(viewModel: RegisterViewModel = viewModel(), title: String, on
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-
-        // Logo (Reemplazar por tu recurso local si tienes uno)
-        Image(
-            painter = painterResource(id = R.drawable.airelliurelogo), // Cambia 'logo' por el nombre de tu recurso
-            contentDescription = "Logo",
-            modifier = Modifier.size(300.dp)
-        )
-
-        Text(text = getString(context, R.string.signup, selectedLanguage), fontSize = 24.sp, fontWeight = FontWeight.Bold)
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        OutlinedTextField(
-            value = viewModel.email,
-            onValueChange = { viewModel.email = it },
-            label = { Text("Correu") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-
-            )
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        OutlinedTextField(
-            value = viewModel.username,
-            onValueChange = { viewModel.username = it },
-            label = { Text(text = getString(context, R.string.username, selectedLanguage)) },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        OutlinedTextField(
-            value = viewModel.password,
-            onValueChange = { viewModel.password = it },
-            label = { Text(text = getString(context, R.string.password, selectedLanguage)) },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Button(
-            onClick = {viewModel.register {
-                onNavigateToMap()  // Navega si el register es exitoso
-            }},
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .shadow(2.dp, RoundedCornerShape(10.dp))
-                .background(
-                    Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFF05C7F2),
-                            Color(0xFF07F285)
-                        )
-                    ),
-                    shape = RoundedCornerShape(8.dp)
-                ),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-            shape = RoundedCornerShape(8.dp)
+                .fillMaxSize()
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Text(text = getString(context, R.string.SIGNUP, selectedLanguage), color = Color.White)
-        }
 
-        if (viewModel.errorMessage != null) {
-            Text(viewModel.errorMessage!!, color = Color.Red, modifier = Modifier.padding(top = 10.dp))
+            // Logo (Reemplazar por tu recurso local si tienes uno)
+            Image(
+                painter = painterResource(id = R.drawable.airelliurelogo), // Cambia 'logo' por el nombre de tu recurso
+                contentDescription = "Logo",
+                modifier = Modifier.size(300.dp)
+            )
+
+            Text(text = getString(context, R.string.signup, selectedLanguage), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            OutlinedTextField(
+                value = viewModel.email,
+                onValueChange = { viewModel.email = it },
+                label = { Text("Correu") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+
+                )
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            OutlinedTextField(
+                value = viewModel.username,
+                onValueChange = { viewModel.username = it },
+                label = { Text(text = getString(context, R.string.username, selectedLanguage)) },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            OutlinedTextField(
+                value = viewModel.password,
+                onValueChange = { viewModel.password = it },
+                label = { Text(text = getString(context, R.string.password, selectedLanguage)) },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = {viewModel.register {
+                    onNavigateToMap()  // Navega si el register es exitoso
+                }},
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(2.dp, RoundedCornerShape(10.dp))
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(
+                                Color(0xFF05C7F2),
+                                Color(0xFF07F285)
+                            )
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(text = getString(context, R.string.SIGNUP, selectedLanguage), color = Color.White)
+            }
+
+            if (viewModel.errorMessage != null) {
+                Text(viewModel.errorMessage!!, color = Color.Red, modifier = Modifier.padding(top = 10.dp))
+            }
         }
     }
 }

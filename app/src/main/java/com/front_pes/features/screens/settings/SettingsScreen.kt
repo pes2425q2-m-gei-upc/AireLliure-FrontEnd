@@ -21,6 +21,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -79,6 +80,8 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
         currentLocale = selectedLanguage
     }
 
+
+
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
@@ -103,20 +106,20 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFEFEFEF)) // Light gray background
             .padding(top = 100.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
 
-        Image(
-            painter = painterResource(id = R.drawable.rueda), //para que ésto os funcione, poned el nombre de una foto que metáis en res/drawable, una vez conectemos back y front convertiré éste composable para que use API para obtener los valores
-            contentDescription = "settings",
+        Icon(
+            imageVector = Icons.Default.Settings,
+            contentDescription = "Settings Icon",
             modifier = Modifier
-                .size(100.dp)
+                .size(100.dp),
+            tint = MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.height(10.dp))
-        Text(text = getString(context, R.string.settings, currentLocale), fontSize = 26.sp, fontWeight = FontWeight.Bold)
+        Text(text = getString(context, R.string.settings, currentLocale), fontSize = 26.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
         Spacer(modifier = Modifier.height(10.dp))
 
         // White container with rounded edges
@@ -124,8 +127,8 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
             modifier = Modifier
                 .fillMaxWidth(0.9f) // Adjust width
                 .padding(16.dp),
-            shape = RoundedCornerShape(16.dp), // Rounded edges
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+            shape = RoundedCornerShape(16.dp) // Rounded edges
+            //colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(
                 modifier = Modifier.padding(10.dp),

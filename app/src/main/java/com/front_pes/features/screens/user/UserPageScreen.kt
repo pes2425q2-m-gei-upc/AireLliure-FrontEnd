@@ -148,29 +148,31 @@ fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
                     .clip(CircleShape)
             )
 
-            Text(nom, fontSize = 18.sp, color = Color.Black)
-            Text(correu, fontSize = 14.sp, color = Color.Gray)
+            Text(nom, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
+            Text(correu, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
 
             Spacer(modifier = Modifier.height(10.dp))
 
             Row {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = getString(context, R.string.friends, selectedLanguage), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(text = getString(context, R.string.friends, selectedLanguage), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                     Spacer(modifier = Modifier.height(5.dp))
                     Text(
                         text = "0",
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.onSurface
                     ) //Crida per a saber les persones que tenim afegides com amics
                 }
 
                 Spacer(modifier = Modifier.width(30.dp))
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = getString(context, R.string.points, selectedLanguage), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(text = getString(context, R.string.points, selectedLanguage), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                     Spacer(modifier = Modifier.height(5.dp))
                     Text(
                         text = "${punts}",
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -217,7 +219,7 @@ fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            Text(text = getString(context, R.string.user_info, selectedLanguage), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(text = getString(context, R.string.user_info, selectedLanguage), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -225,8 +227,8 @@ fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
+                shape = RoundedCornerShape(16.dp)
+                //colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Column {
                     Row(

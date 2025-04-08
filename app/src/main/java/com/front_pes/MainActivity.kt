@@ -32,6 +32,7 @@ import androidx.navigation.compose.composable
 import com.front_pes.features.screens.login.LoginScreenDestination
 import com.front_pes.features.screens.map.MapScreenDestination
 import com.front_pes.features.screens.register.RegisterScreen
+import ChatListScreen
 import com.front_pes.features.screens.register.RegisterScreenDestination
 import com.front_pes.features.screens.MainScreen
 import com.front_pes.features.screens.MainScreenDestination
@@ -125,6 +126,14 @@ private fun AppNavigation(currentLocale: String) {
                     navController.navigate(LoginScreenDestination)
                 },
                 languageViewModel = viewModel()
+            )
+        }
+        composable("chats") {
+            ChatListScreen(
+                onChatClick = { chatName ->
+                    // log.d per accedir a un xat específic.
+                    Log.d("ChatList", "Clicked on chat with $chatName")
+                }
             )
         }
     }

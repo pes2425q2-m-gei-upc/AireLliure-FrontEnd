@@ -1,5 +1,6 @@
 package com.front_pes.features.screens
 
+import ChatListScreen
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -86,6 +87,8 @@ fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () 
         0 -> UserPageScreen(title = getString(context, R.string.username, currentLocale), onNavigateToLogin = onNavigateToLogin)
         1 -> MapScreen(title = getString(context, R.string.map, currentLocale),)
         2 -> SettingsScreen(onNavigateToLogin = onNavigateToLogin)
+        3 -> ChatListScreen(onChatClick = { chatName ->
+            Log.d("ChatList", "Has fet clic a $chatName") })
     }
 }
 

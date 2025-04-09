@@ -11,7 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Icon
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -82,18 +84,33 @@ fun ChatListItem(name: String, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable { onClick() },
-        elevation = CardDefaults.cardElevation()
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(12.dp)
     ) {
-        Text(
-            text = name,
-            modifier = Modifier.padding(16.dp),
-            style = MaterialTheme.typography.bodyLarge
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Icono (puedes usar un recurso o un Icon por defecto)
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = "User Icon",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .size(40.dp)
+                    .padding(end = 16.dp)
+            )
+
+            // Nombre del contacto
+            Text(
+                text = name,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
-}
-
-class ChatListScreen {
-
 }

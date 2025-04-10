@@ -49,6 +49,5 @@ interface ApiService {
     @GET("xats/usuari/{pk}")
     fun getXatsUsuaribyCorreu(
         @Path("pk") pk: String,
-        @Body request : LlistaXatRequest
-    ): Call<LlistaXatResponse>
+    ): Call<List<LlistaXatResponse>>
 }

@@ -91,6 +91,7 @@ class LoginViewModel : ViewModel() {
 
                 override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
                     _isLoading.value = false
+                    Log.e("LOGIN", "Error de red: ${t.message}", t)
                     errorMessage = "Network error: ${t.message}"
                 }
             })

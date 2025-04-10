@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.front_pes.CurrentUser
-import com.front_pes.features.screens.xats.LlistaXatRequest
 import com.front_pes.features.screens.login.LoginRequest
 import com.front_pes.features.screens.login.LoginResponse
 import com.front_pes.features.screens.xats.LlistaXatResponse
@@ -32,7 +31,7 @@ class XatViewModel: ViewModel() {
 
     fun carregarXats() = viewModelScope.launch {
         try {
-            Log.d("USERRRRRRR","EL VALOR : $CurrentUser.correu")
+
             val call = RetrofitClient.apiService.getXatsUsuaribyCorreu(CurrentUser.correu) // aqui poder nomes cal pasar l'idnetificador.
             call.enqueue(object : Callback<List<LlistaXatResponse>>{
                 override fun onResponse(

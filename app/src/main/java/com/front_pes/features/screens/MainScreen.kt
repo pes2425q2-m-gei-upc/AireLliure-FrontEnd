@@ -67,6 +67,7 @@ import com.front_pes.features.screens.map.MapScreen
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.features.screens.settings.SettingsScreen
 import com.front_pes.features.screens.user.UserPageScreen
+import com.front_pes.features.screens.xamistat.LlistatAmistatScreen
 import com.front_pes.getString
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -89,6 +90,9 @@ fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () 
         2 -> SettingsScreen(onNavigateToLogin = onNavigateToLogin)
         3 -> ChatListScreen(onChatClick = { chatName ->
             Log.d("ChatList", "Has fet clic a $chatName") })
+        4 -> LlistatAmistatScreen(onAmistatClick = {
+            AmistatName -> Log.d("AmistatList", "Has fet clic a $AmistatName")
+        })
     }
 }
 

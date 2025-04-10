@@ -1,4 +1,5 @@
-package com.front_pes.features.screens.xats
+package com.front_pes.features.screens.xamistat
+
 
 import android.util.Log
 import androidx.compose.foundation.clickable
@@ -26,31 +27,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
 import com.front_pes.features.screens.xats.XatViewModel
 
-const val ChatListScreen = "ChatListScreen"
+const val LlistatAmistatScreen = "AmistatListScreen"
 
 @Composable
-fun ChatListScreen(onChatClick: (Int) -> Unit, viewModel:XatViewModel= viewModel()) {
+fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, viewModel: LlistatAmistatViewModel = viewModel()) {
 
-    LaunchedEffect(Unit) { viewModel.carregarXats() }
-    val chatList = viewModel.xats
-
+    LaunchedEffect(Unit) { viewModel.getXatsAmics() }
+    val amistatList = viewModel.llista_amics
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
-            text = "Xats",
+            text = "Amistats", // poder hauriem de fer-ho per diferents idiomes, no ho sé.
             style = MaterialTheme.typography.headlineLarge,
             modifier = Modifier.padding(16.dp)
         )
 
         LazyColumn {
-            items(chatList) { chatName ->
-                ChatListItem(name = chatName.nom, onClick = { onChatClick(chatName.id) })
+            items(amistatList) { amistatName ->
+                AmistatListItem(name = amistatName.nom, onClick = {onAmistatClick(amistatName.id)})
             }
         }
     }
 }
 
 @Composable
-fun ChatListItem(name: String, onClick: () -> Unit) {
+fun AmistatListItem(name: String, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()

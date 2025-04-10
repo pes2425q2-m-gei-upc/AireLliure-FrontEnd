@@ -8,6 +8,9 @@ import retrofit2.Callback
 import retrofit2.Response
 import androidx.lifecycle.viewModelScope
 
+
+
+
 class MapViewModel : ViewModel() {
     fun fetchEstacionsQualitatAire(onSuccess: (List<EstacioQualitatAireResponse>) -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
@@ -35,4 +38,60 @@ class MapViewModel : ViewModel() {
         }
     }
 
+    fun fetchRutes(onSuccess: (List<RutasResponse>) -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            val call = RetrofitClient.apiService.getRutas()
+            call.enqueue(object : Callback<List<RutasResponse>> {
+                override fun onResponse(
+                    call: Call<List<RutasResponse>>,
+                    response: Response<List<RutasResponse>>
+                ) {
+                    if (response.isSuccessful) {
+                        response.body()?.let { rutas ->
+                            onSuccess(rutas)
+                        } ?: run {
+                            onError("Respuesta vacía de la API")
+                        }
+                    } else {
+                        onError("Error: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<List<RutasResponse>>, t: Throwable) {
+                    onError("Error de red: ${t.message}")
+                }
+            })
+        }
+    }
+
+    fun fetchPuntByID(
+        pk: Int,
+        onSuccess: (PuntsResponse) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            val call = RetrofitClient.apiService.getPuntByID(pk)
+            call.enqueue(object : Callback<PuntsResponse> {
+                override fun onResponse(
+                    call: Call<PuntsResponse>,
+                    response: Response<PuntsResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        response.body()?.let { punt ->
+                            onSuccess(punt)
+                        } ?: run {
+                            onError("Respuesta vacía")
+                        }
+                    } else {
+                        onError("Error respuesta: ${response.code()}")
+                    }
+                }
+                override fun onFailure(call: Call<PuntsResponse>, t: Throwable) {
+                    onError("Fallo de red: ${t.message}")
+                }
+            })
+        }
+    }
+    var alreadyAskedPermission = false
+    var hasShownPermissionWarning = false
 }

@@ -1,3 +1,5 @@
+package com.front_pes.features.screens.xats
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize

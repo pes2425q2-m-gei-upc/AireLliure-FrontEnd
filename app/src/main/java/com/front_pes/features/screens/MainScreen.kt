@@ -68,6 +68,7 @@ import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.features.screens.settings.SettingsScreen
 import com.front_pes.features.screens.user.UserPageScreen
 import com.front_pes.features.screens.xamistat.LlistatAmistatScreen
+import com.front_pes.features.screens.xamistat.DetallAmistatScreen
 import com.front_pes.getString
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -81,6 +82,7 @@ const val MainScreenDestination = "Main"
 @Composable
 fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () -> Unit) {
     val context = LocalContext.current
+    var selectedAmistat by remember { mutableStateOf<String>("") }
     var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
@@ -90,9 +92,20 @@ fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () 
         2 -> SettingsScreen(onNavigateToLogin = onNavigateToLogin)
         3 -> ChatListScreen(onChatClick = { chatName ->
             Log.d("ChatList", "Has fet clic a $chatName") })
-        4 -> LlistatAmistatScreen(onAmistatClick = {
-            AmistatName -> Log.d("AmistatList", "Has fet clic a $AmistatName")
-        })
+        4 -> {
+            if(selectedAmistat == ""){
+                LlistatAmistatScreen(
+                    onAmistatClick = { amistatID ->
+                        selectedAmistat = amistatID
+                    }
+                )
+            } else {
+                DetallAmistatScreen(
+                    userId = selectedAmistat,
+                    onBack = { selectedAmistat = "" }
+                )
+            }
+        }
     }
 }
 

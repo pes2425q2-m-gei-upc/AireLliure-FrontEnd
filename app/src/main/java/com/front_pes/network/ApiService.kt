@@ -9,6 +9,7 @@ import com.front_pes.features.screens.register.RegisterRequest
 import com.front_pes.features.screens.register.RegisterResponse
 import com.front_pes.features.screens.user.UpdateProfileRequest
 import com.front_pes.features.screens.user.UpdateProfileResponse
+import com.front_pes.features.screens.xamistat.DetallUsuariResponse
 import com.front_pes.features.screens.xamistat.LlistaAmistatResponse
 import com.front_pes.features.screens.xats.LlistaXatResponse
 import retrofit2.Call
@@ -55,4 +56,12 @@ interface ApiService {
     fun getAmistatUsuarybyCorreu(
         @Path("pk") pk: String,
     ): Call<List<LlistaAmistatResponse>>
+
+    @GET("usuaris/{pk}/")
+    fun getDetallUsuariAmic(
+        @Path("pk") pk: String,
+    ): Call<DetallUsuariResponse>
+
+    @GET("usuaris")
+    fun get_all_usuaris(): Call<List<DetallUsuariResponse>>
 }

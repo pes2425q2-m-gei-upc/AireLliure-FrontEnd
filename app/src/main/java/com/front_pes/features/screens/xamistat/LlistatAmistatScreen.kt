@@ -104,7 +104,7 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, viewModel: LlistatAmi
                 }
             } else {
                 items(usuarisList.filter {  it.nom?.contains(searchText, ignoreCase = true) ?: false}){
-                    user -> UsuariListItem(name = user.nom, onSeguirClick = {})
+                    user -> UsuariListItem(name = user.nom, onSeguirClick = {viewModel.seguir_usuari(accepta = user?.correu)})
                 }
             }
         }

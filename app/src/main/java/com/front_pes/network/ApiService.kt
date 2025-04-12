@@ -12,6 +12,8 @@ import com.front_pes.features.screens.user.UpdateProfileRequest
 import com.front_pes.features.screens.user.UpdateProfileResponse
 import com.front_pes.features.screens.xamistat.DetallUsuariResponse
 import com.front_pes.features.screens.xamistat.LlistaAmistatResponse
+import com.front_pes.features.screens.xamistat.SolicitarAmistatRequest
+import com.front_pes.features.screens.xamistat.SolicitarAmistatResponse
 import com.front_pes.features.screens.xats.LlistaXatResponse
 import retrofit2.Call
 import retrofit2.http.Body
@@ -73,5 +75,10 @@ interface ApiService {
     fun get_ranking_amistats(
         @Path("pk") pk:String
     ): Call<List<RankingResponse>>
+
+    @POST("amistats/create/")
+    fun create_new_amistat(
+        @Body request: SolicitarAmistatRequest
+    ): Call<SolicitarAmistatResponse>
 
 }

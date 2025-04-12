@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
@@ -62,6 +63,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.CurrentUser
 import com.front_pes.R
+import com.front_pes.features.screens.Ranking.RankingScreen
 import com.front_pes.features.screens.login.LoginScreenDestination
 import com.front_pes.features.screens.map.MapScreen
 import com.front_pes.features.screens.settings.LanguageViewModel
@@ -106,6 +108,8 @@ fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () 
                 )
             }
         }
+        5-> RankingScreen(onChatClick = { chatName ->
+            Log.d("ChatList", "Has fet clic a $chatName") })
     }
 }
 
@@ -120,7 +124,8 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
         getString(context, R.string.map, selectedLanguage) to Icons.Default.LocationOn,
         getString(context, R.string.settings, selectedLanguage) to Icons.Default.Settings,
         getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email,
-        getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face
+        getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face,
+        getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info
     )
 
     Column(

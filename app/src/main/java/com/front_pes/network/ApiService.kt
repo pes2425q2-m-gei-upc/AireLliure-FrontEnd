@@ -1,5 +1,6 @@
 package com.front_pes.network
 
+import com.front_pes.features.screens.Ranking.RankingResponse
 import com.front_pes.features.screens.login.LoginRequest
 import com.front_pes.features.screens.login.LoginResponse
 import com.front_pes.features.screens.map.EstacioQualitatAireResponse
@@ -64,4 +65,13 @@ interface ApiService {
 
     @GET("usuaris")
     fun get_all_usuaris(): Call<List<DetallUsuariResponse>>
+
+    @GET("ranking-usuaris-all/")
+    fun get_all_ranking(): Call<List<RankingResponse>>
+
+    @GET("ranking-usuari-amics/{pk}/")
+    fun get_ranking_amistats(
+        @Path("pk") pk:String
+    ): Call<List<RankingResponse>>
+
 }

@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -43,30 +44,45 @@ enum class Selector{
 fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, viewModel: LlistatAmistatViewModel = viewModel()) {
 
     var currentMode by remember {mutableStateOf(Selector.AMISTATS)}
+    val scrollState = rememberLazyListState()
 
     LaunchedEffect(Unit) { viewModel.getXatsAmics()}
     LaunchedEffect(Unit) { viewModel.get_usuaris() }
     val amistatList = viewModel.llista_amics
     val usuarisList = viewModel.all_users
-    Row(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 24.dp)) {
-        Text(
-            text = "Amistats",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = if (currentMode == Selector.AMISTATS) MaterialTheme.colorScheme.primary else Color.Gray,
-            modifier = Modifier.clickable { currentMode = Selector.AMISTATS }
+    Column(
+        modifier = Modifier.fillMaxSize().padding(top = 64.dp, start = 10.dp, end = 24.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 5.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         )
+        {
+            Text(
+                text = "Amistats",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (currentMode == Selector.AMISTATS) MaterialTheme.colorScheme.primary else Color.Gray,
+                modifier = Modifier.clickable { currentMode = Selector.AMISTATS }
+                    .padding(10.dp)
+            )
 
-        Text(
-            text = "Usuaris",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = if (currentMode == Selector.USUARIS) MaterialTheme.colorScheme.primary else Color.Gray,
-            modifier = Modifier.clickable { currentMode = Selector.USUARIS }
-        )
-
-        LazyColumn(modifier = Modifier.fillMaxWidth().padding(top = 15.dp)) {
-
+            Text(
+                text = "Usuaris",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (currentMode == Selector.USUARIS) MaterialTheme.colorScheme.primary else Color.Gray,
+                modifier = Modifier.clickable { currentMode = Selector.USUARIS }
+                    .padding(10.dp)
+            )
+        }
+        LazyColumn(modifier = Modifier.fillMaxWidth().padding(top = 15.dp),
+            state = scrollState,
+            contentPadding = PaddingValues(bottom = 150.dp)
+        ) {
             if(currentMode == Selector.AMISTATS){
                 items(amistatList) {item ->
                     AmistatListItem(name = item.nom, onClick = {onAmistatClick(item.id)})

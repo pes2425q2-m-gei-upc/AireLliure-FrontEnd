@@ -24,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +46,7 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, viewModel: LlistatAmi
 
     var currentMode by remember {mutableStateOf(Selector.AMISTATS)}
     val scrollState = rememberLazyListState()
+    var searchText by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) { viewModel.getXatsAmics()}
     LaunchedEffect(Unit) { viewModel.get_usuaris() }
@@ -56,7 +58,7 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, viewModel: LlistatAmi
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 5.dp),
+                .padding(bottom = 12.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         )
@@ -79,16 +81,27 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, viewModel: LlistatAmi
                     .padding(10.dp)
             )
         }
+
+        TextField(
+            value = searchText,
+            onValueChange = { searchText = it },
+            placeholder = { Text("Cerca usuaris...") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            singleLine = true
+        )
+
         LazyColumn(modifier = Modifier.fillMaxWidth().padding(top = 15.dp),
             state = scrollState,
             contentPadding = PaddingValues(bottom = 150.dp)
         ) {
             if(currentMode == Selector.AMISTATS){
-                items(amistatList) {item ->
+                items(amistatList.filter { it.nom.contains(searchText, ignoreCase = true) }) {item ->
                     AmistatListItem(name = item.nom, onClick = {onAmistatClick(item.id)})
                 }
             } else {
-                items(usuarisList){
+                items(usuarisList.filter {  it.nom?.contains(searchText, ignoreCase = true) ?: false}){
                     user -> UsuariListItem(name = user.nom)
                 }
             }

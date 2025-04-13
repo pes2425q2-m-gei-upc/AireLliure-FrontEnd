@@ -2,11 +2,11 @@ package com.front_pes.features.screens.map
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.Location
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -24,6 +24,11 @@ import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.getString
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.front_pes.utils.SelectorIndex
+import com.google.android.gms.maps.model.TileOverlayOptions
+import com.google.maps.android.heatmaps.HeatmapTileProvider
+import com.google.maps.android.heatmaps.WeightedLatLng
+import com.google.maps.android.heatmaps.Gradient
+import kotlin.math.*
 
 const val MapScreenDestination = "Map"
 
@@ -31,6 +36,13 @@ data class RutaAmbPunt(
     val ruta: RutasResponse,
     val punt: PuntsResponse
 )
+
+fun interpolateColor(index: Double): Int {
+    val clampedIndex = index.coerceIn(0.0, 1.0)
+    val red = (255 * (1 - clampedIndex)).toInt()
+    val green = (255 * clampedIndex).toInt()
+    return Color.rgb(red, green, 0)
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,11 +79,11 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                 location?.let {
                     val newLocation = LatLng(it.latitude, it.longitude)
                     userLocation = newLocation
-                    cameraPositionState.position = CameraPosition.fromLatLngZoom(newLocation, 16f)
+                    cameraPositionState.position = CameraPosition.fromLatLngZoom(newLocation, 0f)
                 }
             }
         } else {
-            cameraPositionState.position = CameraPosition.fromLatLngZoom(plazaCatalunya, 16f)
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(plazaCatalunya, 4f)
             if (!viewModel.hasShownPermissionWarning) {
                 showLocationDeniedDialog = true
                 viewModel.hasShownPermissionWarning = true
@@ -235,6 +247,28 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                                 isBottomSheetVisible = true
                                 true
                             }
+                        )
+                    }
+                }
+
+                MapEffect(key1 = estacions.toList()) { googleMap ->
+                    val heatmapPoints = estacions.map { station ->
+                        WeightedLatLng(LatLng(station.latitud, station.longitud), 10.0)
+                    }
+                    val colors = estacions.map { station -> interpolateColor(station.index_qualitat_aire) }.toIntArray()
+
+                    if (heatmapPoints.isNotEmpty()) {
+                        val startPoints = FloatArray(colors.size) { i -> i.toFloat() / colors.size }
+                        val gradient = Gradient(colors, startPoints)
+
+                        val heatmapProvider = HeatmapTileProvider.Builder()
+                            .radius(50)
+                            .weightedData(heatmapPoints)
+                            .gradient(gradient)
+                            .build()
+
+                        googleMap.addTileOverlay(
+                            TileOverlayOptions().tileProvider(heatmapProvider).zIndex(1f)
                         )
                     }
                 }

@@ -65,8 +65,20 @@ interface ApiService {
         @Path("pk") pk: String,
     ): Call<DetallUsuariResponse>
 
-    @GET("usuaris")
-    fun get_all_usuaris(): Call<List<DetallUsuariResponse>>
+    @GET("amistats/usuari/{pk}/basics/")
+    fun get_all_usuaris(
+        @Path("pk") pk: String
+    ): Call<List<DetallUsuariResponse>>
+
+    @GET("amistats/usuari/<str:pk>/rebudes/")
+    fun get_all_rebudes(
+        @Path("pk") pk: String
+    ): Call<List<SolicitarAmistatResponse>>
+
+    @GET("amistats/usuari/{pk}/enviades/")
+    fun get_all_envaides(
+        @Path("pk") pk: String
+    ): Call<List<SolicitarAmistatResponse>>
 
     @GET("ranking-usuaris-all/")
     fun get_all_ranking(): Call<List<RankingResponse>>
@@ -80,5 +92,18 @@ interface ApiService {
     fun create_new_amistat(
         @Body request: SolicitarAmistatRequest
     ): Call<SolicitarAmistatResponse>
+
+    @PATCH("amistats/{pk}/update/")
+    fun update_amistat(
+        @Path("pk") pk:Int,
+        @Body body: Map<String, @JvmSuppressWildcards Any>
+    ): Call <SolicitarAmistatResponse>
+
+    @DELETE("amistats/{pk}/delete/")
+    fun delete_amistat(
+        @Path("pk") pk:Int
+    ) : Call<Void>
+
+
 
 }

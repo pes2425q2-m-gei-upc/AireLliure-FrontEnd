@@ -25,6 +25,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.LaunchedEffect
@@ -39,7 +42,9 @@ import com.front_pes.features.screens.xats.XatViewModel
 const val LlistatAmistatScreen = "AmistatListScreen"
 enum class Selector{
     AMISTATS,
-    USUARIS
+    USUARIS,
+    REBUDES,
+    ENVIADES
 }
 
 
@@ -54,8 +59,10 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, viewModel: LlistatAmi
     LaunchedEffect(Unit) { viewModel.get_usuaris() }
     val amistatList = viewModel.llista_amics
     val usuarisList = viewModel.all_users
+    val all_rebudes = viewModel.all_rebudes
+    val all_enviades = viewModel.all_enviades
     Column(
-        modifier = Modifier.fillMaxSize().padding(top = 64.dp, start = 10.dp, end = 24.dp),
+        modifier = Modifier.fillMaxSize().padding(top = 90.dp, start = 10.dp, end = 24.dp),
     ) {
         Row(
             modifier = Modifier
@@ -82,6 +89,22 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, viewModel: LlistatAmi
                 modifier = Modifier.clickable { currentMode = Selector.USUARIS }
                     .padding(10.dp)
             )
+            Text(
+                text = "Pendents",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (currentMode == Selector.REBUDES) MaterialTheme.colorScheme.primary else Color.Gray,
+                modifier = Modifier.clickable { currentMode = Selector.REBUDES }
+                    .padding(10.dp)
+            )
+            Text(
+                text = "Enviades",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (currentMode == Selector.ENVIADES) MaterialTheme.colorScheme.primary else Color.Gray,
+                modifier = Modifier.clickable { currentMode = Selector.ENVIADES }
+                    .padding(10.dp)
+            )
         }
 
         TextField(
@@ -102,9 +125,17 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, viewModel: LlistatAmi
                 items(amistatList.filter { it.nom.contains(searchText, ignoreCase = true) }) {item ->
                     AmistatListItem(name = item.nom, onClick = {onAmistatClick(item.id)})
                 }
-            } else {
+            } else if (currentMode == Selector.USUARIS) {
                 items(usuarisList.filter {  it.nom?.contains(searchText, ignoreCase = true) ?: false}){
                     user -> UsuariListItem(name = user.nom, onSeguirClick = {viewModel.seguir_usuari(accepta = user?.correu)})
+                }
+            } else if (currentMode == Selector.ENVIADES){
+                items(all_enviades){
+                        user -> EnviadesListItem(name = user.nom, onCancelar = {viewModel.cancelar_solicitud_enviada(user.xat_id)})
+                }
+            } else {
+                items(all_rebudes){
+                        user -> RebudesListItem(name = user.nom, onCancelar = {viewModel.cancelar_solicitud_rebuda(user.xat_id)}, onAcceptar = {viewModel.aceptar_solicitud_rebuda(user.xat_id)})
                 }
             }
         }
@@ -175,6 +206,92 @@ fun UsuariListItem(
                 IconButton(onClick = onSeguirClick) {
                     Icon(
                         imageVector = Icons.Default.Add,
+                        contentDescription = "Seguir",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun RebudesListItem(
+    name: String?,
+    onCancelar: () -> Unit,
+    onAcceptar: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = name ?: "",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f)
+            )
+
+            Row {
+                IconButton(onClick = onAcceptar) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "Seguir",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                IconButton(onClick = onCancelar) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Seguir",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EnviadesListItem(
+    name: String?,
+    onCancelar: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = name ?: "",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f)
+            )
+
+            Row {
+                IconButton(onClick = onCancelar) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
                         contentDescription = "Seguir",
                         tint = MaterialTheme.colorScheme.primary
                     )

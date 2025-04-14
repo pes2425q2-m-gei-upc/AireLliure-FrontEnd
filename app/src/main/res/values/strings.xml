@@ -13,6 +13,7 @@
     <string name="settings">Ajustes</string>
     <string name="chats">Conversaciones</string>
     <string name="friends">Amigos</string>
+    <string name="Block">Bloqueados</string>
     <string name="ranking">Ranking</string>
     <string name="airQ">Calidad del Aire</string>
     <string name="routes">Rutas</string>
@@ -36,4 +37,5 @@
     <string name="u_perm">Permiso de ubicación requerido</string>
     <string name="hab">Habilita los permisos de localización para poder utilizar de manera completa la aplicación.</string>
     <string name="aceptar">Aceptar</string>
+    <string name="Relacions">Relaciones</string>
 </resources>

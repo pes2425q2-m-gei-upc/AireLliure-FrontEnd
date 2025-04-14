@@ -22,6 +22,8 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -45,6 +47,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -69,6 +73,7 @@ import com.front_pes.features.screens.map.MapScreen
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.features.screens.settings.SettingsScreen
 import com.front_pes.features.screens.user.UserPageScreen
+import com.front_pes.features.screens.xamistat.BloqueigScreen
 import com.front_pes.features.screens.xamistat.LlistatAmistatScreen
 import com.front_pes.features.screens.xamistat.DetallAmistatScreen
 import com.front_pes.getString
@@ -82,12 +87,15 @@ const val MainScreenDestination = "Main"
 
 
 @Composable
-fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () -> Unit) {
+fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () -> Unit, onChangeIndex: (Int) -> Unit ) {
     val context = LocalContext.current
     var selectedAmistat by remember { mutableStateOf<String>("") }
     var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+    SideEffect {
+        SelectorIndex.selectedIndex = selectedIndex
+    }
     when (selectedIndex) {
         0 -> UserPageScreen(title = getString(context, R.string.username, currentLocale), onNavigateToLogin = onNavigateToLogin)
         1 -> MapScreen(title = getString(context, R.string.map, currentLocale),)
@@ -99,7 +107,8 @@ fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () 
                 LlistatAmistatScreen(
                     onAmistatClick = { amistatID ->
                         selectedAmistat = amistatID
-                    }
+                    },
+                    onNavigateToBlocks = {onChangeIndex(6)},
                 )
             } else {
                 DetallAmistatScreen(
@@ -110,6 +119,8 @@ fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () 
         }
         5-> RankingScreen(onChatClick = { chatName ->
             Log.d("ChatList", "Has fet clic a $chatName") })
+        6-> BloqueigScreen(
+            onNavigateToRelations={onChangeIndex(4)})
     }
 }
 
@@ -225,15 +236,19 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
 
-    val navItemList = listOf(
+    val navItemListMap = listOf(
         NavItem(getString(context, R.string.airQ, selectedLanguage), Icons.Default.Person),
-        NavItem(getString(context, R.string.routes, selectedLanguage), Icons.Default.LocationOn),
+        NavItem(getString(context, R.string.routes, selectedLanguage), Icons.Default.LocationOn)
+    )
+
+    val navItemListAmistat = listOf(
+        NavItem(getString(context, R.string.Relacions, selectedLanguage), Icons.Default.Share),
+        NavItem(getString(context, R.string.Block, selectedLanguage), Icons.Default.Lock)
     )
 
     var selectedIndex by remember { mutableIntStateOf(1) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var textSearch by remember { mutableStateOf("") }
     val hideBars = selectedIndex == 0 || selectedIndex == 2
 
     BackHandler {
@@ -258,9 +273,9 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
             topBar = {
                 Box(
                     modifier = Modifier
-                        .padding(start = 16.dp, top = 32.dp) // Separación de los bordes
-                        .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp)) // Fondo blanco con bordes redondeados
-                        .padding(8.dp) // Espacio interno para no pegar el icono al fondo
+                        .padding(start = 16.dp, top = 32.dp)
+                        .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp))
+                        .padding(8.dp)
                         .size(40.dp)
                 ) {
                     IconButton(onClick = { scope.launch { drawerState.open() } }) {
@@ -276,24 +291,36 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
             bottomBar = {
                 if (!hideBars) {
                     NavigationBar {
-                        navItemList.forEachIndexed { index, navItem ->
-                            val isSelected = SelectorIndex.selectedIndex == index
+                        val navItemsToShow = when (selectedIndex) {
+                            1 -> navItemListMap
+                            4, 6 -> navItemListAmistat
+                            else -> emptyList()
+                        }
+
+                        navItemsToShow.forEachIndexed { index, navItem ->
+                            val actualIndex = when (selectedIndex) {
+                                1 -> index // 0 o 1 para Map
+                                4, 6 -> index + 4 // 4 o 5 para Relacions y Bloqueigs
+                                else -> index
+                            }
+
+                            val isSelected = selectedIndex == actualIndex
 
                             NavigationBarItem(
                                 selected = isSelected,
-                                onClick = {
-                                    if (isSelected) {
-                                        // Deselecciona si ya estaba activo
-                                        SelectorIndex.selectedIndex = -1
-                                    } else {
-                                        SelectorIndex.selectedIndex = index
-                                    }
-                                },
+                                onClick = { selectedIndex = actualIndex },
                                 icon = {
-                                    Icon(imageVector = navItem.icon, contentDescription = "Icon", tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
+                                    Icon(
+                                        imageVector = navItem.icon,
+                                        contentDescription = "Icon",
+                                        tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                    )
                                 },
                                 label = {
-                                    Text(text = navItem.label, color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
+                                    Text(
+                                        text = navItem.label,
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                    )
                                 }
                             )
                         }
@@ -303,8 +330,9 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
         ) { innerPadding ->
             ContentScreen(
                 modifier = Modifier.padding(innerPadding),
-                selectedIndex,
-                onNavigateToLogin
+                selectedIndex = selectedIndex,
+                onNavigateToLogin = onNavigateToLogin,
+                onChangeIndex = { selectedIndex = it }
             )
         }
     }

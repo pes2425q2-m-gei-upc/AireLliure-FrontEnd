@@ -28,7 +28,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -48,13 +52,19 @@ enum class Selector{
     ENVIADES
 }
 
+enum class BottomNavItem(val label: String){
+    Relacions("Relacions"),
+    Bloqueigs("Bloqueigs")
+}
+
 
 @Composable
-fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, viewModel: LlistatAmistatViewModel = viewModel()) {
+fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, onNavigateToBlocks: () -> Unit, viewModel: LlistatAmistatViewModel = viewModel()) {
 
     var currentMode by remember {mutableStateOf(Selector.AMISTATS)}
     val scrollState = rememberLazyListState()
     var searchText by remember { mutableStateOf("") }
+    var selected_nav by remember { mutableStateOf(BottomNavItem.Relacions) }
 
     LaunchedEffect(Unit) { viewModel.getXatsAmics()}
     LaunchedEffect(Unit) { viewModel.get_usuaris() }
@@ -124,7 +134,7 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, viewModel: LlistatAmi
         ) {
             if(currentMode == Selector.AMISTATS){
                 items(amistatList.filter { it.nom.contains(searchText, ignoreCase = true) }) {item ->
-                    AmistatListItem(name = item.nom, onClick = {onAmistatClick(item.id)})
+                    AmistatListItem(name = item.nom, onClick = {onAmistatClick(item.id)}, onDelete ={viewModel.delete_amistad(item.idAmistat)})
                 }
             } else if (currentMode == Selector.USUARIS) {
                 items(usuarisList.filter {  it.nom?.contains(searchText, ignoreCase = true) ?: false}){
@@ -140,11 +150,27 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, viewModel: LlistatAmi
                 }
             }
         }
+        Spacer(modifier = Modifier.weight(1f))
+
+        NavigationBar {
+            NavigationBarItem(
+                icon = { Icon(Icons.Default.Share, contentDescription = null) },
+                label = { Text(BottomNavItem.Relacions.label) },
+                selected = selected_nav == BottomNavItem.Relacions,
+                onClick = { selected_nav = BottomNavItem.Relacions }
+            )
+            NavigationBarItem(
+                icon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                label = { Text(BottomNavItem.Bloqueigs.label) },
+                selected = selected_nav == BottomNavItem.Bloqueigs,
+                onClick = { onNavigateToBlocks() }
+            )
+        }
     }
 }
 
 @Composable
-fun AmistatListItem(name: String, onClick: () -> Unit) {
+fun AmistatListItem(name: String, onClick: () -> Unit, onDelete: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -173,6 +199,16 @@ fun AmistatListItem(name: String, onClick: () -> Unit) {
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium
             )
+            Row {
+                IconButton(onClick = onDelete,
+                    modifier = Modifier.padding(start = 180.dp)) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Eliminar Amistad",
+                        tint = Color.Red
+                    )
+                }
+            }
         }
     }
 }

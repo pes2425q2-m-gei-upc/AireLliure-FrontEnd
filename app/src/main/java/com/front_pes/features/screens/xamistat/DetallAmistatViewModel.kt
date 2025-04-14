@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.front_pes.CurrentUser
-import com.front_pes.bloqueigXamistat.BloqueigRequest
 import com.front_pes.network.RetrofitClient
 import kotlinx.coroutines.launch
 import retrofit2.Call

@@ -1,4 +1,4 @@
-package com.front_pes.bloqueigXamistat
+package com.front_pes.features.screens.xamistat
 
 data class BloqueigResponse(
     val id: Int,

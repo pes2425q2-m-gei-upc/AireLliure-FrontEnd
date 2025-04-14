@@ -1,7 +1,7 @@
 package com.front_pes.network
 
-import com.front_pes.bloqueigXamistat.BloqueigRequest
-import com.front_pes.bloqueigXamistat.BloqueigResponse
+import com.front_pes.features.screens.xamistat.BloqueigRequest
+import com.front_pes.features.screens.xamistat.BloqueigResponse
 import com.front_pes.features.screens.Ranking.RankingResponse
 import com.front_pes.features.screens.login.LoginRequest
 import com.front_pes.features.screens.login.LoginResponse

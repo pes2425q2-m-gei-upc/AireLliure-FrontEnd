@@ -118,8 +118,6 @@ class LlistatAmistatViewModel: ViewModel() {
                 pendent = true
             )
             RetrofitClient.apiService.create_new_amistat(body)
-
-            // Torna a carregar les dades
             getXatsAmics()
             get_rebudes()
             get_usuaris()
@@ -131,11 +129,9 @@ class LlistatAmistatViewModel: ViewModel() {
         }
     }
 
-
     fun cancelar_solicitud_enviada(AmistatId: Int) = viewModelScope.launch {
         try {
             RetrofitClient.apiService.delete_amistat(AmistatId)
-
             getXatsAmics()
             get_rebudes()
             get_usuaris()
@@ -165,15 +161,25 @@ class LlistatAmistatViewModel: ViewModel() {
         try {
             val body_enviar = mapOf("pendent" to false)
             RetrofitClient.apiService.update_amistat(AmistatId, body_enviar)
-
             getXatsAmics()
             get_rebudes()
             get_usuaris()
             get_enviades()
-
         } catch (e: Exception) {
             errorMessage = "Error en acceptar la solicitud: ${e.message}"
             println(errorMessage)
+        }
+    }
+
+    fun delete_amistad(AmistatId: Int)=viewModelScope.launch {
+        try{
+            RetrofitClient.apiService.delete_amistat(AmistatId)
+            getXatsAmics()
+            get_rebudes()
+            get_usuaris()
+            get_enviades()
+        } catch(e:Exception){
+            println("Error al eliminar la amistad: ${e.message}")
         }
     }
 }

@@ -232,6 +232,7 @@ fun SearchBar(modifier: Modifier = Modifier) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: () -> Unit) {
+
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
@@ -301,7 +302,7 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
 
                         navItemsToShow.forEachIndexed { index, navItem ->
                             val actualIndex = when (selectedIndex) {
-                                1 -> selectedIndex // Mantenerse en MapScreen
+                                1 -> selectedIndex // Stay on same screen
                                 4, 6 -> if (index == 0) 4 else 6
                                 else -> index
                             }
@@ -311,33 +312,33 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
                                 else -> selectedIndex == actualIndex
                             }
 
+                            // 🔧 Esta parte está fuera del NavigationBarItem (¡clave!)
+                            val iconContent: @Composable () -> Unit = {
+                                Icon(
+                                    imageVector = navItem.icon,
+                                    contentDescription = "Icon",
+                                    tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                            val labelContent: @Composable () -> Unit = {
+                                Text(
+                                    text = navItem.label,
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+
                             NavigationBarItem(
                                 selected = isSelected,
                                 onClick = {
                                     if (selectedIndex == 1) {
-                                        mapFilterIndex = index // Cambiar solo el filtro
-                                        if (isSelected) {
-                                            SelectorIndex.selectedFiltre = -1
-                                        } else {
-                                            SelectorIndex.selectedFiltre = index
-                                        }
+                                        mapFilterIndex = index
+                                        SelectorIndex.selectedFiltre = if (isSelected) -1 else index
                                     } else {
                                         selectedIndex = actualIndex
                                     }
                                 },
-                                icon = {
-                                    Icon(
-                                        imageVector = navItem.icon,
-                                        contentDescription = "Icon",
-                                        tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                                    )
-                                },
-                                label = {
-                                    Text(
-                                        text = navItem.label,
-                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                                    )
-                                }
+                                icon = iconContent,
+                                label = labelContent
                             )
                         }
                     }

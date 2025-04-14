@@ -37,13 +37,6 @@ data class RutaAmbPunt(
     val punt: PuntsResponse
 )
 
-fun interpolateColor(index: Double): Int {
-    val clampedIndex = index.coerceIn(0.0, 1.0)
-    val red = (255 * (1 - clampedIndex)).toInt()
-    val green = (255 * clampedIndex).toInt()
-    return Color.rgb(red, green, 0)
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
@@ -252,23 +245,13 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                 }
 
                 MapEffect(key1 = estacions.toList()) { googleMap ->
-                    val heatmapPoints = estacions.map { station ->
-                        WeightedLatLng(LatLng(station.latitud, station.longitud), 10.0)
-                    }
-                    val colors = estacions.map { station -> interpolateColor(station.index_qualitat_aire) }.toIntArray()
-
-                    if (heatmapPoints.isNotEmpty()) {
-                        val startPoints = FloatArray(colors.size) { i -> i.toFloat() / colors.size }
-                        val gradient = Gradient(colors, startPoints)
-
-                        val heatmapProvider = HeatmapTileProvider.Builder()
-                            .radius(50)
-                            .weightedData(heatmapPoints)
-                            .gradient(gradient)
-                            .build()
-
+                    Log.d("MAP_SCREEN", "Número de estaciones: ${estacions.size}")
+                    if (estacions.isNotEmpty()) {
+                        val tileProvider = CustomHeatmapTileProvider(stations = estacions)
                         googleMap.addTileOverlay(
-                            TileOverlayOptions().tileProvider(heatmapProvider).zIndex(1f)
+                            com.google.android.gms.maps.model.TileOverlayOptions()
+                                .tileProvider(tileProvider)
+                                .zIndex(1f)
                         )
                     }
                 }

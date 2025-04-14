@@ -6,5 +6,6 @@ data class SolicitarAmistatResponse(
     val accepta: String?,
     val data_inici: String,
     val data_final: String?,
-    val pendent: Boolean
+    val pendent: Boolean,
+    val nom: String
 )

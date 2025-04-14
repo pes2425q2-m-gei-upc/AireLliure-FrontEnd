@@ -16,6 +16,7 @@ import com.front_pes.features.screens.xamistat.SolicitarAmistatRequest
 import com.front_pes.features.screens.xamistat.SolicitarAmistatResponse
 import com.front_pes.features.screens.xats.LlistaXatResponse
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -56,9 +57,9 @@ interface ApiService {
     ): Call<List<LlistaXatResponse>>
 
     @GET("amistats/usuari/{pk}")
-    fun getAmistatUsuarybyCorreu(
+    suspend fun getAmistatUsuarybyCorreu(
         @Path("pk") pk: String,
-    ): Call<List<LlistaAmistatResponse>>
+    ): List<LlistaAmistatResponse>
 
     @GET("usuaris/{pk}/")
     fun getDetallUsuariAmic(
@@ -66,19 +67,19 @@ interface ApiService {
     ): Call<DetallUsuariResponse>
 
     @GET("amistats/usuari/{pk}/basics/")
-    fun get_all_usuaris(
+    suspend fun get_all_usuaris(
         @Path("pk") pk: String
-    ): Call<List<DetallUsuariResponse>>
+    ): List<DetallUsuariResponse>
 
-    @GET("amistats/usuari/<str:pk>/rebudes/")
-    fun get_all_rebudes(
+    @GET("amistats/usuari/{pk}/rebudes/")
+    suspend fun get_all_rebudes(
         @Path("pk") pk: String
-    ): Call<List<SolicitarAmistatResponse>>
+    ): List<SolicitarAmistatResponse>
 
     @GET("amistats/usuari/{pk}/enviades/")
-    fun get_all_envaides(
+    suspend fun get_all_envaides(
         @Path("pk") pk: String
-    ): Call<List<SolicitarAmistatResponse>>
+    ): List<SolicitarAmistatResponse>
 
     @GET("ranking-usuaris-all/")
     fun get_all_ranking(): Call<List<RankingResponse>>
@@ -89,20 +90,20 @@ interface ApiService {
     ): Call<List<RankingResponse>>
 
     @POST("amistats/create/")
-    fun create_new_amistat(
+    suspend fun create_new_amistat(
         @Body request: SolicitarAmistatRequest
-    ): Call<SolicitarAmistatResponse>
+    ): SolicitarAmistatResponse
 
     @PATCH("amistats/{pk}/update/")
-    fun update_amistat(
+    suspend fun update_amistat(
         @Path("pk") pk:Int,
         @Body body: Map<String, @JvmSuppressWildcards Any>
-    ): Call <SolicitarAmistatResponse>
+    ): SolicitarAmistatResponse
 
     @DELETE("amistats/{pk}/delete/")
-    fun delete_amistat(
+    suspend fun delete_amistat(
         @Path("pk") pk:Int
-    ) : Call<Void>
+    ) : Response<Unit>
 
 
 

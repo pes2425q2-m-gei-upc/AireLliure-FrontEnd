@@ -19,8 +19,8 @@ import retrofit2.Response
 
 class LlistatAmistatViewModel: ViewModel() {
 
-    data class AmistatLine(val xat_id: Int, val id: String, val nom: String, val correu: String)
-    data class UsuariLine(val id: String?=null, val nom: String?=null, val correu: String?=null)
+    data class AmistatLine(val idAmistat: Int, val id: String, val nom: String, val correu: String)
+    data class UsuariLine(val id: String?=null, val nom: String?=null, val correu: String)
     /* VAR DEL LLISTAT DE AMICS */
     var llista_amics by mutableStateOf <List<AmistatLine>>(emptyList())
     /* VAR DE TOTS ELS USUARIS PER AL SELECTOR   */
@@ -40,239 +40,140 @@ class LlistatAmistatViewModel: ViewModel() {
     }
 
     fun getXatsAmics() = viewModelScope.launch {
-        try{
-            val call = RetrofitClient.apiService.getAmistatUsuarybyCorreu(CurrentUser.correu)
-            call.enqueue(object: Callback<List<LlistaAmistatResponse>>{
-                override fun onResponse(
-                    call: Call<List<LlistaAmistatResponse>>,
-                    response: Response<List<LlistaAmistatResponse>>
-                ) {
-                    if (response.code()==200){
-
-                        val resposta = response.body()
-                        resposta?.let {
-                            llista_amics = it.map { item -> AmistatLine(xat_id = item.idXat, id=item.correu, nom= item.nom, correu = item.correu) }
-                        }
-                    } else {
-                        errorMessage = when(response.code()) {
-                            404 -> "usuari no existeix"
-                            401 -> "contrasenya incorrecta"
-                            else -> "Error desconocido: ${response.code()}"
-                        }
-                    }
-                }
-                override fun onFailure(call: Call<List<LlistaAmistatResponse>>, t: Throwable) {
-                    errorMessage = "Network error: ${t.message}"
-                }
-            })
-        } catch (e: Exception){
-            println("Error carregant el llistat d'amics: ${e.message}")
-        }
-    }
-
-    fun get_usuaris() = viewModelScope.launch{
-        try{
-            val call = RetrofitClient.apiService.get_all_usuaris(CurrentUser.correu)
-            call.enqueue(object: Callback<List<DetallUsuariResponse>>{
-
-                override fun onResponse(
-                    call: Call<List<DetallUsuariResponse>>,
-                    response: Response<List<DetallUsuariResponse>>
-                ) {
-                    if(response.code() == 200){
-
-                        val resposta_ = response.body()
-                        resposta_?.let {
-                            all_users = it.map { item -> UsuariLine(id = item.correu, nom = item.nom, correu = item.correu) }
-                        }
-                    } else {
-                        errorMessage = when(response.code()) {
-                            404 -> "usuari no existeix"
-                            401 -> "contrasenya incorrecta"
-                            else -> "Error desconocido: ${response.code()}"
-                        }
-                    }
-                }
-                override fun onFailure(call: Call<List<DetallUsuariResponse>>, t: Throwable) {
-                    errorMessage = "Network error: ${t.message}"
-                }
-            })
-        } catch(e:Exception){
-            println("Error al carregar els usuaris : ${e.message}")
-        }
-    }
-
-    fun get_rebudes()=viewModelScope.launch{
-        try{
-            val call = RetrofitClient.apiService.get_all_rebudes(CurrentUser.correu)
-            call.enqueue(object: Callback<List<SolicitarAmistatResponse>>{
-                override fun onResponse(
-                    call: Call<List<SolicitarAmistatResponse>>,
-                    response: Response<List<SolicitarAmistatResponse>>
-                ) {
-                    if(response.code() == 200){
-                        val _resposta_ = response.body()
-                        _resposta_?.let {
-                            all_rebudes = it.map { item -> AmistatLine(xat_id = item.id, id = item.solicita, nom = item.solicita, correu = "FALTA ENCARA" ) }
-                        }
-                    } else {
-                        errorMessage = when(response.code()) {
-                            404 -> "usuari no existeix"
-                            401 -> "contrasenya incorrecta"
-                            else -> "Error desconocido: ${response.code()}"
-                        }
-                    }
-                }
-                override fun onFailure(call: Call<List<SolicitarAmistatResponse>>, t: Throwable) {
-                    println("error a la hora de recibir las peticiones recibidas: ${t.message}")
-                }
-            })
-
-        } catch(e:Exception){
-            println("Error al carregar les peticions que has rebut: ${e.message}")
-        }
-    }
-
-    fun get_enviades()=viewModelScope.launch {
-        try{
-            val call = RetrofitClient.apiService.get_all_envaides(CurrentUser.correu)
-            call.enqueue(object: Callback<List<SolicitarAmistatResponse>>{
-
-                override fun onResponse(
-                    call: Call<List<SolicitarAmistatResponse>>,
-                    response: Response<List<SolicitarAmistatResponse>>
-                ) {
-                    if(response.code()==200){
-                        val resp = response.body()
-                        resp?.let {
-                            all_enviades = it.map { item -> AmistatLine(xat_id = item.id,id = item.solicita, nom = item.solicita, correu = "FALTA ENCARA" ) }
-                        }
-                    } else {
-                        errorMessage = when(response.code()) {
-                            404 -> "usuari no existeix"
-                            401 -> "contrasenya incorrecta"
-                            else -> "Error desconocido: ${response.code()}"
-                        }
-                    }
-                }
-                override fun onFailure(call: Call<List<SolicitarAmistatResponse>>, t: Throwable) {
-                    println("Error al carregar les peticions enviades: ${t.message}")
-                }
-            })
-        } catch (e:Exception){
-            println("Error al carregar les peticions enviades: ${e.message}")
-        }
-    }
-
-    fun seguir_usuari(accepta:String?)=viewModelScope.launch {
-        try{
-            if (accepta == null) {
-                println("No pots seguir un usuari amb ID null")
-                return@launch
+        try {
+            val resposta = RetrofitClient.apiService.getAmistatUsuarybyCorreu(CurrentUser.correu)
+            llista_amics = resposta.map { item ->
+                AmistatLine(
+                    idAmistat = item.idAmistat,
+                    id = item.correu,
+                    nom = item.nom,
+                    correu = item.correu
+                )
             }
-            val call = RetrofitClient.apiService.create_new_amistat(SolicitarAmistatRequest(solicita = CurrentUser.correu, accepta = accepta, pendent = true))
-            call.enqueue(object: Callback<SolicitarAmistatResponse>{
-                override fun onResponse(
-                    call: Call<SolicitarAmistatResponse>,
-                    response: Response<SolicitarAmistatResponse>
-                ) {
-                    if(response.code() == 200){
-                        println("Solicitud feta")
-                    } else {
-                        errorMessage = when(response.code()) {
-                            404 -> "usuari no existeix"
-                            401 -> "contrasenya incorrecta"
-                            else -> "Error desconocido: ${response.code()}"
-                        }
-                    }
-                }
-                override fun onFailure(call: Call<SolicitarAmistatResponse>, t: Throwable) {
-                    println("Error al fer la peticio de solicitud: ${t.message}")
-                }
-            })
-        } catch(e: Exception){
-            println("Error al fer la peticio de solicitud: ${e.message}")
+        } catch (e: Exception) {
+            errorMessage = "Error carregant el llistat d'amics: ${e.message}"
+            println(errorMessage)
         }
     }
 
-    fun cancelar_solicitud_enviada(xatId: Int)=viewModelScope.launch {
-        try{
-            val call = RetrofitClient.apiService.delete_amistat(xatId)
-            call.enqueue(object: Callback<Void>{
-                override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                    if(response.code()==200){
-                        println("Success CANCELADA LA SOLICITUD ENVIADA!")
-                    } else {
-                        errorMessage = when(response.code()) {
-                            404 -> "usuari no existeix"
-                            401 -> "contrasenya incorrecta"
-                            else -> "Error desconocido: ${response.code()}"
-                        }
-                    }
-                }
-                override fun onFailure(call: Call<Void>, t: Throwable) {
-                    println("Error al cancel·lar la solicitud: ${t.message}")
-                }
-            })
-        } catch(e:Exception){
-            println("Error al cancel·lar la solicitud: ${e.message}")
+
+    fun get_usuaris() = viewModelScope.launch {
+        try {
+            val resposta = RetrofitClient.apiService.get_all_usuaris(CurrentUser.correu)
+            all_users = resposta.map { item ->
+                UsuariLine(
+                    id = item.correu,
+                    nom = item.nom,
+                    correu = item.correu
+                )
+            }
+        } catch (e: Exception) {
+            errorMessage = "Error al carregar els usuaris: ${e.message}"
+            println(errorMessage)
         }
     }
 
-    fun cancelar_solicitud_rebuda(xatId: Int)=viewModelScope.launch {
 
-        try{
-            val call = RetrofitClient.apiService.delete_amistat(xatId)
-            call.enqueue(object: Callback<Void>{
-                override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                    if(response.code()==200){
-                        println("Success CANCELADA LA SOLICITUD REBUDA!")
-                    } else {
-                        errorMessage = when(response.code()) {
-                            404 -> "usuari no existeix"
-                            401 -> "contrasenya incorrecta"
-                            else -> "Error desconocido: ${response.code()}"
-                        }
-                    }
-                }
-                override fun onFailure(call: Call<Void>, t: Throwable) {
-                    println("Error al cancelar la solicitud rebuda: ${t.message}")
-                }
-            })
-        } catch(e:Exception){
-            println("Error al cancelar la solicitud rebuda: ${e.message}")
+    fun get_rebudes() = viewModelScope.launch {
+        try {
+            val resposta = RetrofitClient.apiService.get_all_rebudes(CurrentUser.correu)
+            all_rebudes = resposta.map { item ->
+                AmistatLine(
+                    idAmistat = item.id,
+                    id = item.solicita,
+                    nom = item.nom,
+                    correu = item.solicita
+                )
+            }
+        } catch (e: Exception) {
+            errorMessage = "Error al carregar les peticions rebudes: ${e.message}"
+            println(errorMessage)
         }
     }
 
-    fun aceptar_solicitud_rebuda(xatId: Int)=viewModelScope.launch {
 
-        try{
-            val body_enviar = mapOf(
-                "pendent" to false
+    fun get_enviades() = viewModelScope.launch {
+        try {
+            val resposta = RetrofitClient.apiService.get_all_envaides(CurrentUser.correu)
+            all_enviades = resposta.map { item ->
+                AmistatLine(
+                    idAmistat = item.id,
+                    id = item.solicita,
+                    nom = item.nom,
+                    correu = item.accepta ?: ""
+                )
+            }
+        } catch (e: Exception) {
+            errorMessage = "Error al carregar les peticions enviades: ${e.message}"
+            println(errorMessage)
+        }
+    }
+
+
+    fun seguir_usuari(accepta: String) = viewModelScope.launch {
+        try {
+            val body = SolicitarAmistatRequest(
+                solicita = CurrentUser.correu,
+                accepta = accepta,
+                pendent = true
             )
-            val call = RetrofitClient.apiService.update_amistat(xatId, body_enviar)
-            call.enqueue(object:Callback<SolicitarAmistatResponse>{
+            RetrofitClient.apiService.create_new_amistat(body)
 
-                override fun onResponse(
-                    call: Call<SolicitarAmistatResponse>,
-                    response: Response<SolicitarAmistatResponse>
-                ) {
-                    if(response.code()==200){
-                        println("Success! ACCEPTADA LA SOLICITUD")
-                    } else {
-                        errorMessage = when(response.code()) {
-                            404 -> "usuari no existeix"
-                            401 -> "contrasenya incorrecta"
-                            else -> "Error desconocido: ${response.code()}"
-                        }
-                    }
-                }
-                override fun onFailure(call: Call<SolicitarAmistatResponse>, t: Throwable) {
-                    println("Error al aceptar la solicitud: ${t.message}")
-                }
-            })
-        } catch(e:Exception){
-            println("Error al aceptar la solicitud: ${e.message}")
+            // Torna a carregar les dades
+            getXatsAmics()
+            get_rebudes()
+            get_usuaris()
+            get_enviades()
+
+        } catch (e: Exception) {
+            errorMessage = "Error en seguir usuari: ${e.message}"
+            println(errorMessage)
+        }
+    }
+
+
+    fun cancelar_solicitud_enviada(AmistatId: Int) = viewModelScope.launch {
+        try {
+            RetrofitClient.apiService.delete_amistat(AmistatId)
+
+            getXatsAmics()
+            get_rebudes()
+            get_usuaris()
+            get_enviades()
+
+        } catch (e: Exception) {
+            errorMessage = "Error en cancel·lar la solicitud enviada: ${e.message}"
+            println(errorMessage)
+        }
+    }
+
+    fun cancelar_solicitud_rebuda(AmistatId: Int) = viewModelScope.launch {
+        try {
+            RetrofitClient.apiService.delete_amistat(AmistatId)
+            getXatsAmics()
+            get_rebudes()
+            get_usuaris()
+            get_enviades()
+
+        } catch (e: Exception) {
+            errorMessage = "Error en cancel·lar la solicitud enviada: ${e.message}"
+            println(errorMessage)
+        }
+    }
+
+    fun aceptar_solicitud_rebuda(AmistatId: Int) = viewModelScope.launch {
+        try {
+            val body_enviar = mapOf("pendent" to false)
+            RetrofitClient.apiService.update_amistat(AmistatId, body_enviar)
+
+            getXatsAmics()
+            get_rebudes()
+            get_usuaris()
+            get_enviades()
+
+        } catch (e: Exception) {
+            errorMessage = "Error en acceptar la solicitud: ${e.message}"
+            println(errorMessage)
         }
     }
 }

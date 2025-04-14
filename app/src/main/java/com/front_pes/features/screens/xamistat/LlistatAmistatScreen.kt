@@ -35,6 +35,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.front_pes.features.screens.xats.XatViewModel
@@ -127,15 +128,15 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, viewModel: LlistatAmi
                 }
             } else if (currentMode == Selector.USUARIS) {
                 items(usuarisList.filter {  it.nom?.contains(searchText, ignoreCase = true) ?: false}){
-                    user -> UsuariListItem(name = user.nom, onSeguirClick = {viewModel.seguir_usuari(accepta = user?.correu)})
+                    user -> UsuariListItem(name = user.nom, onSeguirClick = {viewModel.seguir_usuari(accepta = user.correu)})
                 }
             } else if (currentMode == Selector.ENVIADES){
                 items(all_enviades){
-                        user -> EnviadesListItem(name = user.nom, onCancelar = {viewModel.cancelar_solicitud_enviada(user.xat_id)})
+                        user -> EnviadesListItem(name = user.nom, onCancelar = {viewModel.cancelar_solicitud_enviada(user.idAmistat)})
                 }
             } else {
                 items(all_rebudes){
-                        user -> RebudesListItem(name = user.nom, onCancelar = {viewModel.cancelar_solicitud_rebuda(user.xat_id)}, onAcceptar = {viewModel.aceptar_solicitud_rebuda(user.xat_id)})
+                        user -> RebudesListItem(name = user.nom, onCancelar = {viewModel.cancelar_solicitud_rebuda(user.idAmistat)}, onAcceptar = {viewModel.aceptar_solicitud_rebuda(user.idAmistat)})
                 }
             }
         }
@@ -254,7 +255,7 @@ fun RebudesListItem(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Seguir",
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = Color.Red
                     )
                 }
             }
@@ -293,7 +294,7 @@ fun EnviadesListItem(
                     Icon(
                         imageVector = Icons.Default.Clear,
                         contentDescription = "Seguir",
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = Color.Red
                     )
                 }
             }

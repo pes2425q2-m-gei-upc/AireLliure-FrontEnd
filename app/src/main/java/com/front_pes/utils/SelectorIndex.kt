@@ -6,4 +6,5 @@ import androidx.compose.runtime.setValue
 
 object SelectorIndex {
     var selectedIndex by mutableStateOf(-1)
+    var selectedFiltre by mutableStateOf(-1)
 }

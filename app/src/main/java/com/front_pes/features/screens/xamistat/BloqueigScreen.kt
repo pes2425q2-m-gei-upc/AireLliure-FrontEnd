@@ -58,7 +58,7 @@ fun BloqueigScreen(onNavigateToRelations: () -> Unit, viewModel: BloqueigViewMod
         )
         {
             Text(
-                text = "Amistats",
+                text = "Bloqueigs",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color =  MaterialTheme.colorScheme.primary,

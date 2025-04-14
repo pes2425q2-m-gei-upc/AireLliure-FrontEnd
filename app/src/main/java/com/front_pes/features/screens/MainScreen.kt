@@ -247,6 +247,8 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
     )
 
     var selectedIndex by remember { mutableIntStateOf(1) }
+    var mapFilterIndex by remember { mutableIntStateOf(0) } // 0: Calidad aire, 1: Rutas
+
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val hideBars = selectedIndex == 0 || selectedIndex == 2
@@ -299,16 +301,30 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
 
                         navItemsToShow.forEachIndexed { index, navItem ->
                             val actualIndex = when (selectedIndex) {
-                                1 -> index // 0 o 1 para Map
-                                4, 6 -> index + 4 // 4 o 5 para Relacions y Bloqueigs
+                                1 -> selectedIndex // Mantenerse en MapScreen
+                                4, 6 -> if (index == 0) 4 else 6
                                 else -> index
                             }
 
-                            val isSelected = selectedIndex == actualIndex
+                            val isSelected = when (selectedIndex) {
+                                1 -> mapFilterIndex == index
+                                else -> selectedIndex == actualIndex
+                            }
 
                             NavigationBarItem(
                                 selected = isSelected,
-                                onClick = { selectedIndex = actualIndex },
+                                onClick = {
+                                    if (selectedIndex == 1) {
+                                        mapFilterIndex = index // Cambiar solo el filtro
+                                        if (isSelected) {
+                                            SelectorIndex.selectedFiltre = -1
+                                        } else {
+                                            SelectorIndex.selectedFiltre = index
+                                        }
+                                    } else {
+                                        selectedIndex = actualIndex
+                                    }
+                                },
                                 icon = {
                                     Icon(
                                         imageVector = navItem.icon,

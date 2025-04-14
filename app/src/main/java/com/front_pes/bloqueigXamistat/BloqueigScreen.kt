@@ -1,58 +1,51 @@
-package com.front_pes.features.screens.xamistat
+package com.front_pes.bloqueigXamistat
 
-
-import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Icon
-import androidx.compose.foundation.layout.*
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.front_pes.features.screens.xats.XatViewModel
-
-const val LlistatAmistatScreen = "AmistatListScreen"
-enum class Selector{
-    AMISTATS,
-    USUARIS,
-    REBUDES,
-    ENVIADES
-}
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.front_pes.features.screens.xamistat.AmistatListItem
+import com.front_pes.features.screens.xamistat.EnviadesListItem
+import com.front_pes.features.screens.xamistat.LlistatAmistatViewModel
+import com.front_pes.features.screens.xamistat.RebudesListItem
+import com.front_pes.features.screens.xamistat.Selector
+import com.front_pes.features.screens.xamistat.UsuariListItem
 
 
+/*
 @Composable
-fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, viewModel: LlistatAmistatViewModel = viewModel()) {
+fun BloqueigScreen(onAmistatClick: (String) -> Unit, viewModel: LlistatAmistatViewModel = viewModel()) {
 
-    var currentMode by remember {mutableStateOf(Selector.AMISTATS)}
     val scrollState = rememberLazyListState()
     var searchText by remember { mutableStateOf("") }
 
@@ -128,7 +121,7 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, viewModel: LlistatAmi
                 }
             } else if (currentMode == Selector.USUARIS) {
                 items(usuarisList.filter {  it.nom?.contains(searchText, ignoreCase = true) ?: false}){
-                    user -> UsuariListItem(name = user.nom, onSeguirClick = {viewModel.seguir_usuari(accepta = user.correu)})
+                        user -> UsuariListItem(name = user.nom, onSeguirClick = {viewModel.seguir_usuari(accepta = user.correu)})
                 }
             } else if (currentMode == Selector.ENVIADES){
                 items(all_enviades){
@@ -144,127 +137,7 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, viewModel: LlistatAmi
 }
 
 @Composable
-fun AmistatListItem(name: String, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = "User Icon",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .size(40.dp)
-                    .padding(end = 16.dp)
-            )
-
-            Text(
-                text = name,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium
-            )
-        }
-    }
-}
-
-@Composable
-fun UsuariListItem(
-    name: String?,
-    onSeguirClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = name ?: "",
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.weight(1f)
-            )
-
-            Row {
-                IconButton(onClick = onSeguirClick) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Seguir",
-                        tint = Color.Blue
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun RebudesListItem(
-    name: String?,
-    onCancelar: () -> Unit,
-    onAcceptar: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = name ?: "",
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.weight(1f)
-            )
-
-            Row {
-                IconButton(onClick = onAcceptar) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = "Seguir",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-                IconButton(onClick = onCancelar) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Seguir",
-                        tint = Color.Red
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun EnviadesListItem(
+fun ListItem(
     name: String?,
     onCancelar: () -> Unit
 ) {
@@ -293,11 +166,11 @@ fun EnviadesListItem(
                 IconButton(onClick = onCancelar) {
                     Icon(
                         imageVector = Icons.Default.Clear,
-                        contentDescription = "Seguir",
+                        contentDescription = "Eliminar Bloqueig",
                         tint = Color.Red
                     )
                 }
             }
         }
     }
-}
+}*/

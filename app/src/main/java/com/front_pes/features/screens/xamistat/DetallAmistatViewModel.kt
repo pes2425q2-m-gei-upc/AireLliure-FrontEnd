@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.front_pes.CurrentUser
+import com.front_pes.bloqueigXamistat.BloqueigRequest
 import com.front_pes.network.RetrofitClient
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -52,6 +54,14 @@ class DetallAmistatViewModel: ViewModel() {
             })
         } catch(e: Exception){
             println("Error carregant les dades especifiques de un usuari: ${e.message}")
+        }
+    }
+    fun bloquejar_usuari()=viewModelScope.launch {
+        try{
+            val respo = RetrofitClient.apiService.crear_bloqueig(BloqueigRequest(bloqueja=CurrentUser.correu, bloquejat = usuari?.correu ?:""))
+
+        } catch(e:Exception){
+            println("Error al intentar bloquejar aquest compte: ${e.message}")
         }
     }
 }

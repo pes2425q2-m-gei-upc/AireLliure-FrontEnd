@@ -1,5 +1,7 @@
 package com.front_pes.network
 
+import com.front_pes.bloqueigXamistat.BloqueigRequest
+import com.front_pes.bloqueigXamistat.BloqueigResponse
 import com.front_pes.features.screens.Ranking.RankingResponse
 import com.front_pes.features.screens.login.LoginRequest
 import com.front_pes.features.screens.login.LoginResponse
@@ -104,6 +106,23 @@ interface ApiService {
     suspend fun delete_amistat(
         @Path("pk") pk:Int
     ) : Response<Unit>
+
+    @GET("bloqueigs/usuari/{pk}")
+    suspend fun get_all_bloqueigs_usuari(
+        @Path("pk") pk:String
+    ): List<BloqueigResponse>
+
+    @POST("bloqueigs/create/")
+    suspend fun crear_bloqueig(
+       @Body body: BloqueigRequest
+    ): BloqueigResponse
+
+    @DELETE("bloqueigs/{pk}/delete/")
+    suspend fun eliminar_bloqueig(
+        @Path("pk") pk:Int
+    ): Response<Unit>
+
+
 
 
 

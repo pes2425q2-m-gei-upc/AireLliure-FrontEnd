@@ -40,6 +40,9 @@ import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.features.screens.settings.SettingsScreen
 import com.front_pes.features.screens.user.UserPageScreen
 import com.front_pes.features.screens.user.UserPageScreenDestination
+import com.front_pes.features.screens.xats.ChatListScreenDestination
+import com.front_pes.features.screens.xats.ChatScreen
+import com.front_pes.features.screens.xats.ChatScreenDestination
 import java.util.*
 
 
@@ -88,7 +91,9 @@ private fun AppNavigation(currentLocale: String) {
             LoginScreen(
                 title = getString(context, R.string.login, currentLocale),
                 onNavigateToMap = {
-                    navController.navigate(MainScreenDestination)
+
+                    //navController.navigate(MainScreenDestination)
+                    navController.navigate(ChatListScreenDestination)
                 },
                 onNavigateToRegister = { navController.navigate(RegisterScreenDestination) }
             )
@@ -117,8 +122,9 @@ private fun AppNavigation(currentLocale: String) {
             MainScreen(
                 title = getString(context, R.string.map, currentLocale),
                 onNavigateToLogin = {
-                navController.navigate(LoginScreenDestination)
-            })
+                    navController.navigate(LoginScreenDestination)
+                }
+            )
         }
         composable("settings") {
             SettingsScreen(
@@ -128,14 +134,20 @@ private fun AppNavigation(currentLocale: String) {
                 languageViewModel = viewModel()
             )
         }
-        composable("chats") {
+        composable(ChatListScreenDestination) {
             ChatListScreen(
-                onChatClick = { chatName ->
-                    // log.d per accedir a un xat específic.
-                    Log.d("ChatList", "Clicked on chat with $chatName")
+                onChatClick = { chatId ->
+                    navController.navigate("chat/$chatId")
                 }
             )
         }
+        composable("chat/{chatId}") { backStackEntry ->
+            val chatId = backStackEntry.arguments?.getString("chatId")?.toIntOrNull()
+            chatId?.let {
+                ChatScreen(chatId = it)
+            }
+        }
+
     }
 }
 

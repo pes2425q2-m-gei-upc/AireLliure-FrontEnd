@@ -80,7 +80,8 @@ const val MainScreenDestination = "Main"
 
 
 @Composable
-fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () -> Unit) {
+fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () -> Unit
+) {
     val context = LocalContext.current
     var selectedAmistat by remember { mutableStateOf<String>("") }
     var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
@@ -215,7 +216,8 @@ fun SearchBar(modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: () -> Unit) {
+fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: () -> Unit
+) {
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current

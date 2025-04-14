@@ -27,6 +27,8 @@ import androidx.compose.ui.text.font.FontWeight
 import com.front_pes.features.screens.xats.XatViewModel
 
 const val ChatListScreen = "ChatListScreen"
+const val ChatListScreenDestination = "chats"
+
 
 @Composable
 fun ChatListScreen(onChatClick: (Int) -> Unit, viewModel:XatViewModel= viewModel()) {

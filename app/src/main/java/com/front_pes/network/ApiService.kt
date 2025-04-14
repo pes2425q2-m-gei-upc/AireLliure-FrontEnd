@@ -12,6 +12,12 @@ import com.front_pes.features.screens.user.UpdateProfileResponse
 import com.front_pes.features.screens.xamistat.DetallUsuariResponse
 import com.front_pes.features.screens.xamistat.LlistaAmistatResponse
 import com.front_pes.features.screens.xats.LlistaXatResponse
+import com.front_pes.features.screens.xats.ChatDetailResponse
+import com.front_pes.features.screens.xats.SendMessageRequest
+import com.front_pes.features.screens.xats.SendMessageResponse
+import com.front_pes.features.screens.xats.UpdateMessageRequest
+import com.front_pes.features.screens.xats.UpdateMessageResponse
+
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -51,6 +57,24 @@ interface ApiService {
     fun getXatsUsuaribyCorreu(
         @Path("pk") pk: String,
     ): Call<List<LlistaXatResponse>>
+
+    @GET("xats/{id}/")
+    fun getChatDetail(
+        @Path("id") id: Int
+    ): Call<ChatDetailResponse>
+
+    @POST("missatges/create/")
+    fun enviarMissatge(@Body request: SendMessageRequest): Call<SendMessageResponse>
+
+    @PATCH("missatges/{pk}/update/")
+    fun updateMissatge(
+        @Path("pk") id: Int,
+        @Body request: UpdateMessageRequest
+    ): Call<UpdateMessageResponse>
+
+    @DELETE("missatges/{pk}/delete/")
+    fun deleteMissatge(@Path("pk") id: Int): Call<Unit>
+
 
     @GET("amistats/usuari/{pk}")
     fun getAmistatUsuarybyCorreu(

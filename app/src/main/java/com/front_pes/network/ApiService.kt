@@ -11,8 +11,12 @@ import com.front_pes.features.screens.user.UpdateProfileRequest
 import com.front_pes.features.screens.user.UpdateProfileResponse
 import com.front_pes.features.screens.xamistat.DetallUsuariResponse
 import com.front_pes.features.screens.xamistat.LlistaAmistatResponse
+import com.front_pes.features.screens.xats.ChatCreateRequest
+import com.front_pes.features.screens.xats.ChatCreateResponse
 import com.front_pes.features.screens.xats.LlistaXatResponse
 import com.front_pes.features.screens.xats.ChatDetailResponse
+import com.front_pes.features.screens.xats.GroupCreateRequest
+import com.front_pes.features.screens.xats.GroupCreateResponse
 import com.front_pes.features.screens.xats.SendMessageRequest
 import com.front_pes.features.screens.xats.SendMessageResponse
 import com.front_pes.features.screens.xats.UpdateMessageRequest
@@ -63,6 +67,12 @@ interface ApiService {
         @Path("id") id: Int
     ): Call<ChatDetailResponse>
 
+    @POST("xats-individual/create/")
+    fun createXatIndividual(@Body request: ChatCreateRequest): Call<ChatCreateResponse>
+
+    @POST("xats-grupal/create/")
+    fun createXatGrupal(@Body request: GroupCreateRequest): Call<GroupCreateResponse>
+
     @POST("missatges/create/")
     fun enviarMissatge(@Body request: SendMessageRequest): Call<SendMessageResponse>
 
@@ -74,7 +84,6 @@ interface ApiService {
 
     @DELETE("missatges/{pk}/delete/")
     fun deleteMissatge(@Path("pk") id: Int): Call<Unit>
-
 
     @GET("amistats/usuari/{pk}")
     fun getAmistatUsuarybyCorreu(

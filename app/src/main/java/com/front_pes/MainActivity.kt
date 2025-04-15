@@ -40,9 +40,11 @@ import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.features.screens.settings.SettingsScreen
 import com.front_pes.features.screens.user.UserPageScreen
 import com.front_pes.features.screens.user.UserPageScreenDestination
+import com.front_pes.features.screens.xats.ChatCreateScreen
 import com.front_pes.features.screens.xats.ChatListScreenDestination
 import com.front_pes.features.screens.xats.ChatScreen
 import com.front_pes.features.screens.xats.ChatScreenDestination
+import com.front_pes.features.screens.xats.GroupCreateScreen
 import java.util.*
 
 
@@ -92,8 +94,8 @@ private fun AppNavigation(currentLocale: String) {
                 title = getString(context, R.string.login, currentLocale),
                 onNavigateToMap = {
 
-                    //navController.navigate(MainScreenDestination)
-                    navController.navigate(ChatListScreenDestination)
+                    navController.navigate(MainScreenDestination)
+                    //navController.navigate(ChatListScreenDestination)
                 },
                 onNavigateToRegister = { navController.navigate(RegisterScreenDestination) }
             )
@@ -123,9 +125,19 @@ private fun AppNavigation(currentLocale: String) {
                 title = getString(context, R.string.map, currentLocale),
                 onNavigateToLogin = {
                     navController.navigate(LoginScreenDestination)
+                },
+                onNavigateToCreateChat = {
+                    navController.navigate("chat-create")
+                },
+                onNavigateToCreateGroup = {
+                    navController.navigate("chat-group-create")
+                },
+                onNavigateToChat = { chatId, userName ->
+                    navController.navigate("chat/$chatId/$userName")
                 }
             )
         }
+
         composable("settings") {
             SettingsScreen(
                 onNavigateToLogin = {
@@ -137,10 +149,17 @@ private fun AppNavigation(currentLocale: String) {
         composable(ChatListScreenDestination) {
             ChatListScreen(
                 onChatClick = { chatId, userName ->
-                    navController.navigate("chat/$chatId/${userName}")
+                    navController.navigate("chat/$chatId/$userName")
+                },
+                onNovaConversacioClick = {
+                    navController.navigate("chat-create")
+                },
+                onCrearGrupClick = {
+                    navController.navigate("chat-group-create")
                 }
             )
         }
+
         composable("chat/{chatId}/{userName}") { backStackEntry ->
             val chatId = backStackEntry.arguments?.getString("chatId")?.toIntOrNull()
             val userName = backStackEntry.arguments?.getString("userName")
@@ -148,6 +167,34 @@ private fun AppNavigation(currentLocale: String) {
                 ChatScreen(chatId = chatId, userName = userName)
             }
         }
+        composable("chat-create") {
+            ChatCreateScreen(
+                onChatCreated = { chatId, userName ->
+                    navController.navigate("chat/$chatId/$userName")
+                },
+                onBack = {
+                    navController.navigate(ChatListScreenDestination) {
+                        popUpTo("chat-create") { inclusive = true }
+                    }
+                }
+
+            )
+        }
+        composable("chat-group-create") {
+            GroupCreateScreen(
+                onGroupCreated = { chatId, groupName ->
+                    navController.navigate("chat/$chatId/$groupName")
+                },
+                onBack = {
+                    navController.navigate(ChatListScreenDestination) {
+                        popUpTo("chat-group-create") { inclusive = true }
+                    }
+                }
+            )
+        }
+
+
+
 
     }
 }

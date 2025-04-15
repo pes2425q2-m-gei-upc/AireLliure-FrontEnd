@@ -1,42 +1,58 @@
 package com.front_pes.features.screens.xats
 
-import android.util.Log
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.*
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import com.front_pes.features.screens.xats.XatViewModel
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 const val ChatListScreen = "ChatListScreen"
 const val ChatListScreenDestination = "chats"
 
-
 @Composable
-fun ChatListScreen(onChatClick: (chatId: Int, userName: String) -> Unit, viewModel:XatViewModel= viewModel()) {
-
+fun ChatListScreen(
+    onChatClick: (chatId: Int, userName: String) -> Unit,
+    onNovaConversacioClick: () -> Unit,
+    onCrearGrupClick: () -> Unit,
+    viewModel: XatViewModel = viewModel()
+) {
     LaunchedEffect(Unit) { viewModel.carregarXats() }
     val chatList = viewModel.xats
 
     Column(modifier = Modifier.fillMaxSize()) {
+
+        // Botones de acción
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(
+                onClick = onNovaConversacioClick,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Crear Conversació")
+            }
+
+            Button(
+                onClick = onCrearGrupClick,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Crear Grup")
+            }
+        }
+
         Text(
             text = "Xats",
             style = MaterialTheme.typography.headlineLarge,
@@ -45,7 +61,9 @@ fun ChatListScreen(onChatClick: (chatId: Int, userName: String) -> Unit, viewMod
 
         LazyColumn {
             items(chatList) { chat ->
-                ChatListItem(name = chat.nom, onClick = { onChatClick(chat.id, chat.nom) })
+                ChatListItem(name = chat.nom) {
+                    onChatClick(chat.id, chat.nom)
+                }
             }
         }
     }

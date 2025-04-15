@@ -80,8 +80,16 @@ const val MainScreenDestination = "Main"
 
 
 @Composable
-fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () -> Unit
-) {
+fun ContentScreen(
+    modifier: Modifier,
+    selectedIndex: Int,
+    onNavigateToLogin: () -> Unit,
+    onNavigateToCreateChat: () -> Unit,
+    onNavigateToCreateGroup: () -> Unit,
+    onNavigateToChat: (Int, String) -> Unit
+)
+
+ {
     val context = LocalContext.current
     var selectedAmistat by remember { mutableStateOf<String>("") }
     var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
@@ -91,8 +99,14 @@ fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () 
         0 -> UserPageScreen(title = getString(context, R.string.username, currentLocale), onNavigateToLogin = onNavigateToLogin)
         1 -> MapScreen(title = getString(context, R.string.map, currentLocale),)
         2 -> SettingsScreen(onNavigateToLogin = onNavigateToLogin)
-        3 -> ChatListScreen(onChatClick = { chatId, userName ->
-            Log.d("ChatList", "Has fet clic al xat amb ID=$chatId i nom=$userName") })
+        3 -> ChatListScreen(
+            onChatClick = { chatId, userName ->
+                onNavigateToChat(chatId, userName)
+            },
+            onNovaConversacioClick = onNavigateToCreateChat,
+            onCrearGrupClick = onNavigateToCreateGroup
+        )
+
         4 -> {
             if(selectedAmistat == ""){
                 LlistatAmistatScreen(
@@ -216,7 +230,13 @@ fun SearchBar(modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: () -> Unit
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    title: String,
+    onNavigateToLogin: () -> Unit,
+    onNavigateToCreateChat: () -> Unit,
+    onNavigateToCreateGroup: () -> Unit, // ✅ NUEVO
+    onNavigateToChat: (Int, String) -> Unit
 ) {
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
@@ -230,7 +250,6 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
     var selectedIndex by remember { mutableIntStateOf(1) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var textSearch by remember { mutableStateOf("") }
     val hideBars = selectedIndex == 0 || selectedIndex == 2
 
     BackHandler {
@@ -255,9 +274,9 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
             topBar = {
                 Box(
                     modifier = Modifier
-                        .padding(start = 16.dp, top = 32.dp) // Separación de los bordes
-                        .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp)) // Fondo blanco con bordes redondeados
-                        .padding(8.dp) // Espacio interno para no pegar el icono al fondo
+                        .padding(start = 16.dp, top = 32.dp)
+                        .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp))
+                        .padding(8.dp)
                         .size(40.dp)
                 ) {
                     IconButton(onClick = { scope.launch { drawerState.open() } }) {
@@ -275,22 +294,23 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
                     NavigationBar {
                         navItemList.forEachIndexed { index, navItem ->
                             val isSelected = SelectorIndex.selectedIndex == index
-
                             NavigationBarItem(
                                 selected = isSelected,
                                 onClick = {
-                                    if (isSelected) {
-                                        // Deselecciona si ya estaba activo
-                                        SelectorIndex.selectedIndex = -1
-                                    } else {
-                                        SelectorIndex.selectedIndex = index
-                                    }
+                                    SelectorIndex.selectedIndex = if (isSelected) -1 else index
                                 },
                                 icon = {
-                                    Icon(imageVector = navItem.icon, contentDescription = "Icon", tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
+                                    Icon(
+                                        imageVector = navItem.icon,
+                                        contentDescription = "Icon",
+                                        tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                    )
                                 },
                                 label = {
-                                    Text(text = navItem.label, color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
+                                    Text(
+                                        text = navItem.label,
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                    )
                                 }
                             )
                         }
@@ -300,8 +320,12 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
         ) { innerPadding ->
             ContentScreen(
                 modifier = Modifier.padding(innerPadding),
-                selectedIndex,
-                onNavigateToLogin
+                selectedIndex = selectedIndex,
+                onNavigateToLogin = onNavigateToLogin,
+                onNavigateToCreateChat = onNavigateToCreateChat,
+                onNavigateToCreateGroup = onNavigateToCreateGroup,
+                onNavigateToChat = onNavigateToChat
+
             )
         }
     }

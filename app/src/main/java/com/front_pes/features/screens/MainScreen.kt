@@ -91,8 +91,8 @@ fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () 
         0 -> UserPageScreen(title = getString(context, R.string.username, currentLocale), onNavigateToLogin = onNavigateToLogin)
         1 -> MapScreen(title = getString(context, R.string.map, currentLocale),)
         2 -> SettingsScreen(onNavigateToLogin = onNavigateToLogin)
-        3 -> ChatListScreen(onChatClick = { chatName ->
-            Log.d("ChatList", "Has fet clic a $chatName") })
+        3 -> ChatListScreen(onChatClick = { chatId, userName ->
+            Log.d("ChatList", "Has fet clic al xat amb ID=$chatId i nom=$userName") })
         4 -> {
             if(selectedAmistat == ""){
                 LlistatAmistatScreen(

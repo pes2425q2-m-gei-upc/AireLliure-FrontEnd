@@ -1,16 +1,19 @@
 package com.front_pes.features.screens.xats
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.CurrentUser
@@ -20,7 +23,7 @@ import java.util.*
 const val ChatScreenDestination = "chat"
 
 @Composable
-fun ChatScreen(chatId: Int, viewModel: ChatDetailViewModel = viewModel()) {
+fun ChatScreen(chatId: Int, userName: String, viewModel: ChatDetailViewModel = viewModel()) {
     val missatges = viewModel.missatges
     val error = viewModel.errorMessage
     var newMessage by remember { mutableStateOf("") }
@@ -42,12 +45,24 @@ fun ChatScreen(chatId: Int, viewModel: ChatDetailViewModel = viewModel()) {
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Text(
-            text = "Xat ID: $chatId",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(16.dp)
-        )
-
+        Surface(
+            color = Color.White,
+            tonalElevation = 4.dp,
+            shadowElevation = 4.dp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(75.dp)
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = userName,
+                    style = MaterialTheme.typography.headlineSmall,
+                )
+            }
+        }
         if (error != null) {
             Text(
                 text = "Error: $error",
@@ -60,82 +75,82 @@ fun ChatScreen(chatId: Int, viewModel: ChatDetailViewModel = viewModel()) {
             state = listState,
             modifier = Modifier
                 .weight(1f)
-                .padding(8.dp)
+                .padding(horizontal = 8.dp)
         ) {
             items(missatges.sortedBy { it.data }) { msg ->
                 val esMeu = msg.autor == autor
+                val alignment = if (esMeu) Alignment.End else Alignment.Start
+                val bubbleColor = if (esMeu) MaterialTheme.colorScheme.primary.copy(alpha = 0.4f) else Color(0xFFEDEDED)
 
-                Card(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    horizontalArrangement = if (esMeu) Arrangement.End else Arrangement.Start
                 ) {
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
+                    Column(
+                        modifier = Modifier
+                            .widthIn(max = 280.dp)
+                            .background(bubbleColor, shape = RoundedCornerShape(12.dp))
+                            .padding(12.dp)
+                    ) {
+                        Text(
+                            text = if (msg.autor == CurrentUser.correu) CurrentUser.nom else userName ?: "Anònim",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.Gray
+                        )
+                        Text(
+                            text = msg.text,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = msg.data,
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.align(Alignment.End),
+                            color = Color.Gray
+                        )
+                    }
+
+                    if (esMeu) {
+                        IconButton(onClick = {
+                            showMenuForMessageId = msg.id
+                            mensajeSeleccionado = msg
+                            nuevoTexto = msg.text
+                        }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "Opcions")
+                        }
+
+                        DropdownMenu(
+                            expanded = showMenuForMessageId == msg.id,
+                            onDismissRequest = { showMenuForMessageId = null }
                         ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = msg.autor ?: "Anònim",
-                                    style = MaterialTheme.typography.labelMedium
-                                )
-                                Text(
-                                    text = msg.text,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
-
-                            if (esMeu) {
-                                Box {
-                                    IconButton(onClick = {
-                                        showMenuForMessageId = msg.id
-                                        mensajeSeleccionado = msg
-                                        nuevoTexto = msg.text
-                                    }) {
-                                        Icon(Icons.Default.MoreVert, contentDescription = "Opcions")
-                                    }
-
-                                    DropdownMenu(
-                                        expanded = showMenuForMessageId == msg.id,
-                                        onDismissRequest = { showMenuForMessageId = null }
-                                    ) {
-                                        DropdownMenuItem(
-                                            text = { Text("Editar") },
-                                            onClick = {
-                                                showEditDialog = true
+                            DropdownMenuItem(
+                                text = { Text("Editar") },
+                                onClick = {
+                                    showEditDialog = true
+                                    showMenuForMessageId = null
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Eliminar") },
+                                onClick = {
+                                    mensajeSeleccionado?.let { m ->
+                                        viewModel.esborrarMissatge(
+                                            missatgeId = m.id,
+                                            onSuccess = {
+                                                viewModel.carregarMissatges(chatId)
                                                 showMenuForMessageId = null
-                                            }
-                                        )
-                                        DropdownMenuItem(
-                                            text = { Text("Eliminar") },
-                                            onClick = {
-                                                mensajeSeleccionado?.let { msg ->
-                                                    viewModel.esborrarMissatge(
-                                                        missatgeId = msg.id,
-                                                        onSuccess = {
-                                                            viewModel.carregarMissatges(chatId)
-                                                            showMenuForMessageId = null
-                                                        },
-                                                        onError = {
-                                                            println("Error eliminant: $it")
-                                                            showMenuForMessageId = null
-                                                        }
-                                                    )
-                                                }
+                                            },
+                                            onError = {
+                                                println("Error eliminant: $it")
+                                                showMenuForMessageId = null
                                             }
                                         )
                                     }
                                 }
-                            }
+                            )
                         }
-
-                        Text(
-                            text = msg.data,
-                            style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier.align(Alignment.End)
-                        )
                     }
                 }
             }

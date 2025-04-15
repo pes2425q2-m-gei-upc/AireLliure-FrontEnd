@@ -136,15 +136,16 @@ private fun AppNavigation(currentLocale: String) {
         }
         composable(ChatListScreenDestination) {
             ChatListScreen(
-                onChatClick = { chatId ->
-                    navController.navigate("chat/$chatId")
+                onChatClick = { chatId, userName ->
+                    navController.navigate("chat/$chatId/${userName}")
                 }
             )
         }
-        composable("chat/{chatId}") { backStackEntry ->
+        composable("chat/{chatId}/{userName}") { backStackEntry ->
             val chatId = backStackEntry.arguments?.getString("chatId")?.toIntOrNull()
-            chatId?.let {
-                ChatScreen(chatId = it)
+            val userName = backStackEntry.arguments?.getString("userName")
+            if (chatId != null && userName != null) {
+                ChatScreen(chatId = chatId, userName = userName)
             }
         }
 

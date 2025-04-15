@@ -31,7 +31,7 @@ const val ChatListScreenDestination = "chats"
 
 
 @Composable
-fun ChatListScreen(onChatClick: (Int) -> Unit, viewModel:XatViewModel= viewModel()) {
+fun ChatListScreen(onChatClick: (chatId: Int, userName: String) -> Unit, viewModel:XatViewModel= viewModel()) {
 
     LaunchedEffect(Unit) { viewModel.carregarXats() }
     val chatList = viewModel.xats
@@ -44,8 +44,8 @@ fun ChatListScreen(onChatClick: (Int) -> Unit, viewModel:XatViewModel= viewModel
         )
 
         LazyColumn {
-            items(chatList) { chatName ->
-                ChatListItem(name = chatName.nom, onClick = { onChatClick(chatName.id) })
+            items(chatList) { chat ->
+                ChatListItem(name = chat.nom, onClick = { onChatClick(chat.id, chat.nom) })
             }
         }
     }

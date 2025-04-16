@@ -15,7 +15,7 @@ import kotlin.math.PI
 
 class CustomHeatmapTileProvider(
     private val stations: List<EstacioQualitatAireResponse>,
-    private val radiusMeters: Float = 5000f
+    private val radiusMeters: Float = 2000f
 ) : TileProvider {
 
     override fun getTile(x: Int, y: Int, zoom: Int): Tile? {
@@ -43,15 +43,24 @@ class CustomHeatmapTileProvider(
             val pixelRadius = (radiusMeters / resolution).toFloat() * scaleFactor
 
             val stationColor = getColorForIndex(station.index_qualitat_aire)
+
+//            val paint = Paint().apply {
+//                isAntiAlias = true
+//                color = adjustAlpha(stationColor, dynamicAlpha)
+//                xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_OVER)
+//            }
             val gradient = RadialGradient(
                 localX, localY, pixelRadius,
                 intArrayOf(
                     adjustAlpha(stationColor, dynamicAlpha),
+                    adjustAlpha(stationColor, dynamicAlpha),
+                    adjustAlpha(stationColor, (dynamicAlpha * 0.6).toInt()),
                     adjustAlpha(stationColor, 0)
                 ),
-                floatArrayOf(0.0f, 1.0f),
+                floatArrayOf(0.0f, 0.0f, 0.75f, 1.0f),
                 Shader.TileMode.CLAMP
             )
+
 
             val paint = Paint().apply {
                 isAntiAlias = true

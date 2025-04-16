@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.LocationOn
@@ -25,6 +26,9 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DividerDefaults.color
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -250,6 +254,29 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
                     }
                 }
             },
+
+            floatingActionButton = {
+                var showFilterDialog by remember { mutableStateOf(false) }
+
+                IconButton(
+                    onClick = { showFilterDialog = true },
+                    modifier = Modifier
+                        .padding(bottom = 8.dp, end = 8.dp)
+                        .size(56.dp)
+                        .background(MaterialTheme.colorScheme.secondary, shape = RoundedCornerShape(28.dp))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Filter",
+                        tint = MaterialTheme.colorScheme.onSecondary
+                    )
+                }
+
+                if (showFilterDialog) {
+                    FilterDialog(onDismiss = { showFilterDialog = false })
+                }
+            },
+
             bottomBar = {
                 if (!hideBars) {
                     NavigationBar {
@@ -285,4 +312,45 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
             )
         }
     }
+}
+
+@Composable
+fun FilterDialog(onDismiss: () -> Unit) {
+    val contaminantes = List(10) { index -> "Contaminante ${index + 1}" }
+    val checkedStates = remember { mutableStateOf(List(10) { false }) }
+
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {},
+        title = { Text("Filtrar por contaminantes") },
+        text = {
+            Column {
+                contaminantes.forEachIndexed { index, contaminante ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(
+                            checked = checkedStates.value[index],
+                            onCheckedChange = { isChecked ->
+                                checkedStates.value = checkedStates.value.toMutableList().also {
+                                    it[index] = isChecked
+                                }
+                            }
+                        )
+                        Text(text = contaminante)
+                    }
+                }
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = { onDismiss() },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text("Cerrar")
+            }
+        }
+    )
 }

@@ -86,7 +86,8 @@ fun ContentScreen(
     onNavigateToLogin: () -> Unit,
     onNavigateToCreateChat: () -> Unit,
     onNavigateToCreateGroup: () -> Unit,
-    onNavigateToChat: (Int, String) -> Unit
+    onNavigateToChat: (Int, String) -> Unit,
+    onNavigateToGroupDetail: (Int) -> Unit
 )
 
  {
@@ -235,8 +236,9 @@ fun MainScreen(
     title: String,
     onNavigateToLogin: () -> Unit,
     onNavigateToCreateChat: () -> Unit,
-    onNavigateToCreateGroup: () -> Unit, // ✅ NUEVO
-    onNavigateToChat: (Int, String) -> Unit
+    onNavigateToCreateGroup: () -> Unit,
+    onNavigateToChat: (Int, String) -> Unit,
+    onNavigateToGroupDetail: (Int) -> Unit
 ) {
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
@@ -324,7 +326,8 @@ fun MainScreen(
                 onNavigateToLogin = onNavigateToLogin,
                 onNavigateToCreateChat = onNavigateToCreateChat,
                 onNavigateToCreateGroup = onNavigateToCreateGroup,
-                onNavigateToChat = onNavigateToChat
+                onNavigateToChat = onNavigateToChat,
+                onNavigateToGroupDetail = onNavigateToGroupDetail
 
             )
         }

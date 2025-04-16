@@ -45,7 +45,7 @@ class GroupCreateViewModel : ViewModel() {
         val request = GroupCreateRequest(
             nom = nom,
             creador = CurrentUser.correu,
-            descripció = descripcio,
+            descripcio = descripcio,
             membres = membres.distinct()
         )
 

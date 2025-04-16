@@ -23,7 +23,7 @@ import java.util.*
 const val ChatScreenDestination = "chat"
 
 @Composable
-fun ChatScreen(chatId: Int, userName: String, viewModel: ChatDetailViewModel = viewModel()) {
+fun ChatScreen(chatId: Int, userName: String, viewModel: ChatDetailViewModel = viewModel(), onNavigateToGroupDetail: (Int) -> Unit = {}) {
     val missatges = viewModel.missatges
     val error = viewModel.errorMessage
     var newMessage by remember { mutableStateOf("") }
@@ -38,11 +38,14 @@ fun ChatScreen(chatId: Int, userName: String, viewModel: ChatDetailViewModel = v
 
     LaunchedEffect(chatId) {
         viewModel.carregarMissatges(chatId)
+        viewModel.detectarSiEsGrup(chatId)
+
     }
 
     LaunchedEffect(missatges.size) {
         listState.animateScrollToItem(missatges.size)
     }
+
 
     Column(modifier = Modifier.fillMaxSize()) {
         Surface(
@@ -59,8 +62,16 @@ fun ChatScreen(chatId: Int, userName: String, viewModel: ChatDetailViewModel = v
             ) {
                 Text(
                     text = userName,
-                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .then(
+                            if (viewModel.isGroup) Modifier.clickable { onNavigateToGroupDetail(chatId) }
+                            else Modifier
+                        ),
+                    color = if (viewModel.isGroup) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.headlineSmall
                 )
+
             }
         }
         if (error != null) {

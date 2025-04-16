@@ -140,6 +140,20 @@ class ChatDetailViewModel : ViewModel() {
             }
         })
     }
+    var isGroup by mutableStateOf(false)
+
+    fun detectarSiEsGrup(chatId: Int) {
+        val call = RetrofitClient.apiService.getXatGrupalById(chatId)
+        call.enqueue(object : Callback<GroupDetailResponse> {
+            override fun onResponse(call: Call<GroupDetailResponse>, response: Response<GroupDetailResponse>) {
+                isGroup = response.isSuccessful
+            }
+
+            override fun onFailure(call: Call<GroupDetailResponse>, t: Throwable) {
+                isGroup = false
+            }
+        })
+    }
 
 
 

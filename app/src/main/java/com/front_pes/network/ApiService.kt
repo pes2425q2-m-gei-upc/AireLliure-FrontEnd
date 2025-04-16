@@ -17,6 +17,8 @@ import com.front_pes.features.screens.xats.LlistaXatResponse
 import com.front_pes.features.screens.xats.ChatDetailResponse
 import com.front_pes.features.screens.xats.GroupCreateRequest
 import com.front_pes.features.screens.xats.GroupCreateResponse
+import com.front_pes.features.screens.xats.GroupDetailResponse
+import com.front_pes.features.screens.xats.GroupUpdateRequest
 import com.front_pes.features.screens.xats.SendMessageRequest
 import com.front_pes.features.screens.xats.SendMessageResponse
 import com.front_pes.features.screens.xats.UpdateMessageRequest
@@ -72,6 +74,15 @@ interface ApiService {
 
     @POST("xats-grupal/create/")
     fun createXatGrupal(@Body request: GroupCreateRequest): Call<GroupCreateResponse>
+
+    @GET("xats-grupal/{pk}/")
+    fun getXatGrupalById(@Path("pk") id: Int): Call<GroupDetailResponse>
+
+    @PATCH("xats-grupal/{pk}/update/")
+    fun updateXatGrupal(
+        @Path("pk") id: Int,
+        @Body request: GroupUpdateRequest
+    ): Call<Unit>
 
     @POST("missatges/create/")
     fun enviarMissatge(@Body request: SendMessageRequest): Call<SendMessageResponse>

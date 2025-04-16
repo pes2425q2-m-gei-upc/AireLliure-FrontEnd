@@ -45,6 +45,8 @@ import com.front_pes.features.screens.xats.ChatListScreenDestination
 import com.front_pes.features.screens.xats.ChatScreen
 import com.front_pes.features.screens.xats.ChatScreenDestination
 import com.front_pes.features.screens.xats.GroupCreateScreen
+import com.front_pes.features.screens.xats.GroupDetailScreen
+
 import java.util.*
 
 
@@ -134,6 +136,9 @@ private fun AppNavigation(currentLocale: String) {
                 },
                 onNavigateToChat = { chatId, userName ->
                     navController.navigate("chat/$chatId/$userName")
+                },
+                onNavigateToGroupDetail = { groupId ->
+                    navController.navigate("group-detail/$groupId")
                 }
             )
         }
@@ -164,7 +169,9 @@ private fun AppNavigation(currentLocale: String) {
             val chatId = backStackEntry.arguments?.getString("chatId")?.toIntOrNull()
             val userName = backStackEntry.arguments?.getString("userName")
             if (chatId != null && userName != null) {
-                ChatScreen(chatId = chatId, userName = userName)
+                ChatScreen(chatId = chatId, userName = userName, onNavigateToGroupDetail = { groupId ->
+                    navController.navigate("group-detail/$groupId")
+                })
             }
         }
         composable("chat-create") {
@@ -192,6 +199,18 @@ private fun AppNavigation(currentLocale: String) {
                 }
             )
         }
+        composable("group-detail/{groupId}") { backStackEntry ->
+            val groupId = backStackEntry.arguments?.getString("groupId")?.toIntOrNull()
+            if (groupId != null) {
+                com.front_pes.features.screens.xats.GroupDetailScreen(
+                    groupId = groupId,
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+        }
+
 
 
 

@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,7 +24,7 @@ import java.util.*
 const val ChatScreenDestination = "chat"
 
 @Composable
-fun ChatScreen(chatId: Int, userName: String, viewModel: ChatDetailViewModel = viewModel(), onNavigateToGroupDetail: (Int) -> Unit = {}) {
+fun ChatScreen(chatId: Int, userName: String, onBack: () -> Unit, viewModel: ChatDetailViewModel = viewModel(), onNavigateToGroupDetail: (Int) -> Unit = {}) {
     val missatges = viewModel.missatges
     val error = viewModel.errorMessage
     var newMessage by remember { mutableStateOf("") }
@@ -54,15 +55,22 @@ fun ChatScreen(chatId: Int, userName: String, viewModel: ChatDetailViewModel = v
             shadowElevation = 4.dp,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(75.dp)
+                .height(80.dp)
         ) {
             Box(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
             ) {
+                IconButton(onClick = onBack,
+                    modifier = Modifier.align(Alignment.CenterStart).padding(start = 8.dp, top = 20.dp)) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
                 Text(
                     text = userName,
                     modifier = Modifier
+                        .align(Alignment.Center).padding(top = 20.dp)
                         .padding(16.dp)
                         .then(
                             if (viewModel.isGroup) Modifier.clickable { onNavigateToGroupDetail(chatId) }

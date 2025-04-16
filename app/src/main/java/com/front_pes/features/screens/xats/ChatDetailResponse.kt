@@ -14,5 +14,6 @@ data class ChatMessage(
     val text: String,
     val data: String,
     val xat: Int,
-    val autor: String?
+    val autor: String?,
+    val nomAutor: String? = null
 )

@@ -22,7 +22,8 @@ class ChatDetailViewModel : ViewModel() {
         val text: String,
         val data: String,
         val xat: Int,
-        val autor: String?
+        val autor: String?,
+        val nomAutor: String? = null
     )
 
 
@@ -41,7 +42,8 @@ class ChatDetailViewModel : ViewModel() {
                                 text = msg.text,
                                 data = msg.data,
                                 xat = msg.xat,
-                                autor = msg.autor
+                                autor = msg.autor,
+                                nomAutor = msg.nomAutor
                             )
                         }
                     }

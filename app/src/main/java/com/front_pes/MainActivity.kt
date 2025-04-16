@@ -169,7 +169,12 @@ private fun AppNavigation(currentLocale: String) {
             val chatId = backStackEntry.arguments?.getString("chatId")?.toIntOrNull()
             val userName = backStackEntry.arguments?.getString("userName")
             if (chatId != null && userName != null) {
-                ChatScreen(chatId = chatId, userName = userName, onNavigateToGroupDetail = { groupId ->
+                ChatScreen(chatId = chatId, userName = userName,
+                    onBack = {navController.navigate(ChatListScreenDestination) {
+                        popUpTo("chat/{chatId}/{userName}") { inclusive = true }
+                    }
+                    },
+                    onNavigateToGroupDetail = { groupId ->
                     navController.navigate("group-detail/$groupId")
                 })
             }

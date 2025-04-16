@@ -2,7 +2,6 @@ package com.front_pes.features.screens.map
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.location.Location
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -24,11 +23,6 @@ import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.getString
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.front_pes.utils.SelectorIndex
-import com.google.android.gms.maps.model.TileOverlayOptions
-import com.google.maps.android.heatmaps.HeatmapTileProvider
-import com.google.maps.android.heatmaps.WeightedLatLng
-import com.google.maps.android.heatmaps.Gradient
-import kotlin.math.*
 
 const val MapScreenDestination = "Map"
 

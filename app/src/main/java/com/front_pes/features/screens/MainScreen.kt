@@ -1,9 +1,9 @@
 package com.front_pes.features.screens
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,11 +25,9 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DividerDefaults.color
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -39,12 +37,9 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -60,12 +55,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.CurrentUser
 import com.front_pes.R
-import com.front_pes.features.screens.login.LoginScreenDestination
 import com.front_pes.features.screens.map.MapScreen
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.features.screens.settings.SettingsScreen
@@ -76,7 +71,7 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 
 import com.front_pes.utils.SelectorIndex
-
+import com.front_pes.SelectedContaminants
 
 const val MainScreenDestination = "Main"
 
@@ -316,13 +311,20 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
 
 @Composable
 fun FilterDialog(onDismiss: () -> Unit) {
-    val contaminantes = List(10) { index -> "Contaminante ${index + 1}" }
-    val checkedStates = remember { mutableStateOf(List(10) { false }) }
+    val contaminantes = listOf(
+        "NO2", "O3", "PM10", "H2S", "NO", "SO2",
+        "PM2.5", "NOX", "CO", "C6H6", "PM1", "Hg"
+    )
+
+    val checkedStates = remember {
+        mutableStateOf(
+            contaminantes.map { it in SelectedContaminants.selected }
+        )
+    }
 
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = {},
-        title = { Text("Filtrar por contaminantes") },
+        title = { Text("Filtrar por contaminantes", fontWeight = FontWeight.Bold) },
         text = {
             Column {
                 contaminantes.forEachIndexed { index, contaminante ->
@@ -333,6 +335,11 @@ fun FilterDialog(onDismiss: () -> Unit) {
                                 checkedStates.value = checkedStates.value.toMutableList().also {
                                     it[index] = isChecked
                                 }
+                                if (isChecked) {
+                                    SelectedContaminants.selected.add(contaminante)
+                                } else {
+                                    SelectedContaminants.selected.remove(contaminante)
+                                }
                             }
                         )
                         Text(text = contaminante)
@@ -340,16 +347,37 @@ fun FilterDialog(onDismiss: () -> Unit) {
                 }
             }
         },
-        dismissButton = {
-            Button(
-                onClick = { onDismiss() },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    contentColor = MaterialTheme.colorScheme.onSecondary
-                ),
-                shape = RoundedCornerShape(8.dp)
+        confirmButton = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Cerrar")
+                // Botón "Quitar filtros" a la izquierda
+                Button(
+                    onClick = {
+                        SelectedContaminants.selected.clear()
+                        checkedStates.value = List(contaminantes.size) { false }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Quitar filtros")
+                }
+
+                // Botón "Cerrar" a la derecha
+                Button(
+                    onClick = { onDismiss() },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.onSecondary
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Cerrar")
+                }
             }
         }
     )

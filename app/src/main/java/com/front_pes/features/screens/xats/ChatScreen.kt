@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.front_pes.CurrentUser
 import java.text.SimpleDateFormat
 import java.util.*
@@ -23,7 +26,7 @@ import java.util.*
 const val ChatScreenDestination = "chat"
 
 @Composable
-fun ChatScreen(chatId: Int, userName: String, viewModel: ChatDetailViewModel = viewModel()) {
+fun ChatScreen(chatId: Int, userName: String, onBack: () -> Unit, viewModel: ChatDetailViewModel = viewModel()) {
     val missatges = viewModel.missatges
     val error = viewModel.errorMessage
     var newMessage by remember { mutableStateOf("") }
@@ -55,11 +58,18 @@ fun ChatScreen(chatId: Int, userName: String, viewModel: ChatDetailViewModel = v
         ) {
             Box(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
             ) {
+                IconButton(onClick = onBack,
+                    modifier = Modifier.align(Alignment.CenterStart).padding(start = 8.dp, top = 20.dp)) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
                 Text(
                     text = userName,
                     style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.align(Alignment.Center).padding(top = 20.dp)
                 )
             }
         }

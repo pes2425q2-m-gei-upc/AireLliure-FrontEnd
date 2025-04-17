@@ -1,5 +1,6 @@
 package com.front_pes.features.screens.xats
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,7 +24,7 @@ class ChatDetailViewModel : ViewModel() {
         val data: String,
         val xat: Int,
         val autor: String?,
-        val nomAutor: String? = null
+        val nom: String? = null
     )
 
 
@@ -36,6 +37,7 @@ class ChatDetailViewModel : ViewModel() {
             override fun onResponse(call: Call<ChatDetailResponse>, response: Response<ChatDetailResponse>) {
                 if (response.isSuccessful) {
                     response.body()?.let { resposta ->
+                        Log.d("DEBUG", "Missatges: ${response.body()}")
                         missatges = resposta.missatges.map { msg ->
                             Missatge(
                                 id = msg.id,
@@ -43,7 +45,7 @@ class ChatDetailViewModel : ViewModel() {
                                 data = msg.data,
                                 xat = msg.xat,
                                 autor = msg.autor,
-                                nomAutor = msg.nomAutor
+                                nom = msg.nom
                             )
                         }
                     }

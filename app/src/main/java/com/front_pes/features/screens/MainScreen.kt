@@ -82,7 +82,7 @@ const val MainScreenDestination = "Main"
 @Composable
 fun ContentScreen(
     modifier: Modifier,
-    selectedIndex: Int,
+    selectedIndex: Int = 1,
     onNavigateToLogin: () -> Unit,
     onNavigateToCreateChat: () -> Unit,
     onNavigateToCreateGroup: () -> Unit,
@@ -96,6 +96,7 @@ fun ContentScreen(
     var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+
     when (selectedIndex) {
         0 -> UserPageScreen(title = getString(context, R.string.username, currentLocale), onNavigateToLogin = onNavigateToLogin)
         1 -> MapScreen(title = getString(context, R.string.map, currentLocale),)
@@ -234,6 +235,7 @@ fun SearchBar(modifier: Modifier = Modifier) {
 fun MainScreen(
     modifier: Modifier = Modifier,
     title: String,
+    selectedIndex: Int = 1,
     onNavigateToLogin: () -> Unit,
     onNavigateToCreateChat: () -> Unit,
     onNavigateToCreateGroup: () -> Unit,
@@ -249,7 +251,7 @@ fun MainScreen(
         NavItem(getString(context, R.string.routes, selectedLanguage), Icons.Default.LocationOn),
     )
 
-    var selectedIndex by remember { mutableIntStateOf(1) }
+    var selectedIndex by remember { mutableIntStateOf(selectedIndex) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val hideBars = selectedIndex == 0 || selectedIndex == 2

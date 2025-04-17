@@ -113,8 +113,9 @@ fun ChatScreen(chatId: Int, userName: String, onBack: () -> Unit, viewModel: Cha
                             .background(bubbleColor, shape = RoundedCornerShape(12.dp))
                             .padding(12.dp)
                     ) {
+
                         Text(
-                            text = if (msg.autor == CurrentUser.correu) CurrentUser.nom else userName ?: "Anònim",
+                            text = msg.nom ?: "Anònim",
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.Gray
                         )

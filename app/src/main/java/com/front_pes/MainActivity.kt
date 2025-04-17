@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.front_pes.features.screens.login.LoginScreen
@@ -29,6 +30,7 @@ import com.front_pes.features.screens.map.MapViewModel
 import com.front_pes.ui.theme.FRONTPESTheme
 import com.front_pes.features.screens.map.MapScreen
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.front_pes.features.screens.login.LoginScreenDestination
 import com.front_pes.features.screens.map.MapScreenDestination
 import com.front_pes.features.screens.register.RegisterScreen
@@ -122,9 +124,40 @@ private fun AppNavigation(currentLocale: String) {
         }
             )
         }
-        composable(MainScreenDestination) {
+        composable(
+            "$MainScreenDestination?selectedTab={selectedTab}",
+            arguments = listOf(
+                navArgument("selectedTab") {
+                    defaultValue = 1 // Pestaña por defecto: mapa
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
+            val selectedTab = backStackEntry.arguments?.getInt("selectedTab") ?: 1
             MainScreen(
                 title = getString(context, R.string.map, currentLocale),
+                selectedIndex = selectedTab,
+                onNavigateToLogin = {
+                    navController.navigate(LoginScreenDestination)
+                },
+                onNavigateToCreateChat = {
+                    navController.navigate("chat-create")
+                },
+                onNavigateToCreateGroup = {
+                    navController.navigate("chat-group-create")
+                },
+                onNavigateToChat = { chatId, userName ->
+                    navController.navigate("chat/$chatId/$userName")
+                },
+                onNavigateToGroupDetail = { groupId ->
+                    navController.navigate("group-detail/$groupId")
+                }
+            )
+        }
+        composable("main/chat") {
+            MainScreen(
+                title = getString(context, R.string.map, currentLocale),
+                selectedIndex = 3, // índice de la pestaña de chats
                 onNavigateToLogin = {
                     navController.navigate(LoginScreenDestination)
                 },
@@ -170,9 +203,10 @@ private fun AppNavigation(currentLocale: String) {
             val userName = backStackEntry.arguments?.getString("userName")
             if (chatId != null && userName != null) {
                 ChatScreen(chatId = chatId, userName = userName,
-                    onBack = {navController.navigate(ChatListScreenDestination) {
-                        popUpTo("chat/{chatId}/{userName}") { inclusive = true }
-                    }
+                    onBack = {
+                        navController.navigate("$MainScreenDestination?selectedTab=3") {
+                            popUpTo(ChatScreenDestination) { inclusive = true }
+                        }
                     },
                     onNavigateToGroupDetail = { groupId ->
                     navController.navigate("group-detail/$groupId")

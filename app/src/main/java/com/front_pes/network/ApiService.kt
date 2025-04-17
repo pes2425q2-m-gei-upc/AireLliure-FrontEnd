@@ -3,6 +3,7 @@ package com.front_pes.network
 import com.front_pes.features.screens.login.LoginRequest
 import com.front_pes.features.screens.login.LoginResponse
 import com.front_pes.features.screens.map.EstacioQualitatAireResponse
+import com.front_pes.features.screens.map.PresenciaResponse
 import com.front_pes.features.screens.map.PuntsResponse
 import com.front_pes.features.screens.map.RutasResponse
 import com.front_pes.features.screens.register.RegisterRequest
@@ -18,6 +19,7 @@ import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.QueryMap
 
 interface ApiService {
     @POST("login/")
@@ -51,4 +53,10 @@ interface ApiService {
         @Path("pk") pk: String,
         @Body request : LlistaXatRequest
     ): Call<LlistaXatResponse>
+
+    @GET("presencies/punt/{pk}/")
+    fun getPresencia(
+        @Path("pk") stationId: Int,
+        @QueryMap filters: Map<String, String>
+    ): Call<List<PresenciaResponse>>
 }

@@ -15,6 +15,7 @@ fun latLngToPixelXY(lat: Double, lng: Double, zoom: Int): PointF {
 
 fun getColorForIndex(index: Double): Int {
     return when {
+        index.isNaN() -> Color.TRANSPARENT
         index <= 0.25 -> Color.RED
         index <= 0.5 -> Color.parseColor("#FFA500")
         index <= 0.75 -> Color.YELLOW

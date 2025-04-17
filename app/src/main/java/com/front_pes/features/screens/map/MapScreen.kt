@@ -33,7 +33,7 @@ data class RutaAmbPunt(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
+fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigger: Boolean = false) {
 
     val selectedIndex by remember { derivedStateOf { SelectorIndex.selectedIndex } }
 
@@ -78,12 +78,30 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
         }
     }
 
+    var averagesReady by remember { mutableStateOf(false) }
+
+    LaunchedEffect(reloadTrigger) {
+        if (estacions.isNotEmpty()) {
+            averagesReady = false
+            viewModel.fetchAveragesForStations(estacions) {
+                averagesReady = true
+            }
+            Log.d("LoadingMapScreen", "MapScreen cargado o recargado")
+        }
+    }
+
     // Cargar datos de la API
     LaunchedEffect(Unit) {
         viewModel.fetchEstacionsQualitatAire(
             onSuccess = { estaciones ->
                 estacions.clear()
                 estacions.addAll(estaciones)
+
+                averagesReady = false
+                viewModel.fetchAveragesForStations(estaciones) {
+                    averagesReady = true
+                    Log.d("MAP_SCREEN", "Averages cargados correctamente")
+                }
             },
             onError = { errorMessage -> }
         )
@@ -238,10 +256,10 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                     }
                 }
 
-                MapEffect(key1 = estacions.toList()) { googleMap ->
-                    Log.d("MAP_SCREEN", "Número de estaciones: ${estacions.size}")
+                MapEffect(key1 = estacions.toList(), key2 = averagesReady) { googleMap ->
                     if (estacions.isNotEmpty()) {
-                        val tileProvider = CustomHeatmapTileProvider(stations = estacions)
+                        Log.d("Testing", "averageMap desde fuera: ${viewModel.averageMap}")
+                        val tileProvider = CustomHeatmapTileProvider(stations = estacions, averages = viewModel.averageMap)
                         googleMap.addTileOverlay(
                             com.google.android.gms.maps.model.TileOverlayOptions()
                                 .tileProvider(tileProvider)

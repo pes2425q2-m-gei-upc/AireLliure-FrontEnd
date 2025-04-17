@@ -94,7 +94,7 @@ private fun AppNavigation(currentLocale: String) {
         }
         composable(MapScreenDestination){
             MapScreen(
-                title = getString(context, R.string.map, currentLocale),
+                title = getString(context, R.string.map, currentLocale)
             )
         }
         composable(RegisterScreenDestination){

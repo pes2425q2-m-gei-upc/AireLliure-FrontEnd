@@ -3,7 +3,9 @@ package com.front_pes.features.screens.map
 
 import android.graphics.*
 import android.util.Log
+import com.front_pes.SelectedContaminants
 import com.front_pes.features.screens.map.EstacioQualitatAireResponse
+import com.front_pes.network.RetrofitClient.apiService
 import com.front_pes.utils.calculateAlphaForZoom
 import com.front_pes.utils.getColorForIndex
 import com.front_pes.utils.latLngToPixelXY
@@ -15,6 +17,7 @@ import kotlin.math.PI
 
 class CustomHeatmapTileProvider(
     private val stations: List<EstacioQualitatAireResponse>,
+    private val averages: Map<Int, Double>,
     private val radiusMeters: Float = 2000f
 ) : TileProvider {
 
@@ -25,14 +28,30 @@ class CustomHeatmapTileProvider(
 
         val dynamicAlpha = calculateAlphaForZoom(zoom)
 
-        //Log.d("HeatmapTileProvider", "Zoom actual: $zoom")
-
         val highResBitmap = Bitmap.createBitmap(highResSize, highResSize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(highResBitmap)
 
         val scaleFactor = highResSize / tileSize.toFloat()
 
         stations.forEach { station ->
+//            val filters: Map<String, String> = SelectedContaminants
+//                .selected
+//                .associateWith { it }
+//
+//            val call = apiService.getPresencia(station.id, filters)
+//
+//            val response = call.execute()
+//
+//            var avgValue = if (response.isSuccessful) {
+//                response.body()?.map { it.valor }?.average() ?: 0.0
+//            } else {
+//                0.0
+//            }
+            val avgValue = averages[station.id] ?: 0.0
+            Log.d("Average", "Station ${station.id} → avg = $avgValue")
+
+            val stationColor = getColorForIndex(avgValue)
+
             val globalPoint = latLngToPixelXY(station.latitud, station.longitud, zoom)
             val tileOriginX = x * tileSize * scaleFactor
             val tileOriginY = y * tileSize * scaleFactor
@@ -41,8 +60,6 @@ class CustomHeatmapTileProvider(
 
             val resolution = (156543.03392 * cos(station.latitud * PI / 180)) / (1 shl zoom)
             val pixelRadius = (radiusMeters / resolution).toFloat() * scaleFactor
-
-            val stationColor = getColorForIndex(station.index_qualitat_aire)
 
 //            val paint = Paint().apply {
 //                isAntiAlias = true

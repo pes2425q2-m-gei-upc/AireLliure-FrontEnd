@@ -1,5 +1,6 @@
 package com.front_pes.features.screens
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -75,16 +76,18 @@ import com.front_pes.SelectedContaminants
 
 const val MainScreenDestination = "Main"
 
-
 @Composable
-fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () -> Unit) {
+fun ContentScreen(modifier: Modifier,
+                  selectedIndex: Int,
+                  reloadMap: Boolean,
+                  onNavigateToLogin: () -> Unit) {
     val context = LocalContext.current
     var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     when (selectedIndex) {
         0 -> UserPageScreen(title = getString(context, R.string.username, currentLocale), onNavigateToLogin = onNavigateToLogin)
-        1 -> MapScreen(title = getString(context, R.string.map, currentLocale),)
+        1 -> MapScreen(title = getString(context, R.string.map, currentLocale), reloadTrigger = reloadMap)
         2 -> SettingsScreen(onNavigateToLogin = onNavigateToLogin)
         3 -> ChatListScreen (onChatClick = {})
     }
@@ -207,6 +210,7 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
     )
 
     var selectedIndex by remember { mutableIntStateOf(1) }
+    var reloadMap by remember { mutableStateOf(false) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var textSearch by remember { mutableStateOf("") }
@@ -268,7 +272,10 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
                 }
 
                 if (showFilterDialog) {
-                    FilterDialog(onDismiss = { showFilterDialog = false })
+                    FilterDialog(onDismiss = {
+                        reloadMap = !reloadMap
+                        showFilterDialog = false
+                    })
                 }
             },
 
@@ -302,8 +309,9 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
         ) { innerPadding ->
             ContentScreen(
                 modifier = Modifier.padding(innerPadding),
-                selectedIndex,
-                onNavigateToLogin
+                selectedIndex = selectedIndex,
+                reloadMap = reloadMap,
+                onNavigateToLogin = onNavigateToLogin
             )
         }
     }
@@ -326,7 +334,10 @@ fun FilterDialog(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         title = { Text("Filtrar por contaminantes", fontWeight = FontWeight.Bold) },
         text = {
-            Column {
+            Column (
+                verticalArrangement = Arrangement.spacedBy((-5).dp)
+            )
+            {
                 contaminantes.forEachIndexed { index, contaminante ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(
@@ -337,8 +348,10 @@ fun FilterDialog(onDismiss: () -> Unit) {
                                 }
                                 if (isChecked) {
                                     SelectedContaminants.selected.add(contaminante)
+                                    Log.d("FilterDialog", "Added: $contaminante, Selected=${SelectedContaminants.selected}")
                                 } else {
                                     SelectedContaminants.selected.remove(contaminante)
+                                    Log.d("FilterDialog", "Removed: $contaminante, Selected=${SelectedContaminants.selected}")
                                 }
                             }
                         )
@@ -349,8 +362,10 @@ fun FilterDialog(onDismiss: () -> Unit) {
         },
         confirmButton = {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+
             ) {
                 // Botón "Quitar filtros" a la izquierda
                 Button(
@@ -371,8 +386,8 @@ fun FilterDialog(onDismiss: () -> Unit) {
                 Button(
                     onClick = { onDismiss() },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.onSecondary
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
                     ),
                     shape = RoundedCornerShape(8.dp)
                 ) {

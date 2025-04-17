@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,7 +27,14 @@ fun ChatListScreen(
     onCrearGrupClick: () -> Unit,
     viewModel: XatViewModel = viewModel()
 ) {
-    LaunchedEffect(Unit) { viewModel.carregarXats() }
+    LaunchedEffect(Unit) {
+        viewModel.carregarXats()
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.carregarXats()
+        }
+    }
     val chatList = viewModel.xats
 
     Column(modifier = Modifier.fillMaxSize().padding(top = 80.dp, start = 10.dp, end = 24.dp)) {
@@ -59,13 +67,19 @@ fun ChatListScreen(
             modifier = Modifier.padding(16.dp)
         )
 
-        LazyColumn {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(bottom = 80.dp) // Espacio final por si hay botones
+        ) {
             items(chatList) { chat ->
                 ChatListItem(name = chat.nom) {
                     onChatClick(chat.id, chat.nom)
                 }
             }
         }
+
     }
 }
 

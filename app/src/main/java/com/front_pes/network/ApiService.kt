@@ -75,6 +75,9 @@ interface ApiService {
     @POST("xats-grupal/create/")
     fun createXatGrupal(@Body request: GroupCreateRequest): Call<GroupCreateResponse>
 
+    @DELETE("xats-grupal/{id}/delete/")
+    fun deleteXatGrupal(@Path("id") id: Int): Call<Unit>
+
     @GET("xats-grupal/{pk}/")
     fun getXatGrupalById(@Path("pk") id: Int): Call<GroupDetailResponse>
 

@@ -241,10 +241,12 @@ private fun AppNavigation(currentLocale: String) {
         composable("group-detail/{groupId}") { backStackEntry ->
             val groupId = backStackEntry.arguments?.getString("groupId")?.toIntOrNull()
             if (groupId != null) {
-                com.front_pes.features.screens.xats.GroupDetailScreen(
+                GroupDetailScreen(
                     groupId = groupId,
                     onBack = {
-                        navController.popBackStack()
+                        navController.navigate("main/chat") {
+                            popUpTo("group-detail/$groupId") { inclusive = true }
+                        }
                     }
                 )
             }

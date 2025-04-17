@@ -82,4 +82,18 @@ class GroupDetailViewModel : ViewModel() {
             membres + correu
         }
     }
+
+    fun esborrarGrup(id: Int, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        RetrofitClient.apiService.deleteXatGrupal(id).enqueue(object : Callback<Unit> {
+            override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
+                if (response.isSuccessful) onSuccess()
+                else onError("Error: ${response.code()}")
+            }
+
+            override fun onFailure(call: Call<Unit>, t: Throwable) {
+                onError("Error de xarxa: ${t.message}")
+            }
+        })
+    }
+
 }

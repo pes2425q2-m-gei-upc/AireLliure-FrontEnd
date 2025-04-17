@@ -21,6 +21,7 @@ fun GroupDetailScreen(
 ) {
     val isAdmin = viewModel.creador == CurrentUser.correu
     var showDropdown by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.carregarGrup(groupId)
@@ -163,22 +164,66 @@ fun GroupDetailScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             Button(onClick = onBack) {
                 Text("Tornar")
             }
 
             if (isAdmin) {
-                Button(onClick = {
-                    viewModel.actualitzarGrup(
-                        id = groupId,
-                        onSuccess = { onBack() },
-                        onError = { println("Error: $it") }
-                    )
-                }) {
-                    Text("Guardar canvis")
+                Row {
+                    Button(onClick = {
+                        viewModel.actualitzarGrup(
+                            id = groupId,
+                            onSuccess = { onBack() },
+                            onError = { println("Error actualitzant grup") }
+                        )
+                    }) {
+                        Text("Guardar canvis")
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    OutlinedButton(
+                        onClick = { showDeleteDialog = true },
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Text("Eliminar grup")
+                    }
                 }
             }
+        }
+
+        // 🧨 Diàleg confirmació eliminació
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = { Text("Confirmar eliminació") },
+                text = { Text("Estàs segur que vols eliminar aquest grup? Aquesta acció no es pot desfer.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showDeleteDialog = false
+                        viewModel.esborrarGrup(
+                            id = groupId,
+                            onSuccess = { onBack() },
+                            onError = { println("Error eliminant grup") }
+                        )
+                    }) {
+                        Text("Eliminar", color = MaterialTheme.colorScheme.error)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteDialog = false }) {
+                        Text("Cancel·lar")
+                    }
+                }
+            )
         }
     }
 }

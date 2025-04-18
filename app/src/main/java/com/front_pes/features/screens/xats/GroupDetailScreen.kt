@@ -22,6 +22,7 @@ fun GroupDetailScreen(
     val isAdmin = viewModel.creador == CurrentUser.correu
     var showDropdown by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showLeaveDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.carregarGrup(groupId)
@@ -85,7 +86,7 @@ fun GroupDetailScreen(
             }
         }
 
-        // LLISTA DE MEMBRES VISUAL (amb info admin / tu / altres)
+        // LLISTA DE MEMBRES
         val membresPerMostrar = if (isAdmin) {
             viewModel.membres
         } else {
@@ -136,7 +137,7 @@ fun GroupDetailScreen(
             }
         }
 
-        // DESPLEGABLE D’AMISTATS (per afegir)
+        // DESPLEGABLE AFEGIR MEMBRE
         if (isAdmin) {
             DropdownMenu(
                 expanded = showDropdown,
@@ -164,6 +165,8 @@ fun GroupDetailScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        // BOTONS BOTTOM
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -174,33 +177,46 @@ fun GroupDetailScreen(
                 Text("Tornar")
             }
 
-            if (isAdmin) {
-                Row {
-                    Button(onClick = {
-                        viewModel.actualitzarGrup(
-                            id = groupId,
-                            onSuccess = { onBack() },
-                            onError = { println("Error actualitzant grup") }
-                        )
-                    }) {
-                        Text("Guardar canvis")
+            when {
+                isAdmin -> {
+                    Row {
+                        Button(onClick = {
+                            viewModel.actualitzarGrup(
+                                id = groupId,
+                                onSuccess = { onBack() },
+                                onError = { println("Error actualitzant grup") }
+                            )
+                        }) {
+                            Text("Guardar canvis")
+                        }
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        OutlinedButton(
+                            onClick = { showDeleteDialog = true },
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.error
+                            )
+                        ) {
+                            Text("Eliminar grup")
+                        }
                     }
+                }
 
-                    Spacer(modifier = Modifier.width(8.dp))
-
+                else -> {
                     OutlinedButton(
-                        onClick = { showDeleteDialog = true },
+                        onClick = { showLeaveDialog = true },
                         colors = ButtonDefaults.outlinedButtonColors(
                             contentColor = MaterialTheme.colorScheme.error
                         )
                     ) {
-                        Text("Eliminar grup")
+                        Text("Abandonar grup")
                     }
                 }
             }
         }
 
-        // 🧨 Diàleg confirmació eliminació
+        // Diàleg confirmació eliminar grup (ADMIN)
         if (showDeleteDialog) {
             AlertDialog(
                 onDismissRequest = { showDeleteDialog = false },
@@ -220,6 +236,32 @@ fun GroupDetailScreen(
                 },
                 dismissButton = {
                     TextButton(onClick = { showDeleteDialog = false }) {
+                        Text("Cancel·lar")
+                    }
+                }
+            )
+        }
+
+        // Diàleg confirmació abandonar grup (NO ADMIN)
+        if (showLeaveDialog) {
+            AlertDialog(
+                onDismissRequest = { showLeaveDialog = false },
+                title = { Text("Confirmar sortida") },
+                text = { Text("Estàs segur que vols abandonar aquest grup?") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showLeaveDialog = false
+                        viewModel.abandonarGrup(
+                            id = groupId,
+                            onSuccess = { onBack() },
+                            onError = { println("Error abandonant grup") }
+                        )
+                    }) {
+                        Text("Sortir", color = MaterialTheme.colorScheme.error)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showLeaveDialog = false }) {
                         Text("Cancel·lar")
                     }
                 }

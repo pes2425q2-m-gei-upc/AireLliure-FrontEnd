@@ -96,4 +96,25 @@ class GroupDetailViewModel : ViewModel() {
         })
     }
 
+    fun abandonarGrup(id: Int, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        membres = membres.filterNot { it == CurrentUser.correu } // elimina el correu propi
+        val body = GroupUpdateRequest(
+            nom = nom,
+            creador = creador,
+            descripcio = descripcio,
+            membres = membres
+        )
+        RetrofitClient.apiService.updateXatGrupal(id, body).enqueue(object : Callback<Unit> {
+            override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
+                if (response.isSuccessful) onSuccess()
+                else onError("Error: ${response.code()}")
+            }
+
+            override fun onFailure(call: Call<Unit>, t: Throwable) {
+                onError("Error de xarxa: ${t.message}")
+            }
+        })
+    }
+
+
 }

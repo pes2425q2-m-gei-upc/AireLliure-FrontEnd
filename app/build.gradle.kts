@@ -85,6 +85,8 @@ dependencies {
     //GoogleMaps
     implementation(libs.google.maps.compose)
     implementation(libs.play.services.maps)
+    implementation("com.google.maps.android:android-maps-utils:3.11.2")
+
 
     //Google Services
     implementation ("com.google.android.gms:play-services-auth:20.7.0")

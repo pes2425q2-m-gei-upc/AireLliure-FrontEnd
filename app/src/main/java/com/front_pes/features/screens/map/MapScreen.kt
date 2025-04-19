@@ -6,7 +6,6 @@ import android.location.Location
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -34,7 +33,7 @@ data class RutaAmbPunt(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
+fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigger: Boolean = false) {
 
     val selectedIndex by remember { derivedStateOf { SelectorIndex.selectedIndex } }
 
@@ -67,15 +66,27 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                 location?.let {
                     val newLocation = LatLng(it.latitude, it.longitude)
                     userLocation = newLocation
-                    cameraPositionState.position = CameraPosition.fromLatLngZoom(newLocation, 16f)
+                    cameraPositionState.position = CameraPosition.fromLatLngZoom(newLocation, 0f)
                 }
             }
         } else {
-            cameraPositionState.position = CameraPosition.fromLatLngZoom(plazaCatalunya, 16f)
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(plazaCatalunya, 4f)
             if (!viewModel.hasShownPermissionWarning) {
                 showLocationDeniedDialog = true
                 viewModel.hasShownPermissionWarning = true
             }
+        }
+    }
+
+    var averagesReady by remember { mutableStateOf(false) }
+
+    LaunchedEffect(reloadTrigger) {
+        if (estacions.isNotEmpty()) {
+            averagesReady = false
+            viewModel.fetchAveragesForStations(estacions) {
+                averagesReady = true
+            }
+            Log.d("LoadingMapScreen", "MapScreen cargado o recargado")
         }
     }
 
@@ -85,6 +96,12 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
             onSuccess = { estaciones ->
                 estacions.clear()
                 estacions.addAll(estaciones)
+
+                averagesReady = false
+                viewModel.fetchAveragesForStations(estaciones) {
+                    averagesReady = true
+                    Log.d("MAP_SCREEN", "Averages cargados correctamente")
+                }
             },
             onError = { errorMessage -> }
         )
@@ -235,6 +252,18 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                                 isBottomSheetVisible = true
                                 true
                             }
+                        )
+                    }
+                }
+
+                MapEffect(key1 = estacions.toList(), key2 = averagesReady) { googleMap ->
+                    if (estacions.isNotEmpty()) {
+                        Log.d("Testing", "averageMap desde fuera: ${viewModel.averageMap}")
+                        val tileProvider = CustomHeatmapTileProvider(stations = estacions, averages = viewModel.averageMap)
+                        googleMap.addTileOverlay(
+                            com.google.android.gms.maps.model.TileOverlayOptions()
+                                .tileProvider(tileProvider)
+                                .zIndex(1f)
                         )
                     }
                 }

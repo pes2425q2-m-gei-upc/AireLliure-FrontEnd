@@ -17,7 +17,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.front_pes.R
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.getString
@@ -174,15 +176,44 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                         .padding(16.dp)
                 ) {
                     selectedEstacio?.let {
-                        Text(it.nom_estacio, style = MaterialTheme.typography.headlineSmall)
+                        Text(it.nom_estacio, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(text = getString(context, R.string.icalidad, selectedLanguage) + ": ${it.index_qualitat_aire}", style = MaterialTheme.typography.bodyLarge)
+                        val averageValue = viewModel.averageMap[it.id]
+                        Text(
+                            text = getString(context, R.string.icalidad, selectedLanguage) + ": " +
+                                    (averageValue?.toString() ?: "N/A"),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+
                     }
 
                     selectedRuta?.let {
-                        Text(it.ruta.nom, style = MaterialTheme.typography.headlineSmall)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(text = getString(context, R.string.dist, selectedLanguage) + ": ${it.ruta.dist_km} km", style = MaterialTheme.typography.bodyLarge)
+                        val raw = it.ruta.descripcio
+                        val lines = raw
+                            .replace("</p>", "")
+                            .split("<p>")
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() }
+
+                        Column {
+                            Text(it.ruta.nom, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                            Spacer(Modifier.height(8.dp))
+//                            // Distancia
+//                            Text(
+//                                text = getString(context, R.string.dist, selectedLanguage) + ": ${it.ruta.dist_km} km",
+//                                style = MaterialTheme.typography.bodyLarge
+//                            )
+                            Spacer(Modifier.height(8.dp))
+                            // Descripción dividida
+                            lines.forEach { line ->
+                                Text(
+                                    text = line,
+                                    fontSize = 20.sp,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))

@@ -123,11 +123,7 @@ fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () 
             Log.d("ChatList", "Has fet clic a $chatName") })
         6-> BloqueigScreen(
             onNavigateToRelations={onChangeIndex(4)})
-        7 -> {
-            if (CurrentUser.administrador) {
-                HabilitacionsScreen(onNavigateToBlocks = { onChangeIndex(7) })
-            }
-        }
+        7-> HabilitacionsScreen()
     }
 }
 
@@ -137,17 +133,23 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
 
-    val drawerItems = buildList {
-        add(getString(context, R.string.profile, selectedLanguage) to Icons.Default.Person)
-        add(getString(context, R.string.map, selectedLanguage) to Icons.Default.LocationOn)
-        add(getString(context, R.string.settings, selectedLanguage) to Icons.Default.Settings)
-        add(getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email)
-        add(getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face)
-        add(getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info)
-        if (CurrentUser.administrador) {
-            add(getString(context, R.string.admin, selectedLanguage) to Icons.Default.Warning)
-        }
+    val baseDrawerItems = listOf(
+        0 to (getString(context, R.string.profile, selectedLanguage) to Icons.Default.Person),
+        1 to (getString(context, R.string.map, selectedLanguage) to Icons.Default.LocationOn),
+        2 to (getString(context, R.string.settings, selectedLanguage) to Icons.Default.Settings),
+        3 to (getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email),
+        4 to (getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face),
+        5 to (getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info)
+    )
+
+    val adminDrawerItems = if (CurrentUser.administrador) {
+        listOf(7 to (getString(context, R.string.admin, selectedLanguage) to Icons.Default.Warning))
+    } else {
+        emptyList()
     }
+
+    val drawerItems = baseDrawerItems + adminDrawerItems
+
 
     Column(
         modifier = Modifier
@@ -172,9 +174,14 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        drawerItems.forEachIndexed { index, (label, icon) ->
-            DrawerItem(text = label, icon = icon, selected = selectedIndex == index) {
-                onItemClicked(index) // Cambia la pantalla y cierra el Drawer
+        drawerItems.forEach { (actualIndex, item) ->
+            val (label, icon) = item
+            DrawerItem(
+                text = label,
+                icon = icon,
+                selected = selectedIndex == actualIndex
+            ) {
+                onItemClicked(actualIndex)
             }
         }
     }

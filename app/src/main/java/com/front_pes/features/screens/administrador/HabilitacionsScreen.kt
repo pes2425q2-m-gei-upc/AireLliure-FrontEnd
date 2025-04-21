@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.LaunchedEffect
@@ -33,15 +34,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-const val LlistatAmistatScreen = "AmistatListScreen"
+const val HabilitacionsScreen = "HabilitacioListScreen"
 enum class Selector{
     ALL,
     DESHABILITATS
 }
 
-
 @Composable
-fun HabilitacionsScreen(onNavigateToBlocks: () -> Unit, viewModel: HabilitacionsViewModel = viewModel()) {
+fun HabilitacionsScreen(viewModel: HabilitacionsViewModel = viewModel()) {
 
     var currentMode by remember {mutableStateOf(Selector.ALL)}
     val scrollState = rememberLazyListState()
@@ -49,8 +49,8 @@ fun HabilitacionsScreen(onNavigateToBlocks: () -> Unit, viewModel: Habilitacions
 
     LaunchedEffect(Unit) { viewModel.get_all_usuaris_habilitats()}
     LaunchedEffect(Unit) { viewModel.get_all_usuaris_deshabilitats()}
-    val usuaris_habilitats = viewModel.habilitats
-    val usuaris_deshabilitats = viewModel.deshabilitats
+    val usuarishabilitats = viewModel.habilitats
+    val usuarisdeshabilitats = viewModel.deshabilitats
 
     Column(
         modifier = Modifier.fillMaxSize().padding(top = 90.dp, start = 10.dp, end = 24.dp),
@@ -97,16 +97,15 @@ fun HabilitacionsScreen(onNavigateToBlocks: () -> Unit, viewModel: Habilitacions
             contentPadding = PaddingValues(bottom = 150.dp)
         ) {
             if(currentMode == Selector.ALL){
-                items(usuaris_habilitats.filter { it.nom.contains(searchText, ignoreCase = true) }) {item ->
+                items(usuarishabilitats.filter { it.nom.contains(searchText, ignoreCase = true) }) {item ->
                     AllListItem(name = item.nom, onDeshabilitar ={viewModel.deshabilitar(item.correu)})
                 }
             } else if (currentMode == Selector.DESHABILITATS) {
-                items(usuaris_deshabilitats.filter {  it.nom.contains(searchText, ignoreCase = true) ?: false}){
-                        user -> BloqueigListItem(name = user.nom, onReHabilitar = {viewModel.rehabilitar(user.correu)})
+                items(usuarisdeshabilitats.filter {  it.nom.contains(searchText, ignoreCase = true) ?: false}){
+                        user -> HabilitacioListItem(name = user.nom, onReHabilitar = {viewModel.rehabilitar(user.correu)})
                 }
             }
         }
-        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
@@ -139,9 +138,10 @@ fun AllListItem(name: String, onDeshabilitar: () -> Unit) {
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium
             )
-            Row {
+            Row(  verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween) {
                 IconButton(onClick = onDeshabilitar,
-                    modifier = Modifier.padding(start = 180.dp)) {
+                    /*modifier = Modifier.padding(start = 180.dp)*/) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Eliminar Amistad",
@@ -154,7 +154,7 @@ fun AllListItem(name: String, onDeshabilitar: () -> Unit) {
 }
 
 @Composable
-fun BloqueigListItem(
+fun HabilitacioListItem(
     name: String?,
     onReHabilitar: () -> Unit
 ) {
@@ -182,7 +182,7 @@ fun BloqueigListItem(
             Row {
                 IconButton(onClick = onReHabilitar) {
                     Icon(
-                        imageVector = Icons.Default.Add,
+                        imageVector = Icons.Default.Delete,
                         contentDescription = "Seguir",
                         tint = Color.Blue
                     )

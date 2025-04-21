@@ -30,7 +30,8 @@ class HabilitacionsViewModel : ViewModel() {
     var errorMessage by mutableStateOf<String?>(null)
     fun get_all_usuaris_habilitats()=viewModelScope.launch {
         try {
-            val resposta = RetrofitClient.apiService.get_habilitats()
+            val resposta = RetrofitClient.apiService.gethabilitats()
+            println("1    " + resposta)
             habilitats = resposta.map { item ->  detallUser(correu = item.correu, nom = item.nom)}
         } catch(e:Exception){
             println("Error al carregar tots els usuaris habilitats de l'APP: ${e.message}")
@@ -38,7 +39,9 @@ class HabilitacionsViewModel : ViewModel() {
     }
     fun get_all_usuaris_deshabilitats()= viewModelScope.launch {
         try {
-            val respost = RetrofitClient.apiService.get_deshabilitats()
+
+            val respost = RetrofitClient.apiService.getdeshabilitats()
+            println("2   " + respost)
             deshabilitats = respost.map { item -> detallUser(correu = item.correu, nom = item.nom)}
         } catch(e:Exception){
             println("Error al carregar els usuaris deshabilitats de l'APP: ${e.message}")
@@ -46,6 +49,7 @@ class HabilitacionsViewModel : ViewModel() {
     }
     fun deshabilitar(correu: String)=viewModelScope.launch {
         try{
+            println("entro deshabilitar" + "correu: " + correu)
             val resp = RetrofitClient.apiService.deshabilitar(CurrentUser.correu, correu)
             get_all_usuaris_habilitats()
             get_all_usuaris_deshabilitats()
@@ -55,6 +59,8 @@ class HabilitacionsViewModel : ViewModel() {
     }
     fun rehabilitar(correu: String)= viewModelScope.launch {
         try{
+            println("entro rehabilitar" + "correu: " + correu)
+
             val respo = RetrofitClient.apiService.rehabilitar(correu)
             get_all_usuaris_habilitats()
             get_all_usuaris_deshabilitats()

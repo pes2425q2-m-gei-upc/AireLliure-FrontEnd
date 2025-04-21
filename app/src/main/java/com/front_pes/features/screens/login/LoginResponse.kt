@@ -6,5 +6,6 @@ data class LoginResponse(
     val nom: String,
     val about: String,
     val estat: String,
-    val punts: Int
+    val punts: Int,
+    val administrador: Boolean
 )

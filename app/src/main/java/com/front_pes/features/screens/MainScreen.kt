@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.DividerDefaults.color
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -68,6 +69,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.CurrentUser
 import com.front_pes.R
 import com.front_pes.features.screens.Ranking.RankingScreen
+import com.front_pes.features.screens.administrador.HabilitacionsScreen
 import com.front_pes.features.screens.login.LoginScreenDestination
 import com.front_pes.features.screens.map.MapScreen
 import com.front_pes.features.screens.settings.LanguageViewModel
@@ -121,6 +123,11 @@ fun ContentScreen(modifier: Modifier, selectedIndex: Int, onNavigateToLogin: () 
             Log.d("ChatList", "Has fet clic a $chatName") })
         6-> BloqueigScreen(
             onNavigateToRelations={onChangeIndex(4)})
+        7 -> {
+            if (CurrentUser.administrador) {
+                HabilitacionsScreen(onNavigateToBlocks = { onChangeIndex(7) })
+            }
+        }
     }
 }
 
@@ -130,14 +137,17 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
 
-    val drawerItems = listOf(
-        getString(context, R.string.profile, selectedLanguage) to Icons.Default.Person,
-        getString(context, R.string.map, selectedLanguage) to Icons.Default.LocationOn,
-        getString(context, R.string.settings, selectedLanguage) to Icons.Default.Settings,
-        getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email,
-        getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face,
-        getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info
-    )
+    val drawerItems = buildList {
+        add(getString(context, R.string.profile, selectedLanguage) to Icons.Default.Person)
+        add(getString(context, R.string.map, selectedLanguage) to Icons.Default.LocationOn)
+        add(getString(context, R.string.settings, selectedLanguage) to Icons.Default.Settings)
+        add(getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email)
+        add(getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face)
+        add(getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info)
+        if (CurrentUser.administrador) {
+            add(getString(context, R.string.admin, selectedLanguage) to Icons.Default.Warning)
+        }
+    }
 
     Column(
         modifier = Modifier

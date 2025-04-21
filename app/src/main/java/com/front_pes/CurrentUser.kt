@@ -7,4 +7,5 @@ object CurrentUser {
     var about: String = ""
     var estat: String = ""
     var punts: Int = 0
+    var administrador: Boolean = false
 }

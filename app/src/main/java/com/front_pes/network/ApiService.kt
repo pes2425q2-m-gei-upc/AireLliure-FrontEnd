@@ -122,6 +122,23 @@ interface ApiService {
         @Path("pk") pk:Int
     ): Response<Unit>
 
+    @GET("/deshabilitats/")
+    suspend fun get_deshabilitats(): List<RankingResponse>
+
+    @GET("/habilitats/")
+    suspend fun get_habilitats(): List<RankingResponse>
+
+    @PATCH("usuaris/{correudeshabilitador}/deshabilitar/{correuusuari}/")
+    suspend fun deshabilitar(
+        @Path("correudeshabilitador") correudeshabilitador: String,
+        @Path("correuusuari") correuusuari: String
+    ): Response<Unit>
+
+    @PATCH("usuaris/{correuusuari}/rehabilitar/")
+    suspend fun rehabilitar(
+        @Path("correuusuari") correuusuari: String
+    ): Response<Unit>
+
 
 
 

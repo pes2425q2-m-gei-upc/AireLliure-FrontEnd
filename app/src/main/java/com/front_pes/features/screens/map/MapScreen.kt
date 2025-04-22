@@ -6,7 +6,6 @@ import android.location.Location
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,7 +17,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.front_pes.R
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.getString
@@ -32,9 +33,24 @@ data class RutaAmbPunt(
     val punt: PuntsResponse
 )
 
+val idToContaminantName = mapOf(
+    2 to "NO2",
+    3 to "O3",
+    4 to "PM10",
+    41091 to "H2S",
+    41092 to "NO",
+    41093 to "SO2",
+    41096 to "PM2.5",
+    41097 to "NOX",
+    41098 to "CO",
+    41100 to "C6H6",
+    41101 to "PM1",
+    41102 to "Hg"
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
+fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigger: Boolean = false) {
 
     val selectedIndex by remember { derivedStateOf { SelectorIndex.selectedIndex } }
 
@@ -67,15 +83,27 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                 location?.let {
                     val newLocation = LatLng(it.latitude, it.longitude)
                     userLocation = newLocation
-                    cameraPositionState.position = CameraPosition.fromLatLngZoom(newLocation, 16f)
+                    cameraPositionState.position = CameraPosition.fromLatLngZoom(newLocation, 0f)
                 }
             }
         } else {
-            cameraPositionState.position = CameraPosition.fromLatLngZoom(plazaCatalunya, 16f)
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(plazaCatalunya, 4f)
             if (!viewModel.hasShownPermissionWarning) {
                 showLocationDeniedDialog = true
                 viewModel.hasShownPermissionWarning = true
             }
+        }
+    }
+
+    var averagesReady by remember { mutableStateOf(false) }
+
+    LaunchedEffect(reloadTrigger) {
+        if (estacions.isNotEmpty()) {
+            averagesReady = false
+            viewModel.fetchAveragesForStations(estacions) {
+                averagesReady = true
+            }
+            Log.d("LoadingMapScreen", "MapScreen cargado o recargado")
         }
     }
 
@@ -85,6 +113,12 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
             onSuccess = { estaciones ->
                 estacions.clear()
                 estacions.addAll(estaciones)
+
+                averagesReady = false
+                viewModel.fetchAveragesForStations(estaciones) {
+                    averagesReady = true
+                    Log.d("MAP_SCREEN", "Averages cargados correctamente")
+                }
             },
             onError = { errorMessage -> }
         )
@@ -157,15 +191,82 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                         .padding(16.dp)
                 ) {
                     selectedEstacio?.let {
-                        Text(it.nom_estacio, style = MaterialTheme.typography.headlineSmall)
+                        Text(it.nom_estacio, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(text = getString(context, R.string.icalidad, selectedLanguage) + ": ${it.index_qualitat_aire}", style = MaterialTheme.typography.bodyLarge)
+                        val averageValue = viewModel.averageMap[it.id]
+                        Text(
+                            text = getString(context, R.string.icalidad, selectedLanguage) + ": " +
+                                    (averageValue?.toString() ?: "N/A"),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Contaminantes medidos:",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Recuperamos la lista de PresenciaResponse
+                        val presencias = viewModel.valuesMap[it.id] ?: emptyMap()
+                        if (presencias.isEmpty()) {
+                            Text(
+                                text = "No hay datos disponibles.",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        } else {
+                            presencias.forEach { (contaminantId, averageValue) ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    val contaminantName = idToContaminantName[contaminantId] ?: contaminantId.toString()
+
+                                    Text(
+                                        text = contaminantName,
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                    Text(
+                                        text = if (!averageValue.isNaN()) String.format("%.2f", averageValue) else "–",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
 
                     selectedRuta?.let {
-                        Text(it.ruta.nom, style = MaterialTheme.typography.headlineSmall)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(text = getString(context, R.string.dist, selectedLanguage) + ": ${it.ruta.dist_km} km", style = MaterialTheme.typography.bodyLarge)
+                        val raw = it.ruta.descripcio
+                        val lines = raw
+                            .replace("</p>", "")
+                            .split("<p>")
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() }
+
+                        Column {
+                            Text(it.ruta.nom, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                            Spacer(Modifier.height(8.dp))
+//                            // Distancia
+//                            Text(
+//                                text = getString(context, R.string.dist, selectedLanguage) + ": ${it.ruta.dist_km} km",
+//                                style = MaterialTheme.typography.bodyLarge
+//                            )
+                            Spacer(Modifier.height(8.dp))
+                            // Descripción dividida
+                            lines.forEach { line ->
+                                Text(
+                                    text = line,
+                                    fontSize = 20.sp,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -191,7 +292,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                         Marker(
                             state = MarkerState(position = LatLng(estacio.latitud, estacio.longitud)),
                             title = estacio.nom_estacio,
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
+                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE),
                             onClick = {
                                 selectedEstacio = estacio
                                 isBottomSheetVisible = true
@@ -204,7 +305,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                         Marker(
                             state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
                             title = ruta.nom,
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
+                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE),
                             onClick = {
                                 selectedRuta = RutaAmbPunt(ruta, punt)
                                 isBottomSheetVisible = true
@@ -217,7 +318,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                         Marker(
                             state = MarkerState(position = LatLng(estacio.latitud, estacio.longitud)),
                             title = estacio.nom_estacio,
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
+                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE),
                             onClick = {
                                 selectedEstacio = estacio
                                 isBottomSheetVisible = true
@@ -229,12 +330,24 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                         Marker(
                             state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
                             title = ruta.nom,
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
+                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE),
                             onClick = {
                                 selectedRuta = RutaAmbPunt(ruta, punt)
                                 isBottomSheetVisible = true
                                 true
                             }
+                        )
+                    }
+                }
+
+                MapEffect(key1 = estacions.toList(), key2 = averagesReady) { googleMap ->
+                    if (estacions.isNotEmpty()) {
+                        Log.d("Testing", "averageMap desde fuera: ${viewModel.averageMap}")
+                        val tileProvider = CustomHeatmapTileProvider(stations = estacions, averages = viewModel.averageMap)
+                        googleMap.addTileOverlay(
+                            com.google.android.gms.maps.model.TileOverlayOptions()
+                                .tileProvider(tileProvider)
+                                .zIndex(1f)
                         )
                     }
                 }

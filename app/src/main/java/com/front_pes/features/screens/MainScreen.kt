@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -79,6 +80,8 @@ import com.front_pes.features.screens.xamistat.BloqueigScreen
 import com.front_pes.features.screens.xats.ChatListScreen
 import com.front_pes.features.screens.xamistat.LlistatAmistatScreen
 import com.front_pes.features.screens.xamistat.DetallAmistatScreen
+import com.front_pes.features.screens.administrador.HabilitacionsScreen
+
 import com.front_pes.getString
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -141,6 +144,7 @@ fun ContentScreen(
             Log.d("ChatList", "Has fet clic a $chatName") })
         6-> BloqueigScreen(
             onNavigateToRelations={onChangeIndex(4)})
+        7-> HabilitacionsScreen()
     }
 }
 
@@ -150,14 +154,25 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
 
-    val drawerItems = listOf(
-        getString(context, R.string.profile, selectedLanguage) to Icons.Default.Person,
-        getString(context, R.string.map, selectedLanguage) to Icons.Default.LocationOn,
-        getString(context, R.string.settings, selectedLanguage) to Icons.Default.Settings,
-        getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email,
-        getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face,
-        getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info
+    val baseDrawerItems = listOf(
+        0 to (getString(context, R.string.profile, selectedLanguage) to Icons.Default.Person),
+        1 to (getString(context, R.string.map, selectedLanguage) to Icons.Default.LocationOn),
+        2 to (getString(context, R.string.settings, selectedLanguage) to Icons.Default.Settings),
+        3 to (getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email),
+        4 to (getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face),
+        5 to (getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info)
     )
+
+    val adminDrawerItems = if (CurrentUser.administrador) {
+        Log.d("DEBUG-CHECK", " Entrando en miFuncionDePrueba()")
+        listOf(7 to (getString(context, R.string.admin, selectedLanguage) to Icons.Default.Warning))
+    } else {
+        Log.d("DEBUG-CHECK", " NO en miFuncionDePrueba()")
+
+        emptyList()
+    }
+
+    val drawerItems = baseDrawerItems + adminDrawerItems
 
     Column(
         modifier = Modifier
@@ -165,7 +180,7 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
             .width(280.dp)
             .background(MaterialTheme.colorScheme.surface)
             .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally // Centra todo el contenido
 
     ) {
         Spacer(modifier = Modifier.height(25.dp))
@@ -182,9 +197,14 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        drawerItems.forEachIndexed { index, (label, icon) ->
-            DrawerItem(text = label, icon = icon, selected = selectedIndex == index) {
-                onItemClicked(index) // Cambia la pantalla y cierra el Drawer
+        drawerItems.forEach { (actualIndex, item) ->
+            val (label, icon) = item
+            DrawerItem(
+                text = label,
+                icon = icon,
+                selected = selectedIndex == actualIndex
+            ) {
+                onItemClicked(actualIndex)
             }
         }
     }

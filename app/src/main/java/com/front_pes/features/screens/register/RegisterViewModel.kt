@@ -1,28 +1,53 @@
 package com.front_pes.features.screens.register
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.front_pes.CurrentUser
+import com.front_pes.features.screens.login.LoginRequest
+import com.front_pes.features.screens.login.LoginResponse
+import com.front_pes.network.RetrofitClient
+import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class  RegisterViewModel : ViewModel() {
     var email by mutableStateOf("")
-        private set
+    var username by mutableStateOf("")
     var password by mutableStateOf("")
-        private set
-    var repeat_password by mutableStateOf("")
-        private set
 
-    fun onEmailChange(newEmail: String) {
-        email = newEmail
-    }
+    var errorMessage by mutableStateOf<String?>(null)
 
-    fun onPasswordChange(newPassword: String) {
-        password = newPassword
-    }
+    fun register(onSuccess: () -> Unit) {
+        val call = RetrofitClient.apiService.register(RegisterRequest(correu = email, password = password, nom = username ))
+        call.enqueue(object : Callback<RegisterResponse> {
+            override fun onResponse(call: Call<RegisterResponse>, response: Response<RegisterResponse>) {
+                if (response.code() == 201) {
+                    response.body()?.let { userData ->
+                        CurrentUser.correu = userData.correu
+                        CurrentUser.password = userData.password
+                        CurrentUser.nom = userData.nom
+                        CurrentUser.about = userData.about
+                        CurrentUser.estat = userData.estat
+                        CurrentUser.punts = userData.punts
+                    }
+                    onSuccess();
+                } else {
+                    // Si el código no es 200, muestra el mensaje adecuado
+                    errorMessage = when (response.code()) {
+                        400 -> "Campo incorrecto"
+                        else -> "Error desconocido: ${response.code()}"
+                    }
+                }
+            }
 
-    fun login() {
-        // Aquí iría la lógica de autenticación
-        println("Email: $email, Password: $password")
+            override fun onFailure(call: Call<RegisterResponse>, t: Throwable) {
+                errorMessage = "Network error: ${t.message}"
+            }
+        })
+
     }
 }

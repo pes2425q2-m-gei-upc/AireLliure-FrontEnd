@@ -12,6 +12,21 @@ import com.front_pes.features.screens.user.UpdateProfileRequest
 import com.front_pes.features.screens.user.UpdateProfileResponse
 import com.front_pes.features.screens.xats.LlistaXatRequest
 import com.front_pes.features.screens.xats.LlistaXatResponse
+import com.front_pes.features.screens.xamistat.DetallUsuariResponse
+import com.front_pes.features.screens.xamistat.LlistaAmistatResponse
+import com.front_pes.features.screens.xats.ChatCreateRequest
+import com.front_pes.features.screens.xats.ChatCreateResponse
+import com.front_pes.features.screens.xats.LlistaXatResponse
+import com.front_pes.features.screens.xats.ChatDetailResponse
+import com.front_pes.features.screens.xats.GroupCreateRequest
+import com.front_pes.features.screens.xats.GroupCreateResponse
+import com.front_pes.features.screens.xats.GroupDetailResponse
+import com.front_pes.features.screens.xats.GroupUpdateRequest
+import com.front_pes.features.screens.xats.SendMessageRequest
+import com.front_pes.features.screens.xats.SendMessageResponse
+import com.front_pes.features.screens.xats.UpdateMessageRequest
+import com.front_pes.features.screens.xats.UpdateMessageResponse
+
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -59,4 +74,57 @@ interface ApiService {
         @Path("pk") stationId: Int,
         @QueryMap filters: Map<String, String>
     ): Call<List<PresenciaResponse>>
+
+    @GET("xats/usuari/{pk}")
+    fun getXatsUsuaribyCorreu(
+        @Path("pk") pk: String,
+    ): Call<List<LlistaXatResponse>>
+
+    @GET("xats/{id}/")
+    fun getChatDetail(
+        @Path("id") id: Int
+    ): Call<ChatDetailResponse>
+
+    @POST("xats-individual/create/")
+    fun createXatIndividual(@Body request: ChatCreateRequest): Call<ChatCreateResponse>
+
+    @POST("xats-grupal/create/")
+    fun createXatGrupal(@Body request: GroupCreateRequest): Call<GroupCreateResponse>
+
+    @DELETE("xats-grupal/{id}/delete/")
+    fun deleteXatGrupal(@Path("id") id: Int): Call<Unit>
+
+    @GET("xats-grupal/{pk}/")
+    fun getXatGrupalById(@Path("pk") id: Int): Call<GroupDetailResponse>
+
+    @PATCH("xats-grupal/{pk}/update/")
+    fun updateXatGrupal(
+        @Path("pk") id: Int,
+        @Body request: GroupUpdateRequest
+    ): Call<Unit>
+
+    @POST("missatges/create/")
+    fun enviarMissatge(@Body request: SendMessageRequest): Call<SendMessageResponse>
+
+    @PATCH("missatges/{pk}/update/")
+    fun updateMissatge(
+        @Path("pk") id: Int,
+        @Body request: UpdateMessageRequest
+    ): Call<UpdateMessageResponse>
+
+    @DELETE("missatges/{pk}/delete/")
+    fun deleteMissatge(@Path("pk") id: Int): Call<Unit>
+
+    @GET("amistats/usuari/{pk}")
+    fun getAmistatUsuarybyCorreu(
+        @Path("pk") pk: String,
+    ): Call<List<LlistaAmistatResponse>>
+
+    @GET("usuaris/{pk}/")
+    fun getDetallUsuariAmic(
+        @Path("pk") pk: String,
+    ): Call<DetallUsuariResponse>
+
+    @GET("usuaris")
+    fun get_all_usuaris(): Call<List<DetallUsuariResponse>>
 }

@@ -1,5 +1,6 @@
 package com.front_pes.features.screens
 
+import com.front_pes.features.screens.xats.ChatListScreen
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -67,6 +68,8 @@ import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.features.screens.settings.SettingsScreen
 import com.front_pes.features.screens.user.UserPageScreen
 import com.front_pes.features.screens.xats.ChatListScreen
+import com.front_pes.features.screens.xamistat.LlistatAmistatScreen
+import com.front_pes.features.screens.xamistat.DetallAmistatScreen
 import com.front_pes.getString
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -77,19 +80,50 @@ import com.front_pes.SelectedContaminants
 const val MainScreenDestination = "Main"
 
 @Composable
-fun ContentScreen(modifier: Modifier,
-                  selectedIndex: Int,
-                  reloadMap: Boolean,
-                  onNavigateToLogin: () -> Unit) {
+fun ContentScreen(
+    modifier: Modifier,
+    selectedIndex: Int = 1,
+    reloadMap: Boolean,
+    onNavigateToLogin: () -> Unit,
+    onNavigateToCreateChat: () -> Unit,
+    onNavigateToCreateGroup: () -> Unit,
+    onNavigateToChat: (Int, String) -> Unit,
+    onNavigateToGroupDetail: (Int) -> Unit
+)
+
+ {
     val context = LocalContext.current
+    var selectedAmistat by remember { mutableStateOf<String>("") }
     var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+
     when (selectedIndex) {
         0 -> UserPageScreen(title = getString(context, R.string.username, currentLocale), onNavigateToLogin = onNavigateToLogin)
         1 -> MapScreen(title = getString(context, R.string.map, currentLocale), reloadTrigger = reloadMap)
         2 -> SettingsScreen(onNavigateToLogin = onNavigateToLogin)
-        3 -> ChatListScreen (onChatClick = {})
+        3 -> ChatListScreen(
+            onChatClick = { chatId, userName ->
+                onNavigateToChat(chatId, userName)
+            },
+            onNovaConversacioClick = onNavigateToCreateChat,
+            onCrearGrupClick = onNavigateToCreateGroup
+        )
+
+        4 -> {
+            if(selectedAmistat == ""){
+                LlistatAmistatScreen(
+                    onAmistatClick = { amistatID ->
+                        selectedAmistat = amistatID
+                    }
+                )
+            } else {
+                DetallAmistatScreen(
+                    userId = selectedAmistat,
+                    onBack = { selectedAmistat = "" }
+                )
+            }
+        }
     }
 }
 
@@ -113,7 +147,7 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
             .width(280.dp)
             .background(MaterialTheme.colorScheme.surface)
             .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally // Centra todo el contenido
+        horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
         Spacer(modifier = Modifier.height(25.dp))
@@ -199,7 +233,16 @@ fun SearchBar(modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: () -> Unit) {
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    title: String,
+    selectedIndex: Int = 1,
+    onNavigateToLogin: () -> Unit,
+    onNavigateToCreateChat: () -> Unit,
+    onNavigateToCreateGroup: () -> Unit,
+    onNavigateToChat: (Int, String) -> Unit,
+    onNavigateToGroupDetail: (Int) -> Unit
+) {
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
@@ -209,11 +252,10 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
         NavItem(getString(context, R.string.routes, selectedLanguage), Icons.Default.LocationOn),
     )
 
-    var selectedIndex by remember { mutableIntStateOf(1) }
     var reloadMap by remember { mutableStateOf(false) }
+    var selectedIndex by remember { mutableIntStateOf(selectedIndex) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var textSearch by remember { mutableStateOf("") }
     val hideBars = selectedIndex == 0 || selectedIndex == 2
 
     BackHandler {
@@ -238,9 +280,9 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
             topBar = {
                 Box(
                     modifier = Modifier
-                        .padding(start = 16.dp, top = 32.dp) // Separación de los bordes
-                        .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp)) // Fondo blanco con bordes redondeados
-                        .padding(8.dp) // Espacio interno para no pegar el icono al fondo
+                        .padding(start = 16.dp, top = 32.dp)
+                        .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp))
+                        .padding(8.dp)
                         .size(40.dp)
                 ) {
                     IconButton(onClick = { scope.launch { drawerState.open() } }) {
@@ -284,22 +326,23 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
                     NavigationBar {
                         navItemList.forEachIndexed { index, navItem ->
                             val isSelected = SelectorIndex.selectedIndex == index
-
                             NavigationBarItem(
                                 selected = isSelected,
                                 onClick = {
-                                    if (isSelected) {
-                                        // Deselecciona si ya estaba activo
-                                        SelectorIndex.selectedIndex = -1
-                                    } else {
-                                        SelectorIndex.selectedIndex = index
-                                    }
+                                    SelectorIndex.selectedIndex = if (isSelected) -1 else index
                                 },
                                 icon = {
-                                    Icon(imageVector = navItem.icon, contentDescription = "Icon", tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
+                                    Icon(
+                                        imageVector = navItem.icon,
+                                        contentDescription = "Icon",
+                                        tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                    )
                                 },
                                 label = {
-                                    Text(text = navItem.label, color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
+                                    Text(
+                                        text = navItem.label,
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                    )
                                 }
                             )
                         }
@@ -310,8 +353,12 @@ fun MainScreen(modifier: Modifier = Modifier, title: String, onNavigateToLogin: 
             ContentScreen(
                 modifier = Modifier.padding(innerPadding),
                 selectedIndex = selectedIndex,
-                reloadMap = reloadMap,
-                onNavigateToLogin = onNavigateToLogin
+                onNavigateToLogin = onNavigateToLogin,
+                onNavigateToCreateChat = onNavigateToCreateChat,
+                onNavigateToCreateGroup = onNavigateToCreateGroup,
+                onNavigateToChat = onNavigateToChat,
+                onNavigateToGroupDetail = onNavigateToGroupDetail,
+                reloadMap = reloadMap
             )
         }
     }

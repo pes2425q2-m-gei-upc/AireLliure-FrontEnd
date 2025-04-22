@@ -14,7 +14,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class RegisterViewModel : ViewModel() {
+class  RegisterViewModel : ViewModel() {
     var email by mutableStateOf("")
     var username by mutableStateOf("")
     var password by mutableStateOf("")

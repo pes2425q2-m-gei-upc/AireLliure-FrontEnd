@@ -1,11 +1,12 @@
-package com.front_pes.features.screens.login
+package com.front_pes.features.screens.administrador
 
-data class LoginResponse(
+data class HabResponse(
     val correu: String,
     val password: String,
     val nom: String,
-    val about: String,
     val estat: String,
     val punts: Int,
+    val deshabilitador: String?,
+    val about: String? = null,
     val administrador: Boolean
 )

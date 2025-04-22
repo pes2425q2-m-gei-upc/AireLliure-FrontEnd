@@ -16,7 +16,6 @@ import com.front_pes.features.screens.xamistat.DetallUsuariResponse
 import com.front_pes.features.screens.xamistat.LlistaAmistatResponse
 import com.front_pes.features.screens.xats.ChatCreateRequest
 import com.front_pes.features.screens.xats.ChatCreateResponse
-import com.front_pes.features.screens.xats.LlistaXatResponse
 import com.front_pes.features.screens.xats.ChatDetailResponse
 import com.front_pes.features.screens.xats.GroupCreateRequest
 import com.front_pes.features.screens.xats.GroupCreateResponse

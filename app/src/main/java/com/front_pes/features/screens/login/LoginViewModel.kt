@@ -74,7 +74,8 @@ class LoginViewModel : ViewModel() {
                             CurrentUser.correu = userData.correu
                             CurrentUser.password = userData.password
                             CurrentUser.nom = userData.nom
-                            CurrentUser.about = userData.about
+                            if (userData.about != null)CurrentUser.about = userData.about
+                            else CurrentUser.about = ""
                             CurrentUser.estat = userData.estat
                             CurrentUser.punts = userData.punts
                         }

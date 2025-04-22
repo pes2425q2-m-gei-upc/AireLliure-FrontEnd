@@ -22,7 +22,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -44,6 +47,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -63,10 +68,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.CurrentUser
 import com.front_pes.R
+import com.front_pes.features.screens.Ranking.RankingScreen
+import com.front_pes.features.screens.login.LoginScreenDestination
 import com.front_pes.features.screens.map.MapScreen
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.features.screens.settings.SettingsScreen
 import com.front_pes.features.screens.user.UserPageScreen
+import com.front_pes.features.screens.xamistat.BloqueigScreen
 import com.front_pes.features.screens.xats.ChatListScreen
 import com.front_pes.features.screens.xamistat.LlistatAmistatScreen
 import com.front_pes.features.screens.xamistat.DetallAmistatScreen
@@ -97,7 +105,9 @@ fun ContentScreen(
     var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
-
+    SideEffect {
+        SelectorIndex.selectedIndex = selectedIndex
+    }
     when (selectedIndex) {
         0 -> UserPageScreen(title = getString(context, R.string.username, currentLocale), onNavigateToLogin = onNavigateToLogin)
         1 -> MapScreen(title = getString(context, R.string.map, currentLocale), reloadTrigger = reloadMap)
@@ -115,7 +125,8 @@ fun ContentScreen(
                 LlistatAmistatScreen(
                     onAmistatClick = { amistatID ->
                         selectedAmistat = amistatID
-                    }
+                    },
+                    onNavigateToBlocks = {onChangeIndex(6)},
                 )
             } else {
                 DetallAmistatScreen(
@@ -124,6 +135,10 @@ fun ContentScreen(
                 )
             }
         }
+        5-> RankingScreen(onChatClick = { chatName ->
+            Log.d("ChatList", "Has fet clic a $chatName") })
+        6-> BloqueigScreen(
+            onNavigateToRelations={onChangeIndex(4)})
     }
 }
 
@@ -138,7 +153,8 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
         getString(context, R.string.map, selectedLanguage) to Icons.Default.LocationOn,
         getString(context, R.string.settings, selectedLanguage) to Icons.Default.Settings,
         getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email,
-        getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face
+        getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face,
+        getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info
     )
 
     Column(
@@ -247,13 +263,20 @@ fun MainScreen(
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
 
-    val navItemList = listOf(
+    val navItemListMap = listOf(
         NavItem(getString(context, R.string.airQ, selectedLanguage), Icons.Default.Person),
-        NavItem(getString(context, R.string.routes, selectedLanguage), Icons.Default.LocationOn),
+        NavItem(getString(context, R.string.routes, selectedLanguage), Icons.Default.LocationOn)
+    )
+
+    val navItemListAmistat = listOf(
+        NavItem(getString(context, R.string.Relacions, selectedLanguage), Icons.Default.Share),
+        NavItem(getString(context, R.string.Block, selectedLanguage), Icons.Default.Lock)
     )
 
     var reloadMap by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableIntStateOf(selectedIndex) }
+    var mapFilterIndex by remember { mutableIntStateOf(0) } // 0: Calidad aire, 1: Rutas
+
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val hideBars = selectedIndex == 0 || selectedIndex == 2
@@ -324,26 +347,51 @@ fun MainScreen(
             bottomBar = {
                 if (!hideBars) {
                     NavigationBar {
-                        navItemList.forEachIndexed { index, navItem ->
-                            val isSelected = SelectorIndex.selectedIndex == index
+                        val navItemsToShow = when (selectedIndex) {
+                            1 -> navItemListMap
+                            4, 6 -> navItemListAmistat
+                            else -> emptyList()
+                        }
+
+                        navItemsToShow.forEachIndexed { index, navItem ->
+                            val actualIndex = when (selectedIndex) {
+                                1 -> selectedIndex // Stay on same screen
+                                4, 6 -> if (index == 0) 4 else 6
+                                else -> index
+                            }
+
+                            val isSelected = when (selectedIndex) {
+                                1 -> mapFilterIndex == index
+                                else -> selectedIndex == actualIndex
+                            }
+
+                            // 🔧 Esta parte está fuera del NavigationBarItem (¡clave!)
+                            val iconContent: @Composable () -> Unit = {
+                                Icon(
+                                    imageVector = navItem.icon,
+                                    contentDescription = "Icon",
+                                    tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                            val labelContent: @Composable () -> Unit = {
+                                Text(
+                                    text = navItem.label,
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+
                             NavigationBarItem(
                                 selected = isSelected,
                                 onClick = {
-                                    SelectorIndex.selectedIndex = if (isSelected) -1 else index
+                                    if (selectedIndex == 1) {
+                                        mapFilterIndex = index
+                                        SelectorIndex.selectedFiltre = if (isSelected) -1 else index
+                                    } else {
+                                        selectedIndex = actualIndex
+                                    }
                                 },
-                                icon = {
-                                    Icon(
-                                        imageVector = navItem.icon,
-                                        contentDescription = "Icon",
-                                        tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                                    )
-                                },
-                                label = {
-                                    Text(
-                                        text = navItem.label,
-                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                                    )
-                                }
+                                icon = iconContent,
+                                label = labelContent
                             )
                         }
                     }
@@ -358,7 +406,8 @@ fun MainScreen(
                 onNavigateToCreateGroup = onNavigateToCreateGroup,
                 onNavigateToChat = onNavigateToChat,
                 onNavigateToGroupDetail = onNavigateToGroupDetail,
-                reloadMap = reloadMap
+                reloadMap = reloadMap,
+                onChangeIndex = { selectedIndex = it }
             )
         }
     }

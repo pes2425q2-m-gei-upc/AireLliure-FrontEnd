@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -96,7 +97,8 @@ fun ContentScreen(
     onNavigateToCreateChat: () -> Unit,
     onNavigateToCreateGroup: () -> Unit,
     onNavigateToChat: (Int, String) -> Unit,
-    onNavigateToGroupDetail: (Int) -> Unit
+    onNavigateToGroupDetail: (Int) -> Unit,
+    onChangeIndex: (Int) -> Unit
 )
 
  {

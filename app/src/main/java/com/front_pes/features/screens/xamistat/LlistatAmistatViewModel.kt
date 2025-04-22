@@ -183,4 +183,3 @@ class LlistatAmistatViewModel: ViewModel() {
         }
     }
 }
-

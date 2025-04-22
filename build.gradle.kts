@@ -10,5 +10,8 @@ plugins {
 
     //Detekt
     id("io.gitlab.arturbosch.detekt") version "1.23.8" apply false
+
+    // KtLint
+    id("org.jlleitschuh.gradle.ktlint") version "11.4.2" apply false
 }
 

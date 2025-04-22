@@ -25,6 +25,7 @@ import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.getString
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.front_pes.utils.SelectorIndex
+import com.front_pes.utils.SelectorIndex.selectedFiltre
 
 const val MapScreenDestination = "Map"
 
@@ -287,7 +288,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                 cameraPositionState = cameraPositionState,
                 properties = MapProperties(isMyLocationEnabled = locationPermissionGranted)
             ) {
-                if (selectedIndex == 0) {
+                if (selectedFiltre == 0) {
                     estacions.forEach { estacio ->
                         Marker(
                             state = MarkerState(position = LatLng(estacio.latitud, estacio.longitud)),
@@ -300,7 +301,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                             }
                         )
                     }
-                } else if (selectedIndex == 1) {
+                } else if (selectedFiltre == 1) {
                     rutesAmbPunt.forEach { (ruta, punt) ->
                         Marker(
                             state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),

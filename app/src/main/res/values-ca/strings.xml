@@ -13,6 +13,8 @@
     <string name="settings">Configuració</string>
     <string name="chats">Conversacions</string>
     <string name="friends">Amics</string>
+    <string name="Block">Bloqueigos</string>
+    <string name="ranking">Rànquing</string>
     <string name="airQ">Qualitat de l\'Aire</string>
     <string name="routes">Rutes</string>
     <string name="points">Punts</string>
@@ -35,4 +37,5 @@
     <string name="u_perm">Permís d\'ubicació requerit</string>
     <string name="hab">Habilita els permissos de localització per poder utilitzar de manera completa l\'aplicació.</string>
     <string name="aceptar">Acceptar</string>
+    <string name="Relacions">Relacions</string>
 </resources>

@@ -2,9 +2,11 @@ package com.front_pes.features.screens.xats
 
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.front_pes.CurrentUser
 import com.front_pes.features.screens.xamistat.LlistaAmistatResponse
 import com.front_pes.network.RetrofitClient
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -16,20 +18,14 @@ class GroupCreateViewModel : ViewModel() {
     var errorMessage by mutableStateOf<String?>(null)
 
     fun carregarAmistats() {
-        val call = RetrofitClient.apiService.getAmistatUsuarybyCorreu(CurrentUser.correu)
-        call.enqueue(object : Callback<List<LlistaAmistatResponse>> {
-            override fun onResponse(call: Call<List<LlistaAmistatResponse>>, response: Response<List<LlistaAmistatResponse>>) {
-                if (response.isSuccessful) {
-                    amistats = response.body() ?: emptyList()
-                } else {
-                    errorMessage = "Error carregant amistats: ${response.code()}"
-                }
+        viewModelScope.launch {
+            try {
+                val result = RetrofitClient.apiService.getAmistatUsuarybyCorreu(CurrentUser.correu)
+                amistats = result
+            } catch (e: Exception) {
+                errorMessage = "Error de xarxa: ${e.message}"
             }
-
-            override fun onFailure(call: Call<List<LlistaAmistatResponse>>, t: Throwable) {
-                errorMessage = "Error de xarxa: ${t.message}"
-            }
-        })
+        }
     }
 
     fun crearGrup(

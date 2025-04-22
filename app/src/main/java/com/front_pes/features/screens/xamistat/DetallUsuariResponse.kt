@@ -1,7 +1,7 @@
 package com.front_pes.features.screens.xamistat
 
 data class DetallUsuariResponse(
-    val correu: String?=null,
+    val correu: String,
     val password: String?=null,
     val nom: String?=null,
     val estat: String?=null,

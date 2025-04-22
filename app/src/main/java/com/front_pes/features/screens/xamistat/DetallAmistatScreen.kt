@@ -124,6 +124,22 @@ fun DetallAmistatScreen(userId: String, onBack: () -> Unit, viewModel: DetallAmi
                     fontSize = 14.sp
                 )
             }
+            Button(
+                onClick = {
+                    viewModel.bloquejar_usuari()
+                    onBack()
+                },
+                modifier = Modifier
+                    .padding(16.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+            ) {
+                Text(
+                    text = "Block",
+                    color = Color.Black,
+                    fontSize = 14.sp
+                )
+            }
         }
     }
 }

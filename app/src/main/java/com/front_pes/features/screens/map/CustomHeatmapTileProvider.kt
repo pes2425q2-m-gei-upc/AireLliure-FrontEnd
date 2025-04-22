@@ -71,10 +71,10 @@ class CustomHeatmapTileProvider(
                 intArrayOf(
                     adjustAlpha(stationColor, dynamicAlpha),
                     adjustAlpha(stationColor, dynamicAlpha),
-                    adjustAlpha(stationColor, (dynamicAlpha * 0.6).toInt()),
+                    adjustAlpha(stationColor, (dynamicAlpha * 0.5).toInt()),
                     adjustAlpha(stationColor, 0)
                 ),
-                floatArrayOf(0.0f, 0.0f, 0.75f, 1.0f),
+                floatArrayOf(0.0f, 0.0f, 0.7f, 1.0f),
                 Shader.TileMode.CLAMP
             )
 

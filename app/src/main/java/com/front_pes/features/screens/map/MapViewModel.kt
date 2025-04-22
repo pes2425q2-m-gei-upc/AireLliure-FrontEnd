@@ -20,13 +20,19 @@ class MapViewModel : ViewModel() {
     private val _averageMap = mutableStateMapOf<Int, Double>()
     val averageMap: Map<Int, Double> get() = _averageMap
 
+    private val _valuesMap = mutableStateMapOf<Int, Map<Int, Double>>()
+    val valuesMap: Map<Int, Map<Int, Double>> get() = _valuesMap
+
     fun fetchAveragesForStations(
         stations: List<EstacioQualitatAireResponse>,
         onComplete: () -> Unit = {}
     ) {
         viewModelScope.launch {
             val tempMap = mutableMapOf<Int, Double>()
+            val tempValuesMap = mutableMapOf<Int, Map<Int, Double>>()
+
             _averageMap.clear()
+            _valuesMap.clear()
 
             stations.forEach { station ->
                 val filters: Map<String, String> =
@@ -36,6 +42,12 @@ class MapViewModel : ViewModel() {
                     val response: Response<List<PresenciaResponse>> = withContext(Dispatchers.IO) {
                         apiService.getPresencia(station.id, filters).execute()
                     }
+
+                    val validResponses = if (response.isSuccessful) {
+                        response.body()
+                            ?.filter { it.valor != null && !it.valor!!.isNaN() }
+                            ?: emptyList()
+                    } else emptyList()
 
                     val avgValue = if (response.isSuccessful) {
                         val validValues = response.body()
@@ -48,15 +60,27 @@ class MapViewModel : ViewModel() {
                         Double.NaN
                     }
 
+                    val avgByContaminant: Map<Int, Double> = validResponses
+                        .groupBy { it.contaminant }
+                        .mapValues { entry ->
+                            val vals = entry.value.map { it.valor!! }
+                            if (vals.isNotEmpty()) vals.average() else Double.NaN
+                        }
+
                     tempMap[station.id] = avgValue
+                    tempValuesMap[station.id] = avgByContaminant
                     //Log.d("Average", "Station ${station.id} → avg = $avgValue")
 
                 } catch (e: Exception) {
                     tempMap[station.id] = Double.NaN
+                    tempValuesMap[station.id] = emptyMap()
                     Log.e("MapViewModel", "Error al obtener promedio para estación ${station.id}", e)
                 }
             }
             _averageMap.putAll(tempMap)
+            _valuesMap.putAll(tempValuesMap)
+
+            Log.d("Conts", "${tempValuesMap}")
             Log.d("Testing", "averageMap: ${averageMap}")
             onComplete()
         }

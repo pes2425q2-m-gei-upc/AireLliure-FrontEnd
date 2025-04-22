@@ -33,6 +33,21 @@ data class RutaAmbPunt(
     val punt: PuntsResponse
 )
 
+val idToContaminantName = mapOf(
+    2 to "NO2",
+    3 to "O3",
+    4 to "PM10",
+    41091 to "H2S",
+    41092 to "NO",
+    41093 to "SO2",
+    41096 to "PM2.5",
+    41097 to "NOX",
+    41098 to "CO",
+    41100 to "C6H6",
+    41101 to "PM1",
+    41102 to "Hg"
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigger: Boolean = false) {
@@ -185,6 +200,44 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                             style = MaterialTheme.typography.bodyLarge
                         )
 
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Contaminantes medidos:",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Recuperamos la lista de PresenciaResponse
+                        val presencias = viewModel.valuesMap[it.id] ?: emptyMap()
+                        if (presencias.isEmpty()) {
+                            Text(
+                                text = "No hay datos disponibles.",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        } else {
+                            presencias.forEach { (contaminantId, averageValue) ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    val contaminantName = idToContaminantName[contaminantId] ?: contaminantId.toString()
+
+                                    Text(
+                                        text = contaminantName,
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                    Text(
+                                        text = if (!averageValue.isNaN()) String.format("%.2f", averageValue) else "–",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
 
                     selectedRuta?.let {
@@ -239,7 +292,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                         Marker(
                             state = MarkerState(position = LatLng(estacio.latitud, estacio.longitud)),
                             title = estacio.nom_estacio,
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
+                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE),
                             onClick = {
                                 selectedEstacio = estacio
                                 isBottomSheetVisible = true
@@ -252,7 +305,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                         Marker(
                             state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
                             title = ruta.nom,
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
+                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE),
                             onClick = {
                                 selectedRuta = RutaAmbPunt(ruta, punt)
                                 isBottomSheetVisible = true
@@ -265,7 +318,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                         Marker(
                             state = MarkerState(position = LatLng(estacio.latitud, estacio.longitud)),
                             title = estacio.nom_estacio,
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
+                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE),
                             onClick = {
                                 selectedEstacio = estacio
                                 isBottomSheetVisible = true
@@ -277,7 +330,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                         Marker(
                             state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
                             title = ruta.nom,
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
+                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE),
                             onClick = {
                                 selectedRuta = RutaAmbPunt(ruta, punt)
                                 isBottomSheetVisible = true

@@ -44,7 +44,10 @@ class ChatCreateViewModel : ViewModel() {
 
         val call = RetrofitClient.apiService.createXatIndividual(body)
         call.enqueue(object : Callback<ChatCreateResponse> {
-            override fun onResponse(call: Call<ChatCreateResponse>, response: Response<ChatCreateResponse>) {
+            override fun onResponse(
+                call: Call<ChatCreateResponse>,
+                response: Response<ChatCreateResponse>
+            ) {
                 if (response.isSuccessful) {
                     val chatId = response.body()?.id ?: return
                     onSuccess(chatId)
@@ -61,7 +64,10 @@ class ChatCreateViewModel : ViewModel() {
     fun carregarXats() {
         val call = RetrofitClient.apiService.getXatsUsuaribyCorreu(CurrentUser.correu)
         call.enqueue(object : Callback<List<LlistaXatResponse>> {
-            override fun onResponse(call: Call<List<LlistaXatResponse>>, response: Response<List<LlistaXatResponse>>) {
+            override fun onResponse(
+                call: Call<List<LlistaXatResponse>>,
+                response: Response<List<LlistaXatResponse>>
+            ) {
                 if (response.isSuccessful) {
                     xatsExistents = response.body()?.map { XatSimple(it.nom, it.id) } ?: emptyList()
                 } else {
@@ -74,5 +80,4 @@ class ChatCreateViewModel : ViewModel() {
             }
         })
     }
-
 }

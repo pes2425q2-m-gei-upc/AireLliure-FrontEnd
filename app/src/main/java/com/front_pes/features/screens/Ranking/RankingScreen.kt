@@ -1,52 +1,20 @@
 package com.front_pes.features.screens.Ranking
 
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.front_pes.R
-import com.front_pes.features.screens.settings.LanguageViewModel
-import com.front_pes.getString
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.auth.api.signin.internal.GoogleSignInOptionsExtensionParcelable
-import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.GoogleAuthProvider
-
-import com.front_pes.features.screens.settings.updateUserStatus
-import androidx.compose.ui.platform.LocalContext
-import com.front_pes.features.screens.xats.XatViewModel
 
 const val RankingScreen = "Ranking"
 
@@ -56,8 +24,7 @@ enum class Selector {
 }
 
 @Composable
-fun RankingScreen(onChatClick: (Int) -> Unit, viewModel: RankingViewModel = viewModel()){
-
+fun RankingScreen(onChatClick: (Int) -> Unit, viewModel: RankingViewModel = viewModel()) {
     LaunchedEffect(Unit) {
         viewModel.ranking_tt_users()
         viewModel.ranking_n_amics()
@@ -67,7 +34,7 @@ fun RankingScreen(onChatClick: (Int) -> Unit, viewModel: RankingViewModel = view
     var currentMode by remember { mutableStateOf(Selector.ALL) }
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(top = 80.dp, start = 10.dp, end = 24.dp),
+        modifier = Modifier.fillMaxSize().padding(top = 80.dp, start = 10.dp, end = 24.dp)
     ) {
         Row(
             modifier = Modifier
@@ -155,4 +122,3 @@ fun RankingListItem(position: Int, nom: String, punts: Int) {
         }
     }
 }
-

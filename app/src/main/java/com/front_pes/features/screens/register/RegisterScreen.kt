@@ -19,12 +19,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.R
 import com.front_pes.features.screens.settings.LanguageViewModel
@@ -33,7 +31,11 @@ import com.front_pes.getString
 const val RegisterScreenDestination = "Register"
 
 @Composable
-fun RegisterScreen(viewModel: RegisterViewModel = viewModel(), title: String, onNavigateToMap: () -> Unit) {
+fun RegisterScreen(
+    viewModel: RegisterViewModel = viewModel(),
+    title: String,
+    onNavigateToMap: () -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var repeat_password by remember { mutableStateOf("") }
@@ -49,7 +51,6 @@ fun RegisterScreen(viewModel: RegisterViewModel = viewModel(), title: String, on
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-
             // Logo (Reemplazar por tu recurso local si tienes uno)
             Image(
                 painter = painterResource(id = R.drawable.airelliurelogo), // Cambia 'logo' por el nombre de tu recurso
@@ -57,7 +58,12 @@ fun RegisterScreen(viewModel: RegisterViewModel = viewModel(), title: String, on
                 modifier = Modifier.size(300.dp)
             )
 
-            Text(text = getString(context, R.string.signup, selectedLanguage), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+            Text(
+                text = getString(context, R.string.signup, selectedLanguage),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -66,9 +72,7 @@ fun RegisterScreen(viewModel: RegisterViewModel = viewModel(), title: String, on
                 onValueChange = { viewModel.email = it },
                 label = { Text("Correu") },
                 modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-
-                )
+                colors = OutlinedTextFieldDefaults.colors()
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -95,9 +99,11 @@ fun RegisterScreen(viewModel: RegisterViewModel = viewModel(), title: String, on
             Spacer(modifier = Modifier.height(20.dp))
 
             Button(
-                onClick = {viewModel.register {
-                    onNavigateToMap()  // Navega si el register es exitoso
-                }},
+                onClick = {
+                    viewModel.register {
+                        onNavigateToMap() // Navega si el register es exitoso
+                    } 
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .shadow(2.dp, RoundedCornerShape(10.dp))
@@ -113,11 +119,18 @@ fun RegisterScreen(viewModel: RegisterViewModel = viewModel(), title: String, on
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text(text = getString(context, R.string.SIGNUP, selectedLanguage), color = Color.White)
+                Text(
+                    text = getString(context, R.string.SIGNUP, selectedLanguage),
+                    color = Color.White
+                )
             }
 
             if (viewModel.errorMessage != null) {
-                Text(viewModel.errorMessage!!, color = Color.Red, modifier = Modifier.padding(top = 10.dp))
+                Text(
+                    viewModel.errorMessage!!,
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 10.dp)
+                )
             }
         }
     }

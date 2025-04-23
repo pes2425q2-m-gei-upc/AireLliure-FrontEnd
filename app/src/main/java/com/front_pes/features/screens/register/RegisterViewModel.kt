@@ -1,15 +1,11 @@
 package com.front_pes.features.screens.register
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
 import com.front_pes.CurrentUser
-import com.front_pes.features.screens.login.LoginRequest
-import com.front_pes.features.screens.login.LoginResponse
 import com.front_pes.network.RetrofitClient
-import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -22,9 +18,14 @@ class RegisterViewModel : ViewModel() {
     var errorMessage by mutableStateOf<String?>(null)
 
     fun register(onSuccess: () -> Unit) {
-        val call = RetrofitClient.apiService.register(RegisterRequest(correu = email, password = password, nom = username ))
+        val call = RetrofitClient.apiService.register(
+            RegisterRequest(correu = email, password = password, nom = username)
+        )
         call.enqueue(object : Callback<RegisterResponse> {
-            override fun onResponse(call: Call<RegisterResponse>, response: Response<RegisterResponse>) {
+            override fun onResponse(
+                call: Call<RegisterResponse>,
+                response: Response<RegisterResponse>
+            ) {
                 if (response.code() == 201) {
                     response.body()?.let { userData ->
                         CurrentUser.correu = userData.correu
@@ -34,7 +35,7 @@ class RegisterViewModel : ViewModel() {
                         CurrentUser.estat = userData.estat
                         CurrentUser.punts = userData.punts
                     }
-                    onSuccess();
+                    onSuccess()
                 } else {
                     // Si el código no es 200, muestra el mensaje adecuado
                     errorMessage = when (response.code()) {
@@ -48,6 +49,5 @@ class RegisterViewModel : ViewModel() {
                 errorMessage = "Network error: ${t.message}"
             }
         })
-
     }
 }

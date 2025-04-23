@@ -38,7 +38,6 @@ fun ChatListScreen(
     val chatList = viewModel.xats
 
     Column(modifier = Modifier.fillMaxSize().padding(top = 80.dp, start = 10.dp, end = 24.dp)) {
-
         // Botones de acción
         Row(
             modifier = Modifier
@@ -79,7 +78,6 @@ fun ChatListScreen(
                 }
             }
         }
-
     }
 }
 

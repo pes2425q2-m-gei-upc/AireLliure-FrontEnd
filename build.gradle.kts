@@ -14,4 +14,3 @@ plugins {
     // KtLint
     id("org.jlleitschuh.gradle.ktlint") version "11.4.2" apply false
 }
-

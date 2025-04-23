@@ -1,6 +1,5 @@
 package com.front_pes.features.screens
 
-import com.front_pes.features.screens.xats.ChatListScreen
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -25,7 +24,6 @@ import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -48,7 +46,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -69,22 +66,20 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.CurrentUser
 import com.front_pes.R
+import com.front_pes.SelectedContaminants
 import com.front_pes.features.screens.Ranking.RankingScreen
-import com.front_pes.features.screens.login.LoginScreenDestination
 import com.front_pes.features.screens.map.MapScreen
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.features.screens.settings.SettingsScreen
 import com.front_pes.features.screens.user.UserPageScreen
 import com.front_pes.features.screens.xamistat.BloqueigScreen
-import com.front_pes.features.screens.xats.ChatListScreen
-import com.front_pes.features.screens.xamistat.LlistatAmistatScreen
 import com.front_pes.features.screens.xamistat.DetallAmistatScreen
+import com.front_pes.features.screens.xamistat.LlistatAmistatScreen
+import com.front_pes.features.screens.xats.ChatListScreen
 import com.front_pes.getString
-import kotlinx.coroutines.launch
-import java.util.Locale
-
 import com.front_pes.utils.SelectorIndex
-import com.front_pes.SelectedContaminants
+import java.util.Locale
+import kotlinx.coroutines.launch
 
 const val MainScreenDestination = "Main"
 
@@ -99,20 +94,24 @@ fun ContentScreen(
     onNavigateToChat: (Int, String) -> Unit,
     onNavigateToGroupDetail: (Int) -> Unit,
     onChangeIndex: (Int) -> Unit
-)
-
- {
+) {
     val context = LocalContext.current
     var selectedAmistat by remember { mutableStateOf<String>("") }
-    var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
+    var currentLocale by remember { mutableStateOf(Locale.getDefault().language) }
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     SideEffect {
         SelectorIndex.selectedIndex = selectedIndex
     }
     when (selectedIndex) {
-        0 -> UserPageScreen(title = getString(context, R.string.username, currentLocale), onNavigateToLogin = onNavigateToLogin)
-        1 -> MapScreen(title = getString(context, R.string.map, currentLocale), reloadTrigger = reloadMap)
+        0 -> UserPageScreen(
+            title = getString(context, R.string.username, currentLocale),
+            onNavigateToLogin = onNavigateToLogin
+        )
+        1 -> MapScreen(
+            title = getString(context, R.string.map, currentLocale),
+            reloadTrigger = reloadMap
+        )
         2 -> SettingsScreen(onNavigateToLogin = onNavigateToLogin)
         3 -> ChatListScreen(
             onChatClick = { chatId, userName ->
@@ -123,12 +122,12 @@ fun ContentScreen(
         )
 
         4 -> {
-            if(selectedAmistat == ""){
+            if (selectedAmistat == "") {
                 LlistatAmistatScreen(
                     onAmistatClick = { amistatID ->
                         selectedAmistat = amistatID
                     },
-                    onNavigateToBlocks = {onChangeIndex(6)},
+                    onNavigateToBlocks = { onChangeIndex(6) }
                 )
             } else {
                 DetallAmistatScreen(
@@ -137,10 +136,12 @@ fun ContentScreen(
                 )
             }
         }
-        5-> RankingScreen(onChatClick = { chatName ->
-            Log.d("ChatList", "Has fet clic a $chatName") })
-        6-> BloqueigScreen(
-            onNavigateToRelations={onChangeIndex(4)})
+        5 -> RankingScreen(onChatClick = { chatName ->
+            Log.d("ChatList", "Has fet clic a $chatName")
+        })
+        6 -> BloqueigScreen(
+            onNavigateToRelations = { onChangeIndex(4) }
+        )
     }
 }
 
@@ -196,14 +197,26 @@ fun DrawerItem(text: String, icon: ImageVector, selected: Boolean, onClick: () -
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp, horizontal = 16.dp)
-            .background(if (selected) Color(0xFF6B6B6B) else Color.Transparent, shape = RoundedCornerShape(12.dp))
+            .background(
+                if (selected) Color(0xFF6B6B6B) else Color.Transparent,
+                shape = RoundedCornerShape(12.dp)
+            )
             .clickable { onClick() }
             .padding(horizontal = 4.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, contentDescription = null, tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(24.dp))
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.size(24.dp)
+        )
         Spacer(modifier = Modifier.width(16.dp))
-        Text(text, fontSize = 16.sp, color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
+        Text(
+            text,
+            fontSize = 16.sp,
+            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 
@@ -247,7 +260,6 @@ fun SearchBar(modifier: Modifier = Modifier) {
         )
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -306,7 +318,10 @@ fun MainScreen(
                 Box(
                     modifier = Modifier
                         .padding(start = 16.dp, top = 32.dp)
-                        .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp))
+                        .background(
+                            MaterialTheme.colorScheme.surface,
+                            shape = RoundedCornerShape(16.dp)
+                        )
                         .padding(8.dp)
                         .size(40.dp)
                 ) {
@@ -329,7 +344,10 @@ fun MainScreen(
                     modifier = Modifier
                         .padding(bottom = 8.dp, end = 8.dp)
                         .size(56.dp)
-                        .background(MaterialTheme.colorScheme.secondary, shape = RoundedCornerShape(28.dp))
+                        .background(
+                            MaterialTheme.colorScheme.secondary,
+                            shape = RoundedCornerShape(28.dp)
+                        )
                 ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
@@ -432,10 +450,9 @@ fun FilterDialog(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         title = { Text("Filtrar por contaminantes", fontWeight = FontWeight.Bold) },
         text = {
-            Column (
+            Column(
                 verticalArrangement = Arrangement.spacedBy((-5).dp)
-            )
-            {
+            ) {
                 contaminantes.forEachIndexed { index, contaminante ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(
@@ -446,10 +463,16 @@ fun FilterDialog(onDismiss: () -> Unit) {
                                 }
                                 if (isChecked) {
                                     SelectedContaminants.selected.add(contaminante)
-                                    Log.d("FilterDialog", "Added: $contaminante, Selected=${SelectedContaminants.selected}")
+                                    Log.d(
+                                        "FilterDialog",
+                                        "Added: $contaminante, Selected=${SelectedContaminants.selected}"
+                                    )
                                 } else {
                                     SelectedContaminants.selected.remove(contaminante)
-                                    Log.d("FilterDialog", "Removed: $contaminante, Selected=${SelectedContaminants.selected}")
+                                    Log.d(
+                                        "FilterDialog",
+                                        "Removed: $contaminante, Selected=${SelectedContaminants.selected}"
+                                    )
                                 }
                             }
                         )
@@ -462,7 +485,7 @@ fun FilterDialog(onDismiss: () -> Unit) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.SpaceBetween
 
             ) {
                 // Botón "Quitar filtros" a la izquierda

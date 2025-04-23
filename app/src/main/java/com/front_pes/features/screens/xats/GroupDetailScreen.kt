@@ -29,10 +29,11 @@ fun GroupDetailScreen(
         viewModel.carregarAmistats()
     }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp)) {
-
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
         Text("Detalls del grup", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -143,7 +144,9 @@ fun GroupDetailScreen(
                 expanded = showDropdown,
                 onDismissRequest = { showDropdown = false }
             ) {
-                val amistatsDisponibles = viewModel.amistats.filterNot { viewModel.membres.contains(it.correu) }
+                val amistatsDisponibles = viewModel.amistats.filterNot {
+                    viewModel.membres.contains(it.correu)
+                }
 
                 if (amistatsDisponibles.isEmpty()) {
                     DropdownMenuItem(
@@ -221,7 +224,11 @@ fun GroupDetailScreen(
             AlertDialog(
                 onDismissRequest = { showDeleteDialog = false },
                 title = { Text("Confirmar eliminació") },
-                text = { Text("Estàs segur que vols eliminar aquest grup? Aquesta acció no es pot desfer.") },
+                text = {
+                    Text(
+                        "Estàs segur que vols eliminar aquest grup? Aquesta acció no es pot desfer."
+                    )
+                },
                 confirmButton = {
                     TextButton(onClick = {
                         showDeleteDialog = false

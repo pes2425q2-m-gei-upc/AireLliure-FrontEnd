@@ -1,9 +1,9 @@
 package com.front_pes.features.screens.xamistat
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.front_pes.CurrentUser
 import com.front_pes.network.RetrofitClient
@@ -12,18 +12,18 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-
-class DetallAmistatViewModel: ViewModel() {
+class DetallAmistatViewModel : ViewModel() {
 
     /* VARIABLE ON ES GUARDA LA CRIDA DE LA API  */
     var usuari by mutableStateOf<DetallUsuari?>(null)
+
     /* VARIABLE DE ERROR */
     var errorMessage by mutableStateOf<String?>(null)
 
-    fun getDetallAmic(userID: String) = viewModelScope.launch{
-        try{
+    fun getDetallAmic(userID: String) = viewModelScope.launch {
+        try {
             val call = RetrofitClient.apiService.getDetallUsuariAmic(userID)
-            call.enqueue(object: Callback <DetallUsuariResponse>{
+            call.enqueue(object : Callback<DetallUsuariResponse> {
 
                 override fun onResponse(
                     call: Call<DetallUsuariResponse>,
@@ -40,7 +40,7 @@ class DetallAmistatViewModel: ViewModel() {
                             )
                         }
                     } else {
-                        errorMessage = when (response.code()){
+                        errorMessage = when (response.code()) {
                             404 -> "usuari no existeix"
                             401 -> "contrasenya incorrecta"
                             else -> "Error desconocido: ${response.code()}"
@@ -51,15 +51,16 @@ class DetallAmistatViewModel: ViewModel() {
                     errorMessage = "Network error: ${t.message}"
                 }
             })
-        } catch(e: Exception){
+        } catch (e: Exception) {
             println("Error carregant les dades especifiques de un usuari: ${e.message}")
         }
     }
-    fun bloquejar_usuari()=viewModelScope.launch {
-        try{
-            val respo = RetrofitClient.apiService.crear_bloqueig(BloqueigRequest(bloqueja=CurrentUser.correu, bloquejat = usuari?.correu ?:""))
-
-        } catch(e:Exception){
+    fun bloquejar_usuari() = viewModelScope.launch {
+        try {
+            val respo = RetrofitClient.apiService.crear_bloqueig(
+                BloqueigRequest(bloqueja = CurrentUser.correu, bloquejat = usuari?.correu ?: "")
+            )
+        } catch (e: Exception) {
             println("Error al intentar bloquejar aquest compte: ${e.message}")
         }
     }

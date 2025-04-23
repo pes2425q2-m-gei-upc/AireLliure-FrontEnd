@@ -3,17 +3,16 @@ package com.front_pes.features.screens.map
 import android.util.Log
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.front_pes.SelectedContaminants
 import com.front_pes.network.RetrofitClient
+import com.front_pes.network.RetrofitClient.apiService
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import androidx.lifecycle.viewModelScope
-import com.front_pes.SelectedContaminants
-import com.front_pes.network.RetrofitClient.apiService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-
 
 class MapViewModel : ViewModel() {
 
@@ -47,12 +46,14 @@ class MapViewModel : ViewModel() {
                         response.body()
                             ?.filter { it.valor != null && !it.valor!!.isNaN() }
                             ?: emptyList()
-                    } else emptyList()
+                    } else {
+                        emptyList()
+                    }
 
                     val avgValue = if (response.isSuccessful) {
                         val validValues = response.body()
                             ?.mapNotNull { it.valor } // solo valores no nulos
-                            ?.filter { !it.isNaN() }   // ignora NaN explícitos
+                            ?.filter { !it.isNaN() } // ignora NaN explícitos
                             ?: emptyList()
 
                         if (validValues.isNotEmpty()) validValues.average() else Double.NaN
@@ -69,24 +70,30 @@ class MapViewModel : ViewModel() {
 
                     tempMap[station.id] = avgValue
                     tempValuesMap[station.id] = avgByContaminant
-                    //Log.d("Average", "Station ${station.id} → avg = $avgValue")
-
+                    // Log.d("Average", "Station ${station.id} → avg = $avgValue")
                 } catch (e: Exception) {
                     tempMap[station.id] = Double.NaN
                     tempValuesMap[station.id] = emptyMap()
-                    Log.e("MapViewModel", "Error al obtener promedio para estación ${station.id}", e)
+                    Log.e(
+                        "MapViewModel",
+                        "Error al obtener promedio para estación ${station.id}",
+                        e
+                    )
                 }
             }
             _averageMap.putAll(tempMap)
             _valuesMap.putAll(tempValuesMap)
 
-            Log.d("Conts", "${tempValuesMap}")
-            Log.d("Testing", "averageMap: ${averageMap}")
+            Log.d("Conts", "$tempValuesMap")
+            Log.d("Testing", "averageMap: $averageMap")
             onComplete()
         }
     }
 
-    fun fetchEstacionsQualitatAire(onSuccess: (List<EstacioQualitatAireResponse>) -> Unit, onError: (String) -> Unit) {
+    fun fetchEstacionsQualitatAire(
+        onSuccess: (List<EstacioQualitatAireResponse>) -> Unit,
+        onError: (String) -> Unit
+    ) {
         viewModelScope.launch {
             val call = RetrofitClient.apiService.getEstacionsQualitatAire()
             call.enqueue(object : Callback<List<EstacioQualitatAireResponse>> {

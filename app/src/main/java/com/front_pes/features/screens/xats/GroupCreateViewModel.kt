@@ -46,7 +46,10 @@ class GroupCreateViewModel : ViewModel() {
         )
 
         RetrofitClient.apiService.createXatGrupal(request).enqueue(object : Callback<GroupCreateResponse> {
-            override fun onResponse(call: Call<GroupCreateResponse>, response: Response<GroupCreateResponse>) {
+            override fun onResponse(
+                call: Call<GroupCreateResponse>,
+                response: Response<GroupCreateResponse>
+            ) {
                 if (response.isSuccessful) {
                     response.body()?.id?.let { onSuccess(it) }
                 } else {

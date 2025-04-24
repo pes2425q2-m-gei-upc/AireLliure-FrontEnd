@@ -44,3 +44,26 @@ jobs:
 
       - name: Run Android Lint
         run: ./gradlew lint
+
+sonarcloud:
+    name: Analyze with SonarCloud
+    runs-on: ubuntu-latest
+    needs: lint
+    if: ${{ success() }}
+
+    env:
+      PYTHON_VERSION: 3.12
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

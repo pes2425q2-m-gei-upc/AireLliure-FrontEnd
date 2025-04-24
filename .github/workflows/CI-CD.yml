@@ -1,0 +1,46 @@
+name: CI-CD
+on:
+  push:
+    branches: [main, dev, dev-actions]
+  pull_request:
+    branches: [main, dev, dev-actions]
+
+jobs:
+  lint:
+    name: Run Linters
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3   # instala sdkmanager y el SDK en $ANDROID_SDK_ROOT
+
+      - name: Generate local.properties
+        run: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+
+      - name: Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper/
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x ./gradlew
+
+      - name: Run Detekt
+        run: ./gradlew detekt
+
+      - name: Run Android Lint
+        run: ./gradlew lint

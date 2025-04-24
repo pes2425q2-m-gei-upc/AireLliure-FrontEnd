@@ -6,7 +6,6 @@ import android.location.Location
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -34,7 +33,12 @@ data class RutaAmbPunt(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
+fun MapScreen(
+    viewModel: MapViewModel = viewModel(),
+    title: String,
+    onNavigateToDetail: (String) -> Unit,
+    RutaViewModel: RutaViewModel
+) {
 
     val selectedIndex by remember { derivedStateOf { SelectorIndex.selectedIndex } }
 
@@ -166,6 +170,15 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String) {
                         Text(it.ruta.nom, style = MaterialTheme.typography.headlineSmall)
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(text = getString(context, R.string.dist, selectedLanguage) + ": ${it.ruta.dist_km} km", style = MaterialTheme.typography.bodyLarge)
+                        Button(
+                            onClick = {
+                                RutaViewModel.setRuta(it.ruta)
+                                onNavigateToDetail(it.ruta.id)
+                            },
+                            modifier = Modifier.padding(top = 8.dp)
+                        ) {
+                            Text("Ver más")
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))

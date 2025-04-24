@@ -7,11 +7,15 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import androidx.lifecycle.viewModelScope
-
-
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 
 class MapViewModel : ViewModel() {
+
+    private val _rutes = MutableStateFlow<List<RutasResponse>>(emptyList())
+    val rutes: StateFlow<List<RutasResponse>> = _rutes
+
     fun fetchEstacionsQualitatAire(onSuccess: (List<EstacioQualitatAireResponse>) -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             val call = RetrofitClient.apiService.getEstacionsQualitatAire()

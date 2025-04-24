@@ -1,7 +1,6 @@
 package com.front_pes.features.screens
 
 import com.front_pes.features.screens.xats.ChatListScreen
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,8 +24,6 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.DividerDefaults.color
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -36,12 +33,9 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -62,8 +56,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.CurrentUser
 import com.front_pes.R
-import com.front_pes.features.screens.login.LoginScreenDestination
 import com.front_pes.features.screens.map.MapScreen
+import com.front_pes.features.screens.map.RutaViewModel
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.features.screens.settings.SettingsScreen
 import com.front_pes.features.screens.user.UserPageScreen
@@ -86,8 +80,10 @@ fun ContentScreen(
     onNavigateToLogin: () -> Unit,
     onNavigateToCreateChat: () -> Unit,
     onNavigateToCreateGroup: () -> Unit,
+    onNavigateToDetail: (String) -> Unit,
     onNavigateToChat: (Int, String) -> Unit,
-    onNavigateToGroupDetail: (Int) -> Unit
+    onNavigateToGroupDetail: (Int) -> Unit,
+    rutaViewModel : RutaViewModel
 )
 
  {
@@ -99,7 +95,11 @@ fun ContentScreen(
 
     when (selectedIndex) {
         0 -> UserPageScreen(title = getString(context, R.string.username, currentLocale), onNavigateToLogin = onNavigateToLogin)
-        1 -> MapScreen(title = getString(context, R.string.map, currentLocale),)
+        1 -> MapScreen(
+            title = getString(context, R.string.map, currentLocale),
+            onNavigateToDetail = onNavigateToDetail,
+            RutaViewModel = rutaViewModel
+        )
         2 -> SettingsScreen(onNavigateToLogin = onNavigateToLogin)
         3 -> ChatListScreen(
             onChatClick = { chatId, userName ->
@@ -239,8 +239,10 @@ fun MainScreen(
     onNavigateToLogin: () -> Unit,
     onNavigateToCreateChat: () -> Unit,
     onNavigateToCreateGroup: () -> Unit,
+    onNavigateToDetail: (String) -> Unit,
     onNavigateToChat: (Int, String) -> Unit,
-    onNavigateToGroupDetail: (Int) -> Unit
+    onNavigateToGroupDetail: (Int) -> Unit,
+    rutaViewModel: RutaViewModel
 ) {
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
@@ -328,8 +330,10 @@ fun MainScreen(
                 onNavigateToLogin = onNavigateToLogin,
                 onNavigateToCreateChat = onNavigateToCreateChat,
                 onNavigateToCreateGroup = onNavigateToCreateGroup,
+                onNavigateToDetail = onNavigateToDetail,
                 onNavigateToChat = onNavigateToChat,
-                onNavigateToGroupDetail = onNavigateToGroupDetail
+                onNavigateToGroupDetail = onNavigateToGroupDetail,
+                rutaViewModel = rutaViewModel
 
             )
         }

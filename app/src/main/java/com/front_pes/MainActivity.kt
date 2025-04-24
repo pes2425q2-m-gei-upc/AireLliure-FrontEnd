@@ -1,26 +1,19 @@
 package com.front_pes
 
 import android.content.Context
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -38,6 +31,8 @@ import com.front_pes.features.screens.xats.ChatListScreen
 import com.front_pes.features.screens.register.RegisterScreenDestination
 import com.front_pes.features.screens.MainScreen
 import com.front_pes.features.screens.MainScreenDestination
+import com.front_pes.features.screens.map.RutaDetailScreen
+import com.front_pes.features.screens.map.RutaViewModel
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.features.screens.settings.SettingsScreen
 import com.front_pes.features.screens.user.UserPageScreen
@@ -55,11 +50,11 @@ import java.util.*
 
 class MainActivity : ComponentActivity() {
     private val mapViewModel: MapViewModel by viewModels()
+    private val rutaViewModel: RutaViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
         setContent {
             val languageViewModel: LanguageViewModel = viewModel()
             val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
@@ -70,7 +65,7 @@ class MainActivity : ComponentActivity() {
                 currentLocale.value = selectedLanguage
             }
                 FRONTPESTheme {
-                    AppNavigation(currentLocale.value)
+                    AppNavigation(currentLocale.value, rutaViewModel)
                 }
             }
         }
@@ -83,7 +78,7 @@ class MainActivity : ComponentActivity() {
 
 //Esta funcion se encarga de toda la navegacion
 @Composable
-private fun AppNavigation(currentLocale: String) {
+private fun AppNavigation(currentLocale: String, rutaViewModel: RutaViewModel) {
     //Objeto que se encarga de gestionar la navegacion
     val navController = rememberNavController()
     val context = LocalContext.current
@@ -106,6 +101,9 @@ private fun AppNavigation(currentLocale: String) {
         }
         composable(MapScreenDestination){
             MapScreen(
+                onNavigateToDetail = {
+                    navController.navigate("ruta-detail")},
+                RutaViewModel = rutaViewModel,
                 title = getString(context, R.string.map, currentLocale),
             )
         }
@@ -146,14 +144,38 @@ private fun AppNavigation(currentLocale: String) {
                 onNavigateToCreateGroup = {
                     navController.navigate("chat-group-create")
                 },
+                onNavigateToDetail = { rutaId ->
+                    navController.navigate("ruta-detail/$rutaId")
+                },
                 onNavigateToChat = { chatId, userName ->
                     navController.navigate("chat/$chatId/$userName")
                 },
                 onNavigateToGroupDetail = { groupId ->
                     navController.navigate("group-detail/$groupId")
-                }
+                },
+                rutaViewModel = rutaViewModel
             )
         }
+
+        composable(
+            route = "ruta-detail/{rutaId}",
+            arguments = listOf(navArgument("rutaId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val rutaId = backStackEntry.arguments?.getString("rutaId") ?: return@composable
+
+            val viewModel: MapViewModel = viewModel()
+            val rutas by viewModel.rutes.collectAsState()
+            val ruta = rutas.find { it.id == rutaId }
+
+            if (ruta != null) {
+                RutaDetailScreen(
+                    ruta = rutaId,
+                    onBack = { navController.popBackStack() },
+                    RutaViewModel = rutaViewModel
+                )
+            }
+        }
+
         composable("main/chat") {
             MainScreen(
                 title = getString(context, R.string.map, currentLocale),
@@ -167,12 +189,16 @@ private fun AppNavigation(currentLocale: String) {
                 onNavigateToCreateGroup = {
                     navController.navigate("chat-group-create")
                 },
+                onNavigateToDetail = { rutaId ->
+                    navController.navigate("ruta-detail/$rutaId")
+                                     },
                 onNavigateToChat = { chatId, userName ->
                     navController.navigate("chat/$chatId/$userName")
                 },
                 onNavigateToGroupDetail = { groupId ->
                     navController.navigate("group-detail/$groupId")
-                }
+                },
+                rutaViewModel = rutaViewModel
             )
         }
 

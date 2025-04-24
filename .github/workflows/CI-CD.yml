@@ -40,7 +40,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Run Detekt
-        run: ./gradlew detekt --continue
+        run: ./gradlew detekt
 
       - name: Run Android Lint
         run: ./gradlew lint

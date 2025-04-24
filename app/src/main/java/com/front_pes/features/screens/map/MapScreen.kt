@@ -9,23 +9,23 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.R
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.getString
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.front_pes.utils.SelectorIndex
 import com.front_pes.utils.SelectorIndex.selectedFiltre
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.*
 
 const val MapScreenDestination = "Map"
 
@@ -52,7 +52,6 @@ val idToContaminantName = mapOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigger: Boolean = false) {
-
     val selectedIndex by remember { derivedStateOf { SelectorIndex.selectedIndex } }
 
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -149,7 +148,8 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
     // Solicitar permiso de ubicación una sola vez por sesión
     LaunchedEffect(Unit) {
         val permissionStatus = ContextCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_FINE_LOCATION
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
         )
 
         if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
@@ -192,12 +192,16 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                         .padding(16.dp)
                 ) {
                     selectedEstacio?.let {
-                        Text(it.nom_estacio, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                        Text(
+                            it.nom_estacio,
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
                         val averageValue = viewModel.averageMap[it.id]
                         Text(
                             text = getString(context, R.string.icalidad, selectedLanguage) + ": " +
-                                    (averageValue?.toString() ?: "N/A"),
+                                (averageValue?.toString() ?: "N/A"),
                             style = MaterialTheme.typography.bodyLarge
                         )
 
@@ -231,7 +235,10 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                                         style = MaterialTheme.typography.bodyLarge
                                     )
                                     Text(
-                                        text = if (!averageValue.isNaN()) String.format("%.2f", averageValue) else "–",
+                                        text = if (!averageValue.isNaN()) String.format(
+                                            "%.2f",
+                                            averageValue
+                                        ) else "–",
                                         style = MaterialTheme.typography.bodyLarge,
                                         fontWeight = FontWeight.Medium
                                     )
@@ -250,7 +257,11 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                             .filter { it.isNotEmpty() }
 
                         Column {
-                            Text(it.ruta.nom, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                            Text(
+                                it.ruta.nom,
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold
+                            )
                             Spacer(Modifier.height(8.dp))
 //                            // Distancia
 //                            Text(
@@ -291,9 +302,13 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                 if (selectedFiltre == 0) {
                     estacions.forEach { estacio ->
                         Marker(
-                            state = MarkerState(position = LatLng(estacio.latitud, estacio.longitud)),
+                            state = MarkerState(
+                                position = LatLng(estacio.latitud, estacio.longitud)
+                            ),
                             title = estacio.nom_estacio,
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE),
+                            icon = BitmapDescriptorFactory.defaultMarker(
+                                BitmapDescriptorFactory.HUE_BLUE
+                            ),
                             onClick = {
                                 selectedEstacio = estacio
                                 isBottomSheetVisible = true
@@ -306,7 +321,9 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                         Marker(
                             state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
                             title = ruta.nom,
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE),
+                            icon = BitmapDescriptorFactory.defaultMarker(
+                                BitmapDescriptorFactory.HUE_ROSE
+                            ),
                             onClick = {
                                 selectedRuta = RutaAmbPunt(ruta, punt)
                                 isBottomSheetVisible = true
@@ -317,9 +334,13 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                 } else {
                     estacions.forEach { estacio ->
                         Marker(
-                            state = MarkerState(position = LatLng(estacio.latitud, estacio.longitud)),
+                            state = MarkerState(
+                                position = LatLng(estacio.latitud, estacio.longitud)
+                            ),
                             title = estacio.nom_estacio,
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE),
+                            icon = BitmapDescriptorFactory.defaultMarker(
+                                BitmapDescriptorFactory.HUE_BLUE
+                            ),
                             onClick = {
                                 selectedEstacio = estacio
                                 isBottomSheetVisible = true
@@ -331,7 +352,9 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                         Marker(
                             state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
                             title = ruta.nom,
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE),
+                            icon = BitmapDescriptorFactory.defaultMarker(
+                                BitmapDescriptorFactory.HUE_ROSE
+                            ),
                             onClick = {
                                 selectedRuta = RutaAmbPunt(ruta, punt)
                                 isBottomSheetVisible = true
@@ -344,7 +367,10 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                 MapEffect(key1 = estacions.toList(), key2 = averagesReady) { googleMap ->
                     if (estacions.isNotEmpty()) {
                         Log.d("Testing", "averageMap desde fuera: ${viewModel.averageMap}")
-                        val tileProvider = CustomHeatmapTileProvider(stations = estacions, averages = viewModel.averageMap)
+                        val tileProvider = CustomHeatmapTileProvider(
+                            stations = estacions,
+                            averages = viewModel.averageMap
+                        )
                         googleMap.addTileOverlay(
                             com.google.android.gms.maps.model.TileOverlayOptions()
                                 .tileProvider(tileProvider)

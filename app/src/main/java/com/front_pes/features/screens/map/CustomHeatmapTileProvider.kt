@@ -3,17 +3,14 @@ package com.front_pes.features.screens.map
 
 import android.graphics.*
 import android.util.Log
-import com.front_pes.SelectedContaminants
-import com.front_pes.features.screens.map.EstacioQualitatAireResponse
-import com.front_pes.network.RetrofitClient.apiService
 import com.front_pes.utils.calculateAlphaForZoom
 import com.front_pes.utils.getColorForIndex
 import com.front_pes.utils.latLngToPixelXY
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
 import java.io.ByteArrayOutputStream
-import kotlin.math.cos
 import kotlin.math.PI
+import kotlin.math.cos
 
 class CustomHeatmapTileProvider(
     private val stations: List<EstacioQualitatAireResponse>,
@@ -67,7 +64,9 @@ class CustomHeatmapTileProvider(
 //                xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_OVER)
 //            }
             val gradient = RadialGradient(
-                localX, localY, pixelRadius,
+                localX,
+                localY,
+                pixelRadius,
                 intArrayOf(
                     adjustAlpha(stationColor, dynamicAlpha),
                     adjustAlpha(stationColor, dynamicAlpha),
@@ -77,7 +76,6 @@ class CustomHeatmapTileProvider(
                 floatArrayOf(0.0f, 0.0f, 0.7f, 1.0f),
                 Shader.TileMode.CLAMP
             )
-
 
             val paint = Paint().apply {
                 isAntiAlias = true
@@ -94,7 +92,6 @@ class CustomHeatmapTileProvider(
         val byteArray = stream.toByteArray()
         return Tile(tileSize, tileSize, byteArray)
     }
-
 
     private fun adjustAlpha(color: Int, factor: Int): Int {
         val alpha = factor.coerceIn(0, 255)

@@ -16,13 +16,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,22 +35,20 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.CurrentUser
 import com.front_pes.R
-import com.front_pes.network.RetrofitClient
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.getString
+import com.front_pes.network.RetrofitClient
+import java.util.Locale
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.Locale
 
 const val UserPageScreenDestination = "UserPage"
 
@@ -61,14 +60,17 @@ fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
 
-
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.edit_p)) },
         text = {
             Column {
-                OutlinedTextField(value = newName, onValueChange = { newName = it }, label = { Text(text = getString(context, R.string.username, selectedLanguage)) })
-                OutlinedTextField(value = newAbout, onValueChange = { newAbout = it }, label = { Text(text = getString(context, R.string.about, selectedLanguage)) })
+                OutlinedTextField(value = newName, onValueChange = {
+                    newName = it
+                }, label = { Text(text = getString(context, R.string.username, selectedLanguage)) })
+                OutlinedTextField(value = newAbout, onValueChange = {
+                    newAbout = it
+                }, label = { Text(text = getString(context, R.string.about, selectedLanguage)) })
             }
         },
         confirmButton = {
@@ -89,13 +91,16 @@ fun updateUserProfile(
     newName: String? = null,
     newAbout: String? = null,
     newStatus: String? = null,
-    onSuccess: (UpdateProfileResponse) -> Unit)
-{
+    onSuccess: (UpdateProfileResponse) -> Unit
+) {
     val request = UpdateProfileRequest(nom = newName, about = newAbout, estat = newStatus)
     val call = RetrofitClient.apiService.updateProfile(CurrentUser.correu, request)
 
     call.enqueue(object : Callback<UpdateProfileResponse> {
-        override fun onResponse(call: Call<UpdateProfileResponse>, response: Response<UpdateProfileResponse>) {
+        override fun onResponse(
+            call: Call<UpdateProfileResponse>,
+            response: Response<UpdateProfileResponse>
+        ) {
             if (response.isSuccessful) {
                 val updatedUser = response.body()
                 if (updatedUser != null) {
@@ -116,18 +121,17 @@ fun updateUserProfile(
 }
 
 @Composable
-fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
-
-    val punts = CurrentUser.punts;
-    val correu = CurrentUser.correu;
-    val estat = CurrentUser.estat;
+fun UserPageScreen(title: String, onNavigateToLogin: () -> Unit) {
+    val punts = CurrentUser.punts
+    val correu = CurrentUser.correu
+    val estat = CurrentUser.estat
 
     var nom by remember { mutableStateOf(CurrentUser.nom) }
     var about by remember { mutableStateOf(CurrentUser.about) }
 
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
-    var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
+    var currentLocale by remember { mutableStateOf(Locale.getDefault().language) }
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
 
@@ -139,9 +143,8 @@ fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-
             Image(
-                painter = painterResource(id = R.drawable.ic_user), //para que ésto os funcione, poned el nombre de una foto que metáis en res/drawable, una vez conectemos back y front convertiré éste composable para que use API para obtener los valores
+                painter = painterResource(id = R.drawable.ic_user), // para que ésto os funcione, poned el nombre de una foto que metáis en res/drawable, una vez conectemos back y front convertiré éste composable para que use API para obtener los valores
                 contentDescription = "user picture",
                 modifier = Modifier
                     .size(175.dp)
@@ -155,22 +158,32 @@ fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
 
             Row {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = getString(context, R.string.friends, selectedLanguage), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                    Text(
+                        text = getString(context, R.string.friends, selectedLanguage),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                     Spacer(modifier = Modifier.height(5.dp))
                     Text(
                         text = "0",
                         fontSize = 18.sp,
                         color = MaterialTheme.colorScheme.onSurface
-                    ) //Crida per a saber les persones que tenim afegides com amics
+                    ) // Crida per a saber les persones que tenim afegides com amics
                 }
 
                 Spacer(modifier = Modifier.width(30.dp))
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = getString(context, R.string.points, selectedLanguage), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                    Text(
+                        text = getString(context, R.string.points, selectedLanguage),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                     Spacer(modifier = Modifier.height(5.dp))
                     Text(
-                        text = "${punts}",
+                        text = "$punts",
                         fontSize = 18.sp,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -219,7 +232,12 @@ fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            Text(text = getString(context, R.string.user_info, selectedLanguage), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+            Text(
+                text = getString(context, R.string.user_info, selectedLanguage),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -228,7 +246,7 @@ fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 shape = RoundedCornerShape(16.dp)
-                //colors = CardDefaults.cardColors(containerColor = Color.White)
+                // colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Column {
                     Row(
@@ -257,78 +275,78 @@ fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
                             fontSize = 15.sp
                         )
 
-                    if (estat == "actiu") {
-                        Box(
-                            modifier = Modifier
-                                .background(
-                                    Color(0xFF00C853),
-                                    shape = RoundedCornerShape(12.dp)
-                                ) // Color de fondo
-                                .padding(4.dp), // Espaciado interno para el texto
-                        ) {
-                            Text(
-                                text = getString(context, R.string.online, selectedLanguage),  //HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 15.sp
-                            )
-                        }
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .background(
-                                    Color.LightGray,
-                                    shape = RoundedCornerShape(12.dp)
-                                ) // Color de fondo
-                                .padding(4.dp), // Espaciado interno para el texto
-                        ) {
-                            Text(
-                                text = getString(context, R.string.offline, selectedLanguage),  //HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 15.sp
-                            )
+                        if (estat == "actiu") {
+                            Box(
+                                modifier = Modifier
+                                    .background(
+                                        Color(0xFF00C853),
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) // Color de fondo
+                                    .padding(4.dp) // Espaciado interno para el texto
+                            ) {
+                                Text(
+                                    text = getString(context, R.string.online, selectedLanguage), // HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 15.sp
+                                )
+                            }
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .background(
+                                        Color.LightGray,
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) // Color de fondo
+                                    .padding(4.dp) // Espaciado interno para el texto
+                            ) {
+                                Text(
+                                    text = getString(context, R.string.offline, selectedLanguage), // HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 15.sp
+                                )
+                            }
                         }
                     }
-                }
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Text(
-                        text = getString(context, R.string.ratings, selectedLanguage) + ": ",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp
-                    )
-                    Text(
-                        text = "0",  //HA DE CONCORDAR AMBM EL NOMBRE DE VALORACIONS POSADES PER L'USUARI
-                        fontSize = 15.sp
-                    )
-                }
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = getString(context, R.string.usertype, selectedLanguage) + ": ",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp
-                    )
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                Color(0xFFFF5252),
-                                shape = RoundedCornerShape(12.dp)
-                            ) // Color de fondo
-                            .padding(4.dp), // Espaciado interno para el texto
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalArrangement = Arrangement.Start
                     ) {
                         Text(
-                            text = getString(context, R.string.admin, selectedLanguage),  //HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
+                            text = getString(context, R.string.ratings, selectedLanguage) + ": ",
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp
                         )
+                        Text(
+                            text = "0", // HA DE CONCORDAR AMBM EL NOMBRE DE VALORACIONS POSADES PER L'USUARI
+                            fontSize = 15.sp
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = getString(context, R.string.usertype, selectedLanguage) + ": ",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp
+                        )
+                        Box(
+                            modifier = Modifier
+                                .background(
+                                    Color(0xFFFF5252),
+                                    shape = RoundedCornerShape(12.dp)
+                                ) // Color de fondo
+                                .padding(4.dp) // Espaciado interno para el texto
+                        ) {
+                            Text(
+                                text = getString(context, R.string.admin, selectedLanguage), // HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp
+                            )
+                        }
                     }
                 }
             }
         }
-    }
-}}
+    } }

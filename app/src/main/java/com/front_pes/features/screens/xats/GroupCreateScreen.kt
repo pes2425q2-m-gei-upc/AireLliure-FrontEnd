@@ -24,10 +24,11 @@ fun GroupCreateScreen(
         viewModel.carregarAmistats()
     }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp)) {
-
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
         Text("Crear Grup", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -58,8 +59,11 @@ fun GroupCreateScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            if (checked) viewModel.membresSeleccionats.remove(item.correu)
-                            else viewModel.membresSeleccionats.add(item.correu)
+                            if (checked) {
+                                viewModel.membresSeleccionats.remove(item.correu)
+                            } else {
+                                viewModel.membresSeleccionats.add(item.correu)
+                            }
                         }
                         .padding(12.dp),
                     verticalAlignment = Alignment.CenterVertically

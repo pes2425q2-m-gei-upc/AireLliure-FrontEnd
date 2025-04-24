@@ -1,19 +1,18 @@
 package com.front_pes.features.screens.xats
 
 import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
 import com.front_pes.network.RetrofitClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class ChatDetailViewModel : ViewModel() {
 
@@ -27,14 +26,16 @@ class ChatDetailViewModel : ViewModel() {
         val nom: String? = null
     )
 
-
     var missatges by mutableStateOf<List<Missatge>>(emptyList())
     var errorMessage by mutableStateOf<String?>(null)
 
     fun carregarMissatges(chatId: Int) {
         val call = RetrofitClient.apiService.getChatDetail(chatId)
         call.enqueue(object : Callback<ChatDetailResponse> {
-            override fun onResponse(call: Call<ChatDetailResponse>, response: Response<ChatDetailResponse>) {
+            override fun onResponse(
+                call: Call<ChatDetailResponse>,
+                response: Response<ChatDetailResponse>
+            ) {
                 if (response.isSuccessful) {
                     response.body()?.let { resposta ->
                         Log.d("DEBUG", "Missatges: ${response.body()}")
@@ -79,7 +80,10 @@ class ChatDetailViewModel : ViewModel() {
 
         val call = RetrofitClient.apiService.enviarMissatge(missatge)
         call.enqueue(object : Callback<SendMessageResponse> {
-            override fun onResponse(call: Call<SendMessageResponse>, response: Response<SendMessageResponse>) {
+            override fun onResponse(
+                call: Call<SendMessageResponse>,
+                response: Response<SendMessageResponse>
+            ) {
                 if (response.isSuccessful) {
                     onSuccess()
                 } else {
@@ -111,7 +115,10 @@ class ChatDetailViewModel : ViewModel() {
 
         val call = RetrofitClient.apiService.updateMissatge(missatgeOriginal.id, request)
         call.enqueue(object : Callback<UpdateMessageResponse> {
-            override fun onResponse(call: Call<UpdateMessageResponse>, response: Response<UpdateMessageResponse>) {
+            override fun onResponse(
+                call: Call<UpdateMessageResponse>,
+                response: Response<UpdateMessageResponse>
+            ) {
                 if (response.isSuccessful) {
                     onSuccess()
                 } else {
@@ -149,7 +156,10 @@ class ChatDetailViewModel : ViewModel() {
     fun detectarSiEsGrup(chatId: Int) {
         val call = RetrofitClient.apiService.getXatGrupalById(chatId)
         call.enqueue(object : Callback<GroupDetailResponse> {
-            override fun onResponse(call: Call<GroupDetailResponse>, response: Response<GroupDetailResponse>) {
+            override fun onResponse(
+                call: Call<GroupDetailResponse>,
+                response: Response<GroupDetailResponse>
+            ) {
                 isGroup = response.isSuccessful
             }
 
@@ -158,7 +168,4 @@ class ChatDetailViewModel : ViewModel() {
             }
         })
     }
-
-
-
 }

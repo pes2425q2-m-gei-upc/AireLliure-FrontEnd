@@ -43,8 +43,6 @@ class GroupDetailViewModel : ViewModel() {
             })
     }
 
-
-
     fun carregarAmistats() {
         viewModelScope.launch {
             try {
@@ -65,8 +63,11 @@ class GroupDetailViewModel : ViewModel() {
         )
         RetrofitClient.apiService.updateXatGrupal(id, body).enqueue(object : Callback<Unit> {
             override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
-                if (response.isSuccessful) onSuccess()
-                else onError("Error: ${response.code()}")
+                if (response.isSuccessful) {
+                    onSuccess()
+                } else {
+                    onError("Error: ${response.code()}")
+                }
             }
 
             override fun onFailure(call: Call<Unit>, t: Throwable) {
@@ -86,8 +87,11 @@ class GroupDetailViewModel : ViewModel() {
     fun esborrarGrup(id: Int, onSuccess: () -> Unit, onError: (String) -> Unit) {
         RetrofitClient.apiService.deleteXatGrupal(id).enqueue(object : Callback<Unit> {
             override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
-                if (response.isSuccessful) onSuccess()
-                else onError("Error: ${response.code()}")
+                if (response.isSuccessful) {
+                    onSuccess()
+                } else {
+                    onError("Error: ${response.code()}")
+                }
             }
 
             override fun onFailure(call: Call<Unit>, t: Throwable) {
@@ -106,8 +110,11 @@ class GroupDetailViewModel : ViewModel() {
         )
         RetrofitClient.apiService.updateXatGrupal(id, body).enqueue(object : Callback<Unit> {
             override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
-                if (response.isSuccessful) onSuccess()
-                else onError("Error: ${response.code()}")
+                if (response.isSuccessful) {
+                    onSuccess()
+                } else {
+                    onError("Error: ${response.code()}")
+                }
             }
 
             override fun onFailure(call: Call<Unit>, t: Throwable) {
@@ -115,6 +122,4 @@ class GroupDetailViewModel : ViewModel() {
             }
         })
     }
-
-
 }

@@ -24,7 +24,13 @@ import java.util.*
 const val ChatScreenDestination = "chat"
 
 @Composable
-fun ChatScreen(chatId: Int, userName: String, onBack: () -> Unit, viewModel: ChatDetailViewModel = viewModel(), onNavigateToGroupDetail: (Int) -> Unit = {}) {
+fun ChatScreen(
+    chatId: Int,
+    userName: String,
+    onBack: () -> Unit,
+    viewModel: ChatDetailViewModel = viewModel(),
+    onNavigateToGroupDetail: (Int) -> Unit = {}
+) {
     val missatges = viewModel.missatges
     val error = viewModel.errorMessage
     var newMessage by remember { mutableStateOf("") }
@@ -40,13 +46,11 @@ fun ChatScreen(chatId: Int, userName: String, onBack: () -> Unit, viewModel: Cha
     LaunchedEffect(chatId) {
         viewModel.carregarMissatges(chatId)
         viewModel.detectarSiEsGrup(chatId)
-
     }
 
     LaunchedEffect(missatges.size) {
         listState.animateScrollToItem(missatges.size)
     }
-
 
     Column(modifier = Modifier.fillMaxSize()) {
         Surface(
@@ -58,10 +62,15 @@ fun ChatScreen(chatId: Int, userName: String, onBack: () -> Unit, viewModel: Cha
                 .height(80.dp)
         ) {
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize()
             ) {
-                IconButton(onClick = onBack,
-                    modifier = Modifier.align(Alignment.CenterStart).padding(start = 8.dp, top = 20.dp)) {
+                IconButton(
+                    onClick = onBack,
+                    modifier = Modifier.align(Alignment.CenterStart).padding(
+                        start = 8.dp,
+                        top = 20.dp
+                    )
+                ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back"
@@ -73,13 +82,15 @@ fun ChatScreen(chatId: Int, userName: String, onBack: () -> Unit, viewModel: Cha
                         .align(Alignment.Center).padding(top = 20.dp)
                         .padding(16.dp)
                         .then(
-                            if (viewModel.isGroup) Modifier.clickable { onNavigateToGroupDetail(chatId) }
-                            else Modifier
+                            if (viewModel.isGroup) {
+                                Modifier.clickable { onNavigateToGroupDetail(chatId) }
+                            } else {
+                                Modifier
+                            }
                         ),
                     color = if (viewModel.isGroup) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.headlineSmall
                 )
-
             }
         }
         if (error != null) {
@@ -99,7 +110,9 @@ fun ChatScreen(chatId: Int, userName: String, onBack: () -> Unit, viewModel: Cha
             items(missatges.sortedBy { it.data }) { msg ->
                 val esMeu = msg.autor == autor
                 val alignment = if (esMeu) Alignment.End else Alignment.Start
-                val bubbleColor = if (esMeu) MaterialTheme.colorScheme.primary.copy(alpha = 0.4f) else Color(0xFFEDEDED)
+                val bubbleColor = if (esMeu) MaterialTheme.colorScheme.primary.copy(alpha = 0.4f) else Color(
+                    0xFFEDEDED
+                )
 
                 Row(
                     modifier = Modifier
@@ -113,7 +126,6 @@ fun ChatScreen(chatId: Int, userName: String, onBack: () -> Unit, viewModel: Cha
                             .background(bubbleColor, shape = RoundedCornerShape(12.dp))
                             .padding(12.dp)
                     ) {
-
                         Text(
                             text = msg.nom ?: "Anònim",
                             style = MaterialTheme.typography.labelSmall,

@@ -3,17 +3,20 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 
-    //Kotlin
+    // Kotlin
     alias(libs.plugins.kotlinx.serialization)
 
-    //Pasar del local.properties al AndroidManifest
+    // Pasar del local.properties al AndroidManifest
     alias(libs.plugins.secrets.gradle.plugin)
 
-    //Google
+    // Google
     id("com.google.gms.google-services")
 
+    // Detekt
+    id("io.gitlab.arturbosch.detekt")
 
-
+    // KtLint
+    id("org.jlleitschuh.gradle.ktlint")
 }
 
 android {
@@ -49,6 +52,27 @@ android {
     buildFeatures {
         compose = true
     }
+
+    lint {
+        // Genera informe HTML y texto
+        htmlReport = true
+        textReport = true
+
+        // Directorio/archivo de salida (opcional)
+        htmlOutput = file("$buildDir/reports/lint/lint-report.html")
+
+        // Tratar todas las advertencias como errores
+        warningsAsErrors = true
+
+        // Hacer que el build falle sólo si hay errores (no warnings)
+        abortOnError = true
+
+        // Desactivar chequeos concretos
+        disable += listOf("TypographyFractions", "TypographyQuotes")
+
+        // Activar chequeos adicionales
+        enable += listOf("RtlHardcoded", "RtlEnabled")
+    }
 }
 
 dependencies {
@@ -72,34 +96,53 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    //Guardar Idioma
-    implementation ("androidx.datastore:datastore-preferences:1.0.0")
+    // Guardar Idioma
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 
-
-    //Login API
+    // Login API
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
 
-    //GoogleMaps
+    // GoogleMaps
     implementation(libs.google.maps.compose)
     implementation(libs.play.services.maps)
     implementation("com.google.maps.android:android-maps-utils:3.11.2")
 
+    // Google Services
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
 
-    //Google Services
-    implementation ("com.google.android.gms:play-services-auth:20.7.0")
-
-    //Compose
+    // Compose
     implementation(libs.compose.navigation)
 
-    //Firebase
+    // Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.11.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
 
-    //Kotlin
+    // Kotlin
     implementation(libs.kotlin.serialization.json)
 
-    //canvi2
+    // Detekt
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8")
+}
+
+detekt {
+    toolVersion = "1.23.8"
+    buildUponDefaultConfig = true
+    input = files("src/main/java", "src/main/kotlin")
+    config = files("$rootDir/config/detekt/detekt.yml")
+    baseline = file("$rootDir/config/detekt/baseline.xml")
+}
+
+ktlint {
+    version.set("0.48.2")
+    android.set(true)
+    outputToConsole.set(true)
+    ignoreFailures.set(false)
+    enableExperimentalRules.set(false)
+    reporters {
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
+    }
 }

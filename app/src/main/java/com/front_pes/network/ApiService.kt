@@ -1,7 +1,5 @@
 package com.front_pes.network
 
-import com.front_pes.features.screens.xamistat.BloqueigRequest
-import com.front_pes.features.screens.xamistat.BloqueigResponse
 import com.front_pes.features.screens.Ranking.RankingResponse
 import com.front_pes.features.screens.login.LoginRequest
 import com.front_pes.features.screens.login.LoginResponse
@@ -13,8 +11,8 @@ import com.front_pes.features.screens.register.RegisterRequest
 import com.front_pes.features.screens.register.RegisterResponse
 import com.front_pes.features.screens.user.UpdateProfileRequest
 import com.front_pes.features.screens.user.UpdateProfileResponse
-import com.front_pes.features.screens.xats.LlistaXatRequest
-import com.front_pes.features.screens.xats.LlistaXatResponse
+import com.front_pes.features.screens.xamistat.BloqueigRequest
+import com.front_pes.features.screens.xamistat.BloqueigResponse
 import com.front_pes.features.screens.xamistat.DetallUsuariResponse
 import com.front_pes.features.screens.xamistat.LlistaAmistatResponse
 import com.front_pes.features.screens.xamistat.SolicitarAmistatRequest
@@ -26,11 +24,12 @@ import com.front_pes.features.screens.xats.GroupCreateRequest
 import com.front_pes.features.screens.xats.GroupCreateResponse
 import com.front_pes.features.screens.xats.GroupDetailResponse
 import com.front_pes.features.screens.xats.GroupUpdateRequest
+import com.front_pes.features.screens.xats.LlistaXatRequest
+import com.front_pes.features.screens.xats.LlistaXatResponse
 import com.front_pes.features.screens.xats.SendMessageRequest
 import com.front_pes.features.screens.xats.SendMessageResponse
 import com.front_pes.features.screens.xats.UpdateMessageRequest
 import com.front_pes.features.screens.xats.UpdateMessageResponse
-
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
@@ -71,7 +70,7 @@ interface ApiService {
     @GET("xats/usuari/{pk}")
     fun getXatsUsuaribyCorreu(
         @Path("pk") pk: String,
-        @Body request : LlistaXatRequest
+        @Body request: LlistaXatRequest
     ): Call<LlistaXatResponse>
 
     @GET("presencies/punt/{pk}/")
@@ -82,7 +81,7 @@ interface ApiService {
 
     @GET("xats/usuari/{pk}")
     fun getXatsUsuaribyCorreu(
-        @Path("pk") pk: String,
+        @Path("pk") pk: String
     ): Call<List<LlistaXatResponse>>
 
     @GET("xats/{id}/")
@@ -122,12 +121,12 @@ interface ApiService {
 
     @GET("amistats/usuari/{pk}")
     suspend fun getAmistatUsuarybyCorreu(
-        @Path("pk") pk: String,
+        @Path("pk") pk: String
     ): List<LlistaAmistatResponse>
 
     @GET("usuaris/{pk}/")
     fun getDetallUsuariAmic(
-        @Path("pk") pk: String,
+        @Path("pk") pk: String
     ): Call<DetallUsuariResponse>
 
     @GET("amistats/usuari/{pk}/basics/")
@@ -150,7 +149,7 @@ interface ApiService {
 
     @GET("ranking-usuari-amics/{pk}/")
     fun get_ranking_amistats(
-        @Path("pk") pk:String
+        @Path("pk") pk: String
     ): Call<List<RankingResponse>>
 
     @POST("amistats/create/")
@@ -160,32 +159,27 @@ interface ApiService {
 
     @PATCH("amistats/{pk}/update/")
     suspend fun update_amistat(
-        @Path("pk") pk:Int,
+        @Path("pk") pk: Int,
         @Body body: Map<String, @JvmSuppressWildcards Any>
     ): SolicitarAmistatResponse
 
     @DELETE("amistats/{pk}/delete/")
     suspend fun delete_amistat(
-        @Path("pk") pk:Int
-    ) : Response<Unit>
+        @Path("pk") pk: Int
+    ): Response<Unit>
 
     @GET("bloqueigs/usuari/{pk}")
     suspend fun get_all_bloqueigs_usuari(
-        @Path("pk") pk:String
+        @Path("pk") pk: String
     ): List<BloqueigResponse>
 
     @POST("bloqueigs/create/")
     suspend fun crear_bloqueig(
-       @Body body: BloqueigRequest
+        @Body body: BloqueigRequest
     ): BloqueigResponse
 
     @DELETE("bloqueigs/{pk}/delete/")
     suspend fun eliminar_bloqueig(
-        @Path("pk") pk:Int
+        @Path("pk") pk: Int
     ): Response<Unit>
-
-
-
-
-
 }

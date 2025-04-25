@@ -27,6 +27,7 @@
     <string name="online">Online</string>
     <string name="offline">Offline</string>
     <string name="admin">Administrator</string>
+    <string name="user">User</string>
     <string name="common">Common</string>
     <string name="language">Language</string>
     <string name="logout">Log Out</string>

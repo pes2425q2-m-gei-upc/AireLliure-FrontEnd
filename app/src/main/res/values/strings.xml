@@ -27,6 +27,7 @@
     <string name="online">En línea</string>
     <string name="offline">Desconectado</string>
     <string name="admin">Administrador</string>
+    <string name="user">Usuario</string>
     <string name="common">Común</string>
     <string name="language">Idioma</string>
     <string name="logout">Cerrar Sesión</string>

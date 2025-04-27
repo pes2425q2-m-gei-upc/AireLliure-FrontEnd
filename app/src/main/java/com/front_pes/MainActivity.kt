@@ -33,6 +33,7 @@ import com.front_pes.features.screens.MainScreen
 import com.front_pes.features.screens.MainScreenDestination
 import com.front_pes.features.screens.map.RutaDetailScreen
 import com.front_pes.features.screens.map.RutaViewModel
+import com.front_pes.features.screens.map.RutasDetailScreenDestination
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.features.screens.settings.SettingsScreen
 import com.front_pes.features.screens.user.UserPageScreen
@@ -93,7 +94,7 @@ private fun AppNavigation(currentLocale: String, rutaViewModel: RutaViewModel) {
                 title = getString(context, R.string.login, currentLocale),
                 onNavigateToMap = {
 
-                    navController.navigate(MainScreenDestination)
+                    navController.navigate(RutasDetailScreenDestination)
                     //navController.navigate(ChatListScreenDestination)
                 },
                 onNavigateToRegister = { navController.navigate(RegisterScreenDestination) }
@@ -156,7 +157,7 @@ private fun AppNavigation(currentLocale: String, rutaViewModel: RutaViewModel) {
                 rutaViewModel = rutaViewModel
             )
         }
-
+/*
         composable(
             route = "ruta-detail/{rutaId}",
             arguments = listOf(navArgument("rutaId") { type = NavType.IntType })
@@ -175,6 +176,8 @@ private fun AppNavigation(currentLocale: String, rutaViewModel: RutaViewModel) {
                 )
             }
         }
+        */
+
 
         composable("main/chat") {
             MainScreen(
@@ -208,6 +211,11 @@ private fun AppNavigation(currentLocale: String, rutaViewModel: RutaViewModel) {
                     navController.navigate(LoginScreenDestination)
                 },
                 languageViewModel = viewModel()
+            )
+        }
+        composable(RutasDetailScreenDestination) {
+            RutaDetailScreen(
+                onBack = { navController.popBackStack() }
             )
         }
         composable(ChatListScreenDestination) {

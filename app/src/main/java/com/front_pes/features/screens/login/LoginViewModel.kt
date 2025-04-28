@@ -78,6 +78,7 @@ class LoginViewModel : ViewModel() {
                             else CurrentUser.about = ""
                             CurrentUser.estat = userData.estat
                             CurrentUser.punts = userData.punts
+                            CurrentUser.administrador = userData.administrador
                         }
                         onSuccess();
                     } else {

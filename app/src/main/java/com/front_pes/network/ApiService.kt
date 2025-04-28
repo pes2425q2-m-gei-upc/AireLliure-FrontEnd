@@ -3,6 +3,7 @@ package com.front_pes.network
 import com.front_pes.features.screens.xamistat.BloqueigRequest
 import com.front_pes.features.screens.xamistat.BloqueigResponse
 import com.front_pes.features.screens.Ranking.RankingResponse
+import com.front_pes.features.screens.administrador.HabResponse
 import com.front_pes.features.screens.login.LoginRequest
 import com.front_pes.features.screens.login.LoginResponse
 import com.front_pes.features.screens.map.EstacioQualitatAireResponse
@@ -184,6 +185,22 @@ interface ApiService {
         @Path("pk") pk:Int
     ): Response<Unit>
 
+    @GET("/deshabilitats/")
+    suspend fun getdeshabilitats(): List<HabResponse>
+
+    @GET("/habilitats/")
+    suspend fun gethabilitats(): List<HabResponse>
+
+    @PATCH("usuaris/{correu_deshabilitador}/deshabilitar/{correu_usuari}/")
+    suspend fun deshabilitar(
+        @Path("correu_deshabilitador") correudeshabilitador: String,
+        @Path("correu_usuari") correuusuari: String
+    ): Response<Unit>
+
+    @PATCH("usuaris/{correu_usuari}/rehabilitar/")
+    suspend fun rehabilitar(
+        @Path("correu_usuari") correuusuari: String
+    ): Response<Unit>
 
 
 

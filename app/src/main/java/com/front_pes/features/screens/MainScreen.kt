@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -53,6 +54,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -79,12 +81,45 @@ import com.front_pes.features.screens.xamistat.BloqueigScreen
 import com.front_pes.features.screens.xats.ChatListScreen
 import com.front_pes.features.screens.xamistat.LlistatAmistatScreen
 import com.front_pes.features.screens.xamistat.DetallAmistatScreen
+import com.front_pes.features.screens.administrador.HabilitacionsScreen
+
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.List
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.Tab
+import androidx.compose.ui.unit.dp
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleOut
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.widthIn
+
+
+
 import com.front_pes.getString
 import kotlinx.coroutines.launch
 import java.util.Locale
 
 import com.front_pes.utils.SelectorIndex
 import com.front_pes.SelectedContaminants
+import com.front_pes.features.screens.map.EstacioQualitatAireResponse
+import com.front_pes.features.screens.map.MapViewModel
+import com.front_pes.features.screens.map.RutaAmbPunt
 
 const val MainScreenDestination = "Main"
 
@@ -141,6 +176,7 @@ fun ContentScreen(
             Log.d("ChatList", "Has fet clic a $chatName") })
         6-> BloqueigScreen(
             onNavigateToRelations={onChangeIndex(4)})
+        7-> HabilitacionsScreen()
     }
 }
 
@@ -150,14 +186,23 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
 
-    val drawerItems = listOf(
-        getString(context, R.string.profile, selectedLanguage) to Icons.Default.Person,
-        getString(context, R.string.map, selectedLanguage) to Icons.Default.LocationOn,
-        getString(context, R.string.settings, selectedLanguage) to Icons.Default.Settings,
-        getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email,
-        getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face,
-        getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info
+    val baseDrawerItems = listOf(
+        0 to (getString(context, R.string.profile, selectedLanguage) to Icons.Default.Person),
+        1 to (getString(context, R.string.map, selectedLanguage) to Icons.Default.LocationOn),
+        2 to (getString(context, R.string.settings, selectedLanguage) to Icons.Default.Settings),
+        3 to (getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email),
+        4 to (getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face),
+        5 to (getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info)
     )
+
+    val adminDrawerItems = if (CurrentUser.administrador) {
+        listOf(7 to (getString(context, R.string.admin, selectedLanguage) to Icons.Default.Warning))
+    } else {
+
+        emptyList()
+    }
+
+    val drawerItems = baseDrawerItems + adminDrawerItems
 
     Column(
         modifier = Modifier
@@ -165,7 +210,7 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
             .width(280.dp)
             .background(MaterialTheme.colorScheme.surface)
             .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally // Centra todo el contenido
 
     ) {
         Spacer(modifier = Modifier.height(25.dp))
@@ -182,9 +227,14 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        drawerItems.forEachIndexed { index, (label, icon) ->
-            DrawerItem(text = label, icon = icon, selected = selectedIndex == index) {
-                onItemClicked(index) // Cambia la pantalla y cierra el Drawer
+        drawerItems.forEach { (actualIndex, item) ->
+            val (label, icon) = item
+            DrawerItem(
+                text = label,
+                icon = icon,
+                selected = selectedIndex == actualIndex
+            ) {
+                onItemClicked(actualIndex)
             }
         }
     }
@@ -264,6 +314,10 @@ fun MainScreen(
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
+    val mapViewModel: MapViewModel = viewModel()
+
+    val estacions = remember { mutableStateListOf<EstacioQualitatAireResponse>() }
+    val rutesAmbPunt = remember { mutableStateListOf<RutaAmbPunt>() }
 
     val navItemListMap = listOf(
         NavItem(getString(context, R.string.airQ, selectedLanguage), Icons.Default.Person),
@@ -282,6 +336,34 @@ fun MainScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val hideBars = selectedIndex == 0 || selectedIndex == 2
+
+    // Load estacions and rutas
+    LaunchedEffect(Unit) {
+        mapViewModel.fetchEstacionsQualitatAire(
+            onSuccess = {
+                estacions.clear()
+                estacions.addAll(it)
+            },
+            onError = { Log.e("MainScreen", "Error cargando estaciones") }
+        )
+
+        mapViewModel.fetchRutes(
+            onSuccess = { rutas ->
+                rutas.forEach { ruta ->
+                    ruta.punt_inici?.let { puntId ->
+                        mapViewModel.fetchPuntByID(
+                            pk = puntId,
+                            onSuccess = { punt ->
+                                rutesAmbPunt.add(RutaAmbPunt(ruta = ruta, punt = punt))
+                            },
+                            onError = { Log.e("MainScreen", "Error cargando punto: $it") }
+                        )
+                    }
+                }
+            },
+            onError = { Log.e("MainScreen", "Error cargando rutas") }
+        )
+    }
 
     BackHandler {
         selectedIndex = 1
@@ -322,29 +404,185 @@ fun MainScreen(
             },
 
             floatingActionButton = {
-                var showFilterDialog by remember { mutableStateOf(false) }
+                if (selectedIndex == 1) {
+                    var expanded by remember { mutableStateOf(false) }
+                    var showFilterDialog by remember { mutableStateOf(false) }
+                    var showPopup by remember { mutableStateOf(false) }
+                    var selectedTabIndex by remember { mutableStateOf(0) }
 
-                IconButton(
-                    onClick = { showFilterDialog = true },
-                    modifier = Modifier
-                        .padding(bottom = 8.dp, end = 8.dp)
-                        .size(56.dp)
-                        .background(MaterialTheme.colorScheme.secondary, shape = RoundedCornerShape(28.dp))
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Filter",
-                        tint = MaterialTheme.colorScheme.onSecondary
-                    )
-                }
+                    Box(
+                        contentAlignment = Alignment.BottomEnd,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.End,
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier
+                                .padding(end = 16.dp, bottom = 16.dp)
+                        ) {
+                            AnimatedVisibility(
+                                visible = expanded,
+                                enter = fadeIn() + scaleIn(),
+                                exit = fadeOut() + scaleOut()
+                            ) {
+                                FloatingActionButton(
+                                    onClick = {
+                                        showFilterDialog = true
+                                        expanded = false
+                                    },
+                                    containerColor = Color.Black
+                                ) {
+                                    Icon(Icons.Default.Edit, contentDescription = "Filtro", tint = Color.White)
+                                }
+                            }
 
-                if (showFilterDialog) {
-                    FilterDialog(onDismiss = {
-                        reloadMap = !reloadMap
-                        showFilterDialog = false
-                    })
+                            AnimatedVisibility(
+                                visible = expanded,
+                                enter = fadeIn() + scaleIn(),
+                                exit = fadeOut() + scaleOut()
+                            ) {
+                                FloatingActionButton(
+                                    onClick = {
+                                        showPopup = true
+                                        expanded = false
+                                    },
+                                    containerColor = Color.Black
+                                ) {
+                                    Icon(Icons.Default.List, contentDescription = "Lista", tint = Color.White)
+                                }
+                            }
+
+                            FloatingActionButton(
+                                onClick = { expanded = !expanded },
+                                containerColor = Color.White
+                            ) {
+                                Icon(
+                                    imageVector = if (expanded) Icons.Default.Close else Icons.Default.MoreVert,
+                                    contentDescription = "Expandir menú",
+                                    tint = Color.Black
+                                )
+                            }
+                        }
+
+                        // Dialogo filtro
+                        if (showFilterDialog) {
+                            FilterDialog(onDismiss = {
+                                reloadMap = !reloadMap
+                                showFilterDialog = false
+                            })
+                        }
+
+                        // Dialogo rutas/estaciones
+                        if (showPopup) {
+                            AlertDialog(
+                                onDismissRequest = { showPopup = false },
+                                confirmButton = {},
+                                dismissButton = {},
+                                text = {
+                                    Column(modifier = Modifier.padding(8.dp)) {
+
+                                        val tabTitles = listOf("Rutas", "Estaciones")
+
+                                        TabRow(
+                                            selectedTabIndex = selectedTabIndex,
+                                            containerColor = Color.Transparent,
+                                            contentColor = MaterialTheme.colorScheme.primary,
+                                            indicator = {},
+                                            divider = {}
+                                        ) {
+                                            tabTitles.forEachIndexed { index, title ->
+                                                Tab(
+                                                    selected = selectedTabIndex == index,
+                                                    onClick = { selectedTabIndex = index },
+                                                    selectedContentColor = Color.White,
+                                                    unselectedContentColor = Color.Black
+                                                ) {
+                                                    Surface(
+                                                        shape = RoundedCornerShape(50),
+                                                        color = if (selectedTabIndex == index)
+                                                            MaterialTheme.colorScheme.primary
+                                                        else
+                                                            Color.LightGray,
+                                                        shadowElevation = 2.dp
+                                                    ) {
+                                                        Box(
+                                                            contentAlignment = Alignment.Center,
+                                                            modifier = Modifier
+                                                                .padding(horizontal = 4.dp, vertical = 4.dp)
+                                                                .widthIn(min = 100.dp) // 💡 Aumenta el ancho mínimo del botón
+                                                                .padding(horizontal = 16.dp, vertical = 10.dp)
+                                                        ) {
+                                                            Text(
+                                                                text = title,
+                                                                style = MaterialTheme.typography.labelLarge,
+                                                                maxLines = 1
+                                                            )
+                                                        }
+                                                    }
+                                                }
+
+                                            }
+                                        }
+
+                                        Spacer(modifier = Modifier.height(8.dp))
+
+                                        if (selectedTabIndex == 0) {
+                                            LazyColumn(
+                                                modifier = Modifier
+                                                    .height(300.dp)
+                                                    .fillMaxWidth(),
+                                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                                            ) {
+                                                items(rutesAmbPunt) { rutaAmbPunt ->
+                                                    Text(
+                                                        text = rutaAmbPunt.ruta.nom,
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .clickable {
+                                                                SelectorIndex.selectedRuta = rutaAmbPunt
+                                                                SelectorIndex.selectedEstacio = null
+                                                                showPopup = false
+                                                            }
+                                                            .padding(16.dp),
+                                                        style = MaterialTheme.typography.bodyLarge
+                                                    )
+                                                }
+                                            }
+                                        } else {
+                                            LazyColumn(
+                                                modifier = Modifier
+                                                    .height(300.dp)
+                                                    .fillMaxWidth(),
+                                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                                            ) {
+                                                items(estacions) { estacio ->
+                                                    Text(
+                                                        text = estacio.nom_estacio,
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .clickable {
+                                                                SelectorIndex.selectedEstacio = estacio
+                                                                SelectorIndex.selectedRuta = null
+                                                                showPopup = false
+                                                            }
+                                                            .padding(16.dp),
+                                                        style = MaterialTheme.typography.bodyLarge
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            )
+
+
+
+                        }
+                    }
                 }
-            },
+            }
+
+            ,
 
             bottomBar = {
                 if (!hideBars) {

@@ -72,6 +72,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
     var selectedRuta by remember { mutableStateOf<RutaAmbPunt?>(null) }
     var isBottomSheetVisible by remember { mutableStateOf(false) }
 
+
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
 
@@ -175,6 +176,34 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
             }
         }
     }
+    LaunchedEffect(SelectorIndex.selectedEstacio) {
+        SelectorIndex.selectedEstacio?.let { estacio ->
+            Log.d("MAP", "MapScreen: Estación recibida → ${estacio.nom_estacio}")
+
+            selectedEstacio = estacio
+            selectedRuta = null
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(
+                LatLng(estacio.latitud, estacio.longitud),
+                16f // Zoom que tú quieras
+            )
+            SelectorIndex.selectedEstacio = null
+        }
+    }
+
+    LaunchedEffect(SelectorIndex.selectedRuta) {
+        SelectorIndex.selectedRuta?.let { ruta ->
+            Log.d("MAP", "MapScreen: Ruta recibida → ${ruta.ruta.nom}")
+
+            selectedRuta = ruta
+            selectedEstacio = null
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(
+                LatLng(ruta.punt.latitud, ruta.punt.longitud),
+                16f
+            )
+            SelectorIndex.selectedRuta = null
+        }
+    }
+
 
     Surface(modifier = Modifier.fillMaxSize()) {
         // Modal inferior

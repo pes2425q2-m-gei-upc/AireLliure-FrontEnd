@@ -46,15 +46,17 @@ fun ComentariUsuari(nom: String, rating: Int, comentari: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun RutaDetailScreen(onBack: () -> Unit,
-                     ) {
-    val viewModel: MapViewModel = viewModel()
+fun RutaDetailScreen(onBack: () -> Unit, ruta_id: Int) {
+    val viewModel: RutaViewModel = viewModel()
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var showRatingDialog by remember { mutableStateOf(false) }
     var selectedRating by remember { mutableStateOf(0) }
     var comentario by remember { mutableStateOf("") }
     val valoracions = remember { mutableStateListOf<Pair<String, Int>>() }
     val comentaris = remember { mutableStateListOf<String>() }
+
+    LaunchedEffect(Unit){ viewModel.get_informacio_ruta(ruta_id)  }
+
 
     if (showRatingDialog) {
         AlertDialog(

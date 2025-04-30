@@ -4,6 +4,8 @@ import com.front_pes.features.screens.login.LoginRequest
 import com.front_pes.features.screens.login.LoginResponse
 import com.front_pes.features.screens.map.EstacioQualitatAireResponse
 import com.front_pes.features.screens.map.PuntsResponse
+import com.front_pes.features.screens.map.RutaAfegirValRequest
+import com.front_pes.features.screens.map.RutaDetailResponse
 import com.front_pes.features.screens.map.RutasResponse
 import com.front_pes.features.screens.register.RegisterRequest
 import com.front_pes.features.screens.register.RegisterResponse
@@ -111,4 +113,14 @@ interface ApiService {
 
     @GET("usuaris")
     fun get_all_usuaris(): Call<List<DetallUsuariResponse>>
+
+    @GET("rutas/{pk}/info/")
+    suspend fun get_info_ruta(
+        @Path("pk") pk:Int
+    ): RutaDetailResponse
+
+    @POST("valoracions/create/")
+    suspend fun afegir_valoracio(
+        @Body request: RutaAfegirValRequest
+    )
 }

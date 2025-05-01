@@ -88,6 +88,7 @@ import java.util.Locale
 
 import com.front_pes.utils.SelectorIndex
 import com.front_pes.SelectedContaminants
+import com.front_pes.features.screens.map.RutasDetailScreen
 
 const val MainScreenDestination = "Main"
 
@@ -107,6 +108,7 @@ fun ContentScreen(
  {
     val context = LocalContext.current
     var selectedAmistat by remember { mutableStateOf<String>("") }
+     var selectedRutaInt by remember { mutableStateOf<Int?>(null) }
     var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
@@ -115,7 +117,25 @@ fun ContentScreen(
     }
     when (selectedIndex) {
         0 -> UserPageScreen(title = getString(context, R.string.username, currentLocale), onNavigateToLogin = onNavigateToLogin)
-        1 -> MapScreen(title = getString(context, R.string.map, currentLocale), reloadTrigger = reloadMap)
+        1 -> {
+            if(selectedRutaInt == null) {
+                MapScreen(
+                    title = getString(context, R.string.map, currentLocale),
+                    reloadTrigger = reloadMap,
+                            onRutaClick = { rutaID ->
+                        selectedRutaInt = rutaID
+                    },
+                )
+            }
+            else {
+                selectedRutaInt?.let { rutaId ->
+                    RutasDetailScreen(
+                        onBack = { selectedRutaInt = null },
+                        ruta_id = rutaId
+                    )
+                }
+                }
+        }
         2 -> SettingsScreen(onNavigateToLogin = onNavigateToLogin)
         3 -> ChatListScreen(
             onChatClick = { chatId, userName ->

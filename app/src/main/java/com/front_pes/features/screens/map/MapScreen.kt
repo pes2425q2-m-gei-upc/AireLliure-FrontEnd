@@ -51,7 +51,7 @@ val idToContaminantName = mapOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigger: Boolean = false) {
+fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit, title: String, reloadTrigger: Boolean = false) {
 
     val selectedIndex by remember { derivedStateOf { SelectorIndex.selectedIndex } }
 
@@ -267,6 +267,15 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
+                        }
+                        Button(
+                            onClick = {
+                                println(it.ruta.id)
+                                onRutaClick(it.ruta.id)
+                            },
+                            modifier = Modifier.padding(top = 8.dp)
+                        ) {
+                            Text("Ver más")
                         }
                     }
 

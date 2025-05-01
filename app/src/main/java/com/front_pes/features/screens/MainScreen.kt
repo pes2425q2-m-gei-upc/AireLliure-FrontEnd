@@ -102,13 +102,15 @@ fun ContentScreen(
     onNavigateToCreateGroup: () -> Unit,
     onNavigateToChat: (Int, String) -> Unit,
     onNavigateToGroupDetail: (Int) -> Unit,
-    onChangeIndex: (Int) -> Unit
+    onChangeIndex: (Int) -> Unit,
+    selectedRutaInt: Int?,
+    onRutaSelected: (Int) -> Unit,
+    onRutaBack: () -> Unit
 )
 
  {
     val context = LocalContext.current
     var selectedAmistat by remember { mutableStateOf<String>("") }
-     var selectedRutaInt by remember { mutableStateOf<Int?>(null) }
     var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
@@ -123,14 +125,14 @@ fun ContentScreen(
                     title = getString(context, R.string.map, currentLocale),
                     reloadTrigger = reloadMap,
                             onRutaClick = { rutaID ->
-                        selectedRutaInt = rutaID
+                                onRutaSelected(rutaID)
                     },
                 )
             }
             else {
                 selectedRutaInt?.let { rutaId ->
                     RutasDetailScreen(
-                        onBack = { selectedRutaInt = null },
+                        onBack = { onRutaBack() },
                         ruta_id = rutaId
                     )
                 }
@@ -317,11 +319,12 @@ fun MainScreen(
 
     var reloadMap by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableIntStateOf(selectedIndex) }
+    var selectedRutaInt by remember { mutableStateOf<Int?>(null) }
     var mapFilterIndex by remember { mutableIntStateOf(0) } // 0: Calidad aire, 1: Rutas
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val hideBars = selectedIndex == 0 || selectedIndex == 2
+    val hideBars = selectedIndex == 0 || selectedIndex == 2 || selectedRutaInt != null
 
     BackHandler {
         selectedIndex = 1
@@ -343,46 +346,56 @@ fun MainScreen(
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                Box(
-                    modifier = Modifier
-                        .padding(start = 16.dp, top = 32.dp)
-                        .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp))
-                        .padding(8.dp)
-                        .size(40.dp)
-                ) {
-                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "User Profile",
-                            modifier = Modifier.size(26.dp),
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
+                if (selectedRutaInt == null) {
+                    Box(
+                        modifier = Modifier
+                            .padding(start = 16.dp, top = 32.dp)
+                            .background(
+                                MaterialTheme.colorScheme.surface,
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                            .padding(8.dp)
+                            .size(40.dp)
+                    ) {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(
+                                imageVector = Icons.Filled.Menu,
+                                contentDescription = "User Profile",
+                                modifier = Modifier.size(26.dp),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                     }
                 }
             },
 
             floatingActionButton = {
-                var showFilterDialog by remember { mutableStateOf(false) }
+                if (selectedRutaInt == null) {
+                    var showFilterDialog by remember { mutableStateOf(false) }
 
-                IconButton(
-                    onClick = { showFilterDialog = true },
-                    modifier = Modifier
-                        .padding(bottom = 8.dp, end = 8.dp)
-                        .size(56.dp)
-                        .background(MaterialTheme.colorScheme.secondary, shape = RoundedCornerShape(28.dp))
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Filter",
-                        tint = MaterialTheme.colorScheme.onSecondary
-                    )
-                }
+                    IconButton(
+                        onClick = { showFilterDialog = true },
+                        modifier = Modifier
+                            .padding(bottom = 8.dp, end = 8.dp)
+                            .size(56.dp)
+                            .background(
+                                MaterialTheme.colorScheme.secondary,
+                                shape = RoundedCornerShape(28.dp)
+                            )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Filter",
+                            tint = MaterialTheme.colorScheme.onSecondary
+                        )
+                    }
 
-                if (showFilterDialog) {
-                    FilterDialog(onDismiss = {
-                        reloadMap = !reloadMap
-                        showFilterDialog = false
-                    })
+                    if (showFilterDialog) {
+                        FilterDialog(onDismiss = {
+                            reloadMap = !reloadMap
+                            showFilterDialog = false
+                        })
+                    }
                 }
             },
 
@@ -449,7 +462,10 @@ fun MainScreen(
                 onNavigateToChat = onNavigateToChat,
                 onNavigateToGroupDetail = onNavigateToGroupDetail,
                 reloadMap = reloadMap,
-                onChangeIndex = { selectedIndex = it }
+                onChangeIndex = { selectedIndex = it },
+                selectedRutaInt = selectedRutaInt,
+                onRutaSelected = { selectedRutaInt = it },
+                onRutaBack = { selectedRutaInt = null }
             )
         }
     }

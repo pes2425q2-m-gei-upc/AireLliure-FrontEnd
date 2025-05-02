@@ -168,7 +168,7 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                             append("Descripció: ")
                         }
-                        append(tota_info?.descripcio ?: "Desconeguda")
+                        append(viewModel.obtenirItinerariAmbDescripcio())
                     })
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(buildAnnotatedString {

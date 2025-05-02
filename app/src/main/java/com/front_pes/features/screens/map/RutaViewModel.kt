@@ -39,4 +39,16 @@ class RutaViewModel : ViewModel() {
         val match = regex.find(descripcio)
         return match?.groups?.get(1)?.value ?: "Desconeguda"
     }
+    fun obtenirItinerariAmbDescripcio(): String {
+        val html = all_info_ruta?.descripcio ?: return "Desconeguda"
+        val regex = Regex("<p>(.*?)</p>", RegexOption.IGNORE_CASE)
+        val paragrafs = regex.findAll(html).map { it.groupValues[1] }.toList()
+
+        val itinerari = paragrafs.getOrNull(0)?.removePrefix("Itinerari: ") ?: ""
+        val descripcio = paragrafs.getOrNull(2) ?: ""
+
+        return listOf(itinerari, descripcio)
+            .filter { it.isNotBlank() }
+            .joinToString(" ")
+    }
 }

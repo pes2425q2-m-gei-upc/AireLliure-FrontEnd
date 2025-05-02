@@ -173,6 +173,13 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(buildAnnotatedString {
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append("Distància: ")
+                        }
+                        append(viewModel.extreureDistanciaDescripcio() + " m")
+                    })
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                             append("Punt Inicial: ")
                         }
                         append(tota_info?.punt_inici?.toString() ?: "Desconeguda")

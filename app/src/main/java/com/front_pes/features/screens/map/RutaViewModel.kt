@@ -33,4 +33,10 @@ class RutaViewModel : ViewModel() {
             println("Error no s'ha pogut crear la valoracio")
         }
     }
+    fun extreureDistanciaDescripcio(): String {
+        val descripcio = all_info_ruta?.descripcio ?: return "Desconeguda"
+        val regex = Regex("""Distància:\s*([\d.,]+)\s*m""", RegexOption.IGNORE_CASE)
+        val match = regex.find(descripcio)
+        return match?.groups?.get(1)?.value ?: "Desconeguda"
+    }
 }

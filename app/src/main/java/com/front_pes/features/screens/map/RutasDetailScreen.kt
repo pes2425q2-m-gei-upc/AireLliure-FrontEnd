@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.front_pes.CurrentUser
 import com.front_pes.R
 
 const val RutasDetailScreenDestination = "RutasDetail"
@@ -52,9 +53,9 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
     var showRatingDialog by remember { mutableStateOf(false) }
     var selectedRating by remember { mutableStateOf(0) }
     var comentario by remember { mutableStateOf("") }
-    val valoracions = remember { mutableStateListOf<Pair<String, Int>>() }
-    val comentaris = remember { mutableStateListOf<String>() }
     val tota_info = viewModel.all_info_ruta
+    val mitjana = viewModel.mitjanaValoracions
+    val totalValoracions = viewModel.nombreValoracions
 
     LaunchedEffect(Unit){ viewModel.get_informacio_ruta(ruta_id)  }
 
@@ -88,8 +89,14 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
             confirmButton = {
                 TextButton(onClick = {
                     // Aquí podrías guardar la valoración si tienes lógica
-                    valoracions.add("Tu" to selectedRating)
-                    comentaris.add(comentario)
+                    if (selectedRating in 1..5 && comentario.isNotBlank()) {
+                        viewModel.afegir_valoracio(
+                            user_id = CurrentUser.correu, // Ajusta esto a cómo tengas el ID del usuario
+                            ruta_id = ruta_id,
+                            puntuacio_ = selectedRating.toFloat(),
+                            comentari_ = comentario
+                        )
+                    }
                     showRatingDialog = false
                     selectedRating = 0
                     comentario = ""
@@ -203,14 +210,18 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
                     fontWeight = FontWeight.Bold
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("4.0")
+                    Text(String.format("%.1f", mitjana))
                     Icon(Icons.Default.Star, contentDescription = "Star", tint = Color.Yellow)
-                    Text("(25)")
+                    Text("($totalValoracions)")
                 }
 
                 // Lista de comentarios (ejemplo)
-                valoracions.forEachIndexed { index, (nom, rating) ->
-                    ComentariUsuari(nom, rating, comentaris[index])
+                viewModel.valoracions.forEach { valoracio ->
+                    ComentariUsuari(
+                        nom = valoracio.nom_usuari,
+                        rating = valoracio.puntuacio.toInt(),
+                        comentari = valoracio.comentari
+                    )
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))

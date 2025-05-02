@@ -8,11 +8,12 @@ data class RutaDetailResponse(
     val nom: String,
     val dist_km: Float,
     val punt_inici: Int?=null,
-    val valoracions: Array<valoracions>?=null
+    @SerializedName("valoracions") val valoracions: Array<valoracions>?=null
 )
 
 data class RutaWrapperResponse(
-    val ruta: RutaDetailResponse
+    val ruta: RutaDetailResponse,
+    val valoracions: List<valoracions>?
 )
 
 data class valoracions(

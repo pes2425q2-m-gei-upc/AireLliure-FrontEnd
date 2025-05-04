@@ -262,7 +262,9 @@ fun DrawerItem(text: String, icon: ImageVector, selected: Boolean, onClick: () -
 @Composable
 fun SearchBar(modifier: Modifier = Modifier) {
     var textSearch by remember { mutableStateOf("") }
-
+    val context = LocalContext.current
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -284,7 +286,7 @@ fun SearchBar(modifier: Modifier = Modifier) {
         TextField(
             value = textSearch,
             onValueChange = { textSearch = it },
-            placeholder = { Text("Buscar", color = Color.Gray) },
+            placeholder = { Text(text = (getString(context, R.string.buscar, selectedLanguage)), color = Color.Gray) },
             singleLine = true,
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
@@ -485,7 +487,7 @@ fun MainScreen(
                                 text = {
                                     Column(modifier = Modifier.padding(8.dp)) {
 
-                                        val tabTitles = listOf("Rutas", "Estaciones")
+                                        val tabTitles = listOf((getString(context, R.string.routes, selectedLanguage)),(getString(context, R.string.estaciones, selectedLanguage)))
 
                                         TabRow(
                                             selectedTabIndex = selectedTabIndex,
@@ -679,10 +681,13 @@ fun FilterDialog(onDismiss: () -> Unit) {
             contaminantes.map { it in SelectedContaminants.selected }
         )
     }
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+    val context = LocalContext.current
 
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Filtrar por contaminantes", fontWeight = FontWeight.Bold) },
+        title = { Text(text =(getString(context, R.string.f_p_cont, selectedLanguage)), fontWeight = FontWeight.Bold) },
         text = {
             Column (
                 verticalArrangement = Arrangement.spacedBy((-5).dp)
@@ -729,7 +734,7 @@ fun FilterDialog(onDismiss: () -> Unit) {
                     ),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Quitar filtros")
+                    Text(text = (getString(context, R.string.qfilt, selectedLanguage)))
                 }
 
                 // Botón "Cerrar" a la derecha
@@ -741,7 +746,7 @@ fun FilterDialog(onDismiss: () -> Unit) {
                     ),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Cerrar")
+                    Text(text = (getString(context, R.string.cerrar, selectedLanguage)))
                 }
             }
         }

@@ -108,7 +108,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.widthIn
-
+import androidx.compose.material3.NavigationBarItemDefaults
 
 
 import com.front_pes.getString
@@ -120,6 +120,7 @@ import com.front_pes.SelectedContaminants
 import com.front_pes.features.screens.map.EstacioQualitatAireResponse
 import com.front_pes.features.screens.map.MapViewModel
 import com.front_pes.features.screens.map.RutaAmbPunt
+import com.front_pes.ui.theme.LocalCustomColors
 
 const val MainScreenDestination = "Main"
 
@@ -242,11 +243,12 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
 
 @Composable
 fun DrawerItem(text: String, icon: ImageVector, selected: Boolean, onClick: () -> Unit) {
+    val customColors = LocalCustomColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp, horizontal = 16.dp)
-            .background(if (selected) Color(0xFF6B6B6B) else Color.Transparent, shape = RoundedCornerShape(12.dp))
+            .background(if (selected) customColors.selectedItem else Color.Transparent, shape = RoundedCornerShape(12.dp))
             .clickable { onClick() }
             .padding(horizontal = 4.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -410,6 +412,8 @@ fun MainScreen(
                     var showPopup by remember { mutableStateOf(false) }
                     var selectedTabIndex by remember { mutableStateOf(0) }
 
+                    val customColors = LocalCustomColors.current
+
                     Box(
                         contentAlignment = Alignment.BottomEnd,
                         modifier = Modifier.fillMaxSize()
@@ -430,7 +434,7 @@ fun MainScreen(
                                         showFilterDialog = true
                                         expanded = false
                                     },
-                                    containerColor = Color.Black
+                                    containerColor = customColors.selectedItem
                                 ) {
                                     Icon(Icons.Default.Edit, contentDescription = "Filtro", tint = Color.White)
                                 }
@@ -446,7 +450,7 @@ fun MainScreen(
                                         showPopup = true
                                         expanded = false
                                     },
-                                    containerColor = Color.Black
+                                    containerColor = customColors.selectedItem
                                 ) {
                                     Icon(Icons.Default.List, contentDescription = "Lista", tint = Color.White)
                                 }
@@ -454,12 +458,12 @@ fun MainScreen(
 
                             FloatingActionButton(
                                 onClick = { expanded = !expanded },
-                                containerColor = Color.White
+                                containerColor = MaterialTheme.colorScheme.surface
                             ) {
                                 Icon(
                                     imageVector = if (expanded) Icons.Default.Close else Icons.Default.MoreVert,
                                     contentDescription = "Expandir menú",
-                                    tint = Color.Black
+                                    tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
                         }
@@ -586,7 +590,11 @@ fun MainScreen(
 
             bottomBar = {
                 if (!hideBars) {
-                    NavigationBar {
+                    val customColors = LocalCustomColors.current
+                    NavigationBar (
+                        containerColor = customColors.bottomBar,
+
+                    ) {
                         val navItemsToShow = when (selectedIndex) {
                             1 -> navItemListMap
                             4, 6 -> navItemListAmistat
@@ -605,7 +613,6 @@ fun MainScreen(
                                 else -> selectedIndex == actualIndex
                             }
 
-                            // 🔧 Esta parte está fuera del NavigationBarItem (¡clave!)
                             val iconContent: @Composable () -> Unit = {
                                 Icon(
                                     imageVector = navItem.icon,
@@ -631,7 +638,14 @@ fun MainScreen(
                                     }
                                 },
                                 icon = iconContent,
-                                label = labelContent
+                                label = labelContent,
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                                    unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                                    unselectedTextColor = MaterialTheme.colorScheme.onSurface,
+                                    indicatorColor = LocalCustomColors.current.selectedItem
+                                )
                             )
                         }
                     }

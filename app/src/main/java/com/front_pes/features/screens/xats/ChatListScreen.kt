@@ -37,7 +37,7 @@ fun ChatListScreen(
     }
     val chatList = viewModel.xats
 
-    Column(modifier = Modifier.fillMaxSize().padding(top = 80.dp, start = 10.dp, end = 24.dp)) {
+    Column(modifier = Modifier.fillMaxSize().padding(top = 80.dp, start = 10.dp, end = 10.dp)) {
 
         // Botones de acción
         Row(
@@ -50,14 +50,20 @@ fun ChatListScreen(
                 onClick = onNovaConversacioClick,
                 modifier = Modifier.weight(1f)
             ) {
-                Text("Crear Conversació")
+                Text(
+                    "Crear Conversació",
+                    color = MaterialTheme.colorScheme.onSurface
+                    )
             }
 
             Button(
                 onClick = onCrearGrupClick,
                 modifier = Modifier.weight(1f)
             ) {
-                Text("Crear Grup")
+                Text(
+                    "Crear Grup",
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
         }
 

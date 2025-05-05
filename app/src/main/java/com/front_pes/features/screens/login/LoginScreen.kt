@@ -158,7 +158,7 @@ fun LoginScreen(
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 Button(
                     onClick = {},
-                    colors = ButtonDefaults.buttonColors(Color(0xFF3B5998)),
+                    colors = ButtonDefaults.buttonColors(Color(0xFF000000)),
                     modifier = Modifier
                         .shadow(2.dp, RoundedCornerShape(8.dp))
                         .weight(0.7f),
@@ -166,12 +166,12 @@ fun LoginScreen(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
-                            painter = painterResource(id = R.drawable.fb36), // Reemplaza por tu recurso de logo de Google
+                            painter = painterResource(id = R.drawable.x36x), // Reemplaza por tu recurso de logo de Google
                             contentDescription = "Facebook",
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(15.dp))
-                        Text(text = "Facebook", color = Color.White)
+                        Text(text = "Twitter", color = Color.White)
                     }
                 }
                 Spacer(modifier = Modifier.width(20.dp))

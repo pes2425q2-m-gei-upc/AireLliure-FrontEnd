@@ -28,14 +28,88 @@ class LoginViewModel : ViewModel() {
     var password by mutableStateOf("")
         private set
 
+    private fun registerUserGoogle(correu: String, nom: String, password: String, home: () -> Unit) {
+        val call = RetrofitClient.apiService.register(
+            com.front_pes.features.screens.register.RegisterRequest(
+                correu = correu,
+                nom = nom,
+                password = password
+            )
+        )
+        call.enqueue(object : Callback<com.front_pes.features.screens.register.RegisterResponse> {
+            override fun onResponse(call: Call<com.front_pes.features.screens.register.RegisterResponse>, response: Response<com.front_pes.features.screens.register.RegisterResponse>) {
+                if (response.isSuccessful || response.code() == 201) {
+                    response.body()?.let { userData ->
+                        CurrentUser.correu = userData.correu
+                        CurrentUser.password = userData.password
+                        CurrentUser.nom = userData.nom
+                        CurrentUser.about = userData.about
+                        CurrentUser.estat = userData.estat
+                        CurrentUser.punts = userData.punts
+                    }
+                    _isLoading.value = false
+                    home()
+                } else {
+                    _isLoading.value = false
+                    errorMessage = "No s'ha pogut registrar l'usuari amb Google"
+                }
+            }
+
+            override fun onFailure(call: Call<com.front_pes.features.screens.register.RegisterResponse>, t: Throwable) {
+                _isLoading.value = false
+                errorMessage = "Error de registre amb Google: ${t.message}"
+            }
+        })
+    }
+
     fun signInWithGoogleCredential(credential: AuthCredential, home:() -> Unit)
     = viewModelScope.launch {
         try {
+            _isLoading.value = true
             auth.signInWithCredential(credential)
-                .addOnCompleteListener { task->
+                .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         Log.d("AireLliure", "Loguejat amb Google Exitòs!")
-                        home()
+                        val user = auth.currentUser
+                        val correu = user?.email ?: ""
+                        val nom = user?.displayName ?: correu.substringBefore("@")
+                        val password = "google_default_password"
+
+                        val loginCall =
+                            RetrofitClient.apiService.login(LoginRequest(correu, password))
+                        loginCall.enqueue(object : Callback<LoginResponse> {
+                            override fun onResponse(
+                                call: Call<LoginResponse>,
+                                response: Response<LoginResponse>
+                            ) {
+                                if (response.isSuccessful) {
+                                    // Ya existe → guarda y entra
+                                    response.body()?.let { userData ->
+                                        CurrentUser.correu = userData.correu
+                                        CurrentUser.password = userData.password
+                                        CurrentUser.nom = userData.nom
+                                        CurrentUser.about = userData.about
+                                        CurrentUser.estat = userData.estat
+                                        CurrentUser.punts = userData.punts
+                                        CurrentUser.administrador = userData.administrador
+                                    }
+                                    _isLoading.value = false
+                                    home()
+                                } else {
+                                    // Si no existe → intenta registrarlo
+                                    registerUserGoogle(correu, nom, password, home)
+                                }
+                            }
+
+                            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                                // Error de red → manejar si quieres
+                                _isLoading.value = false
+                                errorMessage = "Error de red al comprobar login"
+                            }
+                        })
+                    } else {
+                        _isLoading.value = false
+                        errorMessage = "Error autenticant amb Google"
                     }
                 }
                 .addOnFailureListener {

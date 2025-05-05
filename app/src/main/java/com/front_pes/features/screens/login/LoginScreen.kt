@@ -157,7 +157,17 @@ fun LoginScreen(
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 Button(
-                    onClick = {},
+                    onClick = {
+                        viewModel.signInWithGitHub(context,
+                        onSuccess = {
+                            // Navegar a la pantalla principal
+                            onNavigateToMap()
+                        },
+                        onError = { errorMessage ->
+                            // Mostrar mensaje de error
+                            Log.e("GitHubLogin", errorMessage)
+                        }
+                    )},
                     colors = ButtonDefaults.buttonColors(Color(0xFF000000)),
                     modifier = Modifier
                         .shadow(2.dp, RoundedCornerShape(8.dp))
@@ -166,12 +176,12 @@ fun LoginScreen(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
-                            painter = painterResource(id = R.drawable.x36x), // Reemplaza por tu recurso de logo de Google
+                            painter = painterResource(id = R.drawable.git36), // Reemplaza por tu recurso de logo de Google
                             contentDescription = "Facebook",
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(15.dp))
-                        Text(text = "Twitter", color = Color.White)
+                        Text(text = "GitHub", color = Color.White)
                     }
                 }
                 Spacer(modifier = Modifier.width(20.dp))

@@ -232,7 +232,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
 
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Contaminantes medidos:",
+                            text = (getString(context, R.string.contmed, selectedLanguage)),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -242,7 +242,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                         val presencias = viewModel.valuesMap[it.id] ?: emptyMap()
                         if (presencias.isEmpty()) {
                             Text(
-                                text = "No hay datos disponibles.",
+                                text = (getString(context, R.string.nodatos, selectedLanguage)),
                                 style = MaterialTheme.typography.bodySmall
                             )
                         } else {

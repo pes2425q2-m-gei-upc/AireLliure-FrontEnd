@@ -8,8 +8,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.front_pes.R
+import com.front_pes.features.screens.settings.LanguageViewModel
+import com.front_pes.getString
 
 @Composable
 fun GroupCreateScreen(
@@ -20,6 +24,10 @@ fun GroupCreateScreen(
     var groupName by remember { mutableStateOf("") }
     var groupDesc by remember { mutableStateOf("") }
 
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+    val context = LocalContext.current
+
     LaunchedEffect(Unit) {
         viewModel.carregarAmistats()
     }
@@ -28,13 +36,13 @@ fun GroupCreateScreen(
         .fillMaxSize()
         .padding(16.dp)) {
 
-        Text("Crear Grup", style = MaterialTheme.typography.headlineSmall)
+        Text(text = (getString(context, R.string.creagrup, selectedLanguage)), style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(12.dp))
 
         OutlinedTextField(
             value = groupName,
             onValueChange = { groupName = it },
-            label = { Text("Nom del grup") },
+            label = { Text(text = (getString(context, R.string.nomgrup, selectedLanguage))) },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -43,13 +51,13 @@ fun GroupCreateScreen(
         OutlinedTextField(
             value = groupDesc,
             onValueChange = { groupDesc = it },
-            label = { Text("Descripció") },
+            label = { Text(text = (getString(context, R.string.desc, selectedLanguage))) },
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Text("Selecciona membres:", style = MaterialTheme.typography.titleMedium)
+        Text(text = (getString(context, R.string.selectmem, selectedLanguage)), style = MaterialTheme.typography.titleMedium)
 
         LazyColumn(modifier = Modifier.weight(1f)) {
             items(viewModel.amistats) { item ->
@@ -78,7 +86,7 @@ fun GroupCreateScreen(
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Button(onClick = onBack) {
-                Text("Tornar")
+                Text(text = (getString(context, R.string.volver, selectedLanguage)))
             }
 
             Button(
@@ -94,7 +102,7 @@ fun GroupCreateScreen(
                 },
                 enabled = groupName.isNotBlank() && viewModel.membresSeleccionats.isNotEmpty()
             ) {
-                Text("Crear grup")
+                Text(text = (getString(context, R.string.creagrup, selectedLanguage)))
             }
         }
     }

@@ -437,7 +437,7 @@ fun MainScreen(
             },
 
             floatingActionButton = {
-                if (selectedIndex == 1) {
+                if (selectedIndex == 1 && selectedRutaInt == null) {
                     var expanded by remember { mutableStateOf(false) }
                     var showFilterDialog by remember { mutableStateOf(false) }
                     var showPopup by remember { mutableStateOf(false) }

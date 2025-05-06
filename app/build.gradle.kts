@@ -101,5 +101,8 @@ dependencies {
     //Kotlin
     implementation(libs.kotlin.serialization.json)
 
+    //Socket
+    implementation("org.java-websocket:Java-WebSocket:1.5.3")
+    implementation("com.google.code.gson:gson:2.10.1")
 
 }

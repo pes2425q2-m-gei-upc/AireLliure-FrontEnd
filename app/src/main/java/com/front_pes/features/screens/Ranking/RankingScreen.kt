@@ -65,6 +65,9 @@ fun RankingScreen(onChatClick: (Int) -> Unit, viewModel: RankingViewModel = view
     val usuaris_all = viewModel.ranking_all_users
     val usuaris_amic = viewModel.ranking_amics
     var currentMode by remember { mutableStateOf(Selector.ALL) }
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier.fillMaxSize().padding(top = 80.dp, start = 10.dp, end = 24.dp),
@@ -77,7 +80,7 @@ fun RankingScreen(onChatClick: (Int) -> Unit, viewModel: RankingViewModel = view
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Ranking Global",
+                text = (getString(context, R.string.clasglob, selectedLanguage)),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (currentMode == Selector.ALL) MaterialTheme.colorScheme.primary else Color.Gray,
@@ -86,7 +89,7 @@ fun RankingScreen(onChatClick: (Int) -> Unit, viewModel: RankingViewModel = view
             )
 
             Text(
-                text = "Ranking Amics",
+                text = (getString(context, R.string.clasamic, selectedLanguage)),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (currentMode == Selector.AMICS) MaterialTheme.colorScheme.primary else Color.Gray,

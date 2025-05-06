@@ -9,9 +9,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.CurrentUser
+import com.front_pes.R
+import com.front_pes.features.screens.settings.LanguageViewModel
+import com.front_pes.getString
 
 @Composable
 fun GroupDetailScreen(
@@ -24,6 +28,10 @@ fun GroupDetailScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showLeaveDialog by remember { mutableStateOf(false) }
 
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+    val context = LocalContext.current
+
     LaunchedEffect(Unit) {
         viewModel.carregarGrup(groupId)
         viewModel.carregarAmistats()
@@ -33,7 +41,7 @@ fun GroupDetailScreen(
         .fillMaxSize()
         .padding(16.dp)) {
 
-        Text("Detalls del grup", style = MaterialTheme.typography.headlineSmall)
+        Text(text = (getString(context, R.string.detgrup, selectedLanguage)), style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(12.dp))
 
         // NOM
@@ -41,11 +49,11 @@ fun GroupDetailScreen(
             OutlinedTextField(
                 value = viewModel.nom,
                 onValueChange = { viewModel.nom = it },
-                label = { Text("Nom del grup") },
+                label = { Text(text = (getString(context, R.string.nomgrup, selectedLanguage))) },
                 modifier = Modifier.fillMaxWidth()
             )
         } else {
-            Text("Nom del grup", style = MaterialTheme.typography.labelMedium)
+            Text(text = (getString(context, R.string.nomgrup, selectedLanguage)), style = MaterialTheme.typography.labelMedium)
             Text(viewModel.nom, style = MaterialTheme.typography.bodyLarge)
         }
 
@@ -56,13 +64,13 @@ fun GroupDetailScreen(
             OutlinedTextField(
                 value = viewModel.descripcio,
                 onValueChange = { viewModel.descripcio = it },
-                label = { Text("Descripció") },
+                label = { Text(text = (getString(context, R.string.desc, selectedLanguage))) },
                 modifier = Modifier.fillMaxWidth()
             )
         } else {
-            Text("Descripció", style = MaterialTheme.typography.labelMedium)
+            Text(text = (getString(context, R.string.desc, selectedLanguage)), style = MaterialTheme.typography.labelMedium)
             Text(
-                text = viewModel.descripcio.ifEmpty { "Sense descripció" },
+                text = viewModel.descripcio.ifEmpty { (getString(context, R.string.sindesc, selectedLanguage)) },
                 style = MaterialTheme.typography.bodyLarge
             )
         }
@@ -77,11 +85,11 @@ fun GroupDetailScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Membres:", style = MaterialTheme.typography.titleMedium)
+            Text(text = (getString(context, R.string.mem, selectedLanguage)), style = MaterialTheme.typography.titleMedium)
 
             if (isAdmin) {
                 Button(onClick = { showDropdown = !showDropdown }) {
-                    Text("Afegir membre")
+                    Text(text = (getString(context, R.string.addmem, selectedLanguage)))
                 }
             }
         }
@@ -130,7 +138,7 @@ fun GroupDetailScreen(
                         TextButton(onClick = {
                             viewModel.toggleMembre(correu)
                         }) {
-                            Text("Eliminar", color = MaterialTheme.colorScheme.error)
+                            Text(text = (getString(context, R.string.elim, selectedLanguage)), color = MaterialTheme.colorScheme.error)
                         }
                     }
                 }
@@ -147,7 +155,7 @@ fun GroupDetailScreen(
 
                 if (amistatsDisponibles.isEmpty()) {
                     DropdownMenuItem(
-                        text = { Text("Cap amistat disponible") },
+                        text = { Text(text = (getString(context, R.string.noamic, selectedLanguage))) },
                         onClick = { }
                     )
                 } else {
@@ -174,7 +182,7 @@ fun GroupDetailScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(onClick = onBack) {
-                Text("Tornar")
+                Text(text = (getString(context, R.string.volver, selectedLanguage)))
             }
 
             when {
@@ -187,7 +195,7 @@ fun GroupDetailScreen(
                                 onError = { println("Error actualitzant grup") }
                             )
                         }) {
-                            Text("Guardar canvis")
+                            Text(text = (getString(context, R.string.guardcamb, selectedLanguage)))
                         }
 
                         Spacer(modifier = Modifier.width(8.dp))
@@ -198,7 +206,7 @@ fun GroupDetailScreen(
                                 contentColor = MaterialTheme.colorScheme.error
                             )
                         ) {
-                            Text("Eliminar grup")
+                            Text(text = (getString(context, R.string.elimgrup, selectedLanguage)))
                         }
                     }
                 }
@@ -210,7 +218,7 @@ fun GroupDetailScreen(
                             contentColor = MaterialTheme.colorScheme.error
                         )
                     ) {
-                        Text("Abandonar grup")
+                        Text(text = (getString(context, R.string.abgrup, selectedLanguage)))
                     }
                 }
             }
@@ -220,8 +228,8 @@ fun GroupDetailScreen(
         if (showDeleteDialog) {
             AlertDialog(
                 onDismissRequest = { showDeleteDialog = false },
-                title = { Text("Confirmar eliminació") },
-                text = { Text("Estàs segur que vols eliminar aquest grup? Aquesta acció no es pot desfer.") },
+                title = { Text(text = (getString(context, R.string.confelim, selectedLanguage))) },
+                text = { Text(text = (getString(context, R.string.segelim, selectedLanguage))) },
                 confirmButton = {
                     TextButton(onClick = {
                         showDeleteDialog = false
@@ -231,12 +239,12 @@ fun GroupDetailScreen(
                             onError = { println("Error eliminant grup") }
                         )
                     }) {
-                        Text("Eliminar", color = MaterialTheme.colorScheme.error)
+                        Text(text = (getString(context, R.string.elim, selectedLanguage)), color = MaterialTheme.colorScheme.error)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDeleteDialog = false }) {
-                        Text("Cancel·lar")
+                        Text(text = (getString(context, R.string.cancel, selectedLanguage)))
                     }
                 }
             )
@@ -246,8 +254,8 @@ fun GroupDetailScreen(
         if (showLeaveDialog) {
             AlertDialog(
                 onDismissRequest = { showLeaveDialog = false },
-                title = { Text("Confirmar sortida") },
-                text = { Text("Estàs segur que vols abandonar aquest grup?") },
+                title = { Text(text = (getString(context, R.string.confsort, selectedLanguage))) },
+                text = { Text(text = (getString(context, R.string.segsort, selectedLanguage))) },
                 confirmButton = {
                     TextButton(onClick = {
                         showLeaveDialog = false
@@ -257,12 +265,12 @@ fun GroupDetailScreen(
                             onError = { println("Error abandonant grup") }
                         )
                     }) {
-                        Text("Sortir", color = MaterialTheme.colorScheme.error)
+                        Text(text = (getString(context, R.string.sort, selectedLanguage)), color = MaterialTheme.colorScheme.error)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showLeaveDialog = false }) {
-                        Text("Cancel·lar")
+                        Text(text = (getString(context, R.string.cancel, selectedLanguage)))
                     }
                 }
             )

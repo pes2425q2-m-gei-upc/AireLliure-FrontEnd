@@ -53,12 +53,15 @@ fun ComentariUsuari(nom: String, rating: Int, comentari: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClasificacioDialog(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onGuardar: (String, String) -> Unit,
+    currentDificultat: String,
+    currentAccesibilitat: String
 ) {
-    var selectedDificultat by remember { mutableStateOf("") }
+    var selectedDificultat by remember { mutableStateOf(currentDificultat) }
     var expandedDificultat by remember { mutableStateOf(false) }
 
-    var selectedAccesibilitat by remember { mutableStateOf("") }
+    var selectedAccesibilitat by remember { mutableStateOf(currentAccesibilitat) }
     var expandedAccesibilitat by remember { mutableStateOf(false) }
 
     AlertDialog(
@@ -130,8 +133,7 @@ fun ClasificacioDialog(
         confirmButton = {
             Button(onClick = {
                 // Aquí puedes guardar los valores seleccionados
-                onDismiss()
-            }) {
+                onGuardar(selectedDificultat, selectedAccesibilitat)            }) {
                 Text("Guardar")
             }
         },
@@ -328,7 +330,15 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
                 }
             }
             if (showDialog) {
-                ClasificacioDialog(onDismiss = { showDialog = false })
+                ClasificacioDialog(
+                    currentDificultat = viewModel.dificultatEsportiva,
+                    currentAccesibilitat = viewModel.accesibilitatRespiratoria,
+                    onDismiss = { showDialog = false },
+                    onGuardar = { dificultat, accesibilitat ->
+                        viewModel.guardarClassificacio(dificultat, accesibilitat)
+                        showDialog = false
+                    }
+                )
             }
 
             Spacer(modifier = Modifier.height(24.dp))

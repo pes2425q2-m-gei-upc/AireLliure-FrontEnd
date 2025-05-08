@@ -121,6 +121,7 @@ fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
     val punts = CurrentUser.punts;
     val correu = CurrentUser.correu;
     val estat = CurrentUser.estat;
+    val admin = CurrentUser.administrador;
 
     var nom by remember { mutableStateOf(CurrentUser.nom) }
     var about by remember { mutableStateOf(CurrentUser.about) }
@@ -313,20 +314,26 @@ fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp
                     )
+                    val userTypeText = if (admin) getString(context, R.string.admin, selectedLanguage)
+                    else getString(context, R.string.user, selectedLanguage)
+
+                    val userTypeColor = if (admin) Color(0xFFFFC107) else Color(0xFF00C853)
+
                     Box(
                         modifier = Modifier
                             .background(
-                                Color(0xFFFF5252),
+                                userTypeColor,
                                 shape = RoundedCornerShape(12.dp)
-                            ) // Color de fondo
-                            .padding(4.dp), // Espaciado interno para el texto
+                            )
+                            .padding(4.dp),
                     ) {
                         Text(
-                            text = getString(context, R.string.admin, selectedLanguage),  //HA DE CONCORDAR AMB EL TIPUS D'USUARI: ADMINISTRADOR O NORMAL
+                            text = userTypeText,
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp
                         )
                     }
+
                 }
             }
         }

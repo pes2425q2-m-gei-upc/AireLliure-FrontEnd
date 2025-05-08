@@ -48,7 +48,7 @@ fun ChatScreen(chatId: Int, userName: String, onBack: () -> Unit, viewModel: Cha
     LaunchedEffect(chatId) {
         viewModel.carregarMissatges(chatId)
         viewModel.detectarSiEsGrup(chatId)
-
+        viewModel.iniciarWebSocket(chatId)
     }
 
     LaunchedEffect(missatges.size) {

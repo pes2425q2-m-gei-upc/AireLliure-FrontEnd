@@ -13,6 +13,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import okhttp3.*
+import okio.ByteString
+import org.json.JSONObject
 
 
 class ChatDetailViewModel : ViewModel() {
@@ -37,7 +40,7 @@ class ChatDetailViewModel : ViewModel() {
             override fun onResponse(call: Call<ChatDetailResponse>, response: Response<ChatDetailResponse>) {
                 if (response.isSuccessful) {
                     response.body()?.let { resposta ->
-                        Log.d("DEBUG", "Missatges: ${response.body()}")
+                        Log.d("WebSocket", "Missatges: ${response.body()}")
                         missatges = resposta.missatges.map { msg ->
                             Missatge(
                                 id = msg.id,
@@ -159,6 +162,44 @@ class ChatDetailViewModel : ViewModel() {
         })
     }
 
+    private var webSocket: WebSocket? = null
 
+    fun iniciarWebSocket(chatId: Int) {
+        val client = OkHttpClient()
+        val request = Request.Builder().url("wss://airelliure-backend.onrender.com/ws/modelos/").build() // Asegúrate de usar tu URL real
+        webSocket = client.newWebSocket(request, object : WebSocketListener() {
+            override fun onOpen(webSocket: WebSocket, response: okhttp3.Response?) {
+                Log.d("WebSocket", "Conexión abierta")
+            }
+
+            override fun onMessage(webSocket: WebSocket, text: String) {
+                Log.d("WebSocket", "Mensaje recibido: $text")
+
+                try {
+                    val json = JSONObject(text)
+                    val modelo = json.optString("modelo")
+                    if (modelo == "Missatge") {
+                        carregarMissatges(chatId)
+                    }
+                } catch (e: Exception) {
+                    Log.e("WebSocket", "Error procesando mensaje: ${e.message}")
+                }
+            }
+
+            override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+                webSocket.close(1000, null)
+                Log.d("WebSocket", "Conexión cerrándose: $reason")
+            }
+
+            override fun onFailure(webSocket: WebSocket, t: Throwable, response: okhttp3.Response?) {
+                Log.e("WebSocket", "Error: ${t.message}")
+            }
+        })
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        webSocket?.close(1000, null)
+    }
 
 }

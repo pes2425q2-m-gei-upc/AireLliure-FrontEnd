@@ -62,7 +62,7 @@ class XatViewModel: ViewModel() {
 
     private var webSocket: WebSocket? = null
 
-    fun iniciarWebSocket(chatId: Int) {
+    fun iniciarWebSocket() {
         val client = OkHttpClient()
         val request = Request.Builder().url("wss://airelliure-backend.onrender.com/ws/modelos/").build() // Asegúrate de usar tu URL real
         webSocket = client.newWebSocket(request, object : WebSocketListener() {

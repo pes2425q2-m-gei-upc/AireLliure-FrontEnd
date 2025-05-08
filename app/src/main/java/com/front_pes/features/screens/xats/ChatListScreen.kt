@@ -35,6 +35,7 @@ fun ChatListScreen(
 ) {
     LaunchedEffect(Unit) {
         viewModel.carregarXats()
+        viewModel.iniciarWebSocket()
     }
 
     DisposableEffect(Unit) {

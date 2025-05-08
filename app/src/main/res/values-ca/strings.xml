@@ -89,4 +89,17 @@
     <string name="confsort">Confirmar sortida</string>
     <string name="segsort">Estàs segur que vols abandonar aquest grup?</string>
     <string name="sort">Sortir</string>
+    <string name="aval">Afegeix la teva vaolració</string>
+    <string name="spunt">Selecciona una puntuació</string>
+    <string name="coment">Comentari</string>
+    <string name="confirm">Confirmar</string>
+    <string name="Dist">Distància</string>
+    <string name="pini">Punt Inicial</string>
+    <string name="descruta">Descripció</string>
+    <string name="inir">Iniciar Ruta</string>
+    <string name="finr">Finalitzar Ruta</string>
+    <string name="valo">Valoracions</string>
+    <string name="auval">Afegeix una valoració</string>
+    <string name="vermas">Veure Més</string>
+    <string name="clasr">Classificar Ruta</string>
 </resources>

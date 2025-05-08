@@ -304,7 +304,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                             },
                             modifier = Modifier.padding(top = 8.dp)
                         ) {
-                            Text("Ver más")
+                            Text(text = getString(context, R.string.vermas, selectedLanguage))
                         }
                     }
 

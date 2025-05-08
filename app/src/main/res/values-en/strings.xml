@@ -89,4 +89,17 @@
     <string name="confsort">Confirm exit</string>
     <string name="segsort">Are you sure you want to leave this group?</string>
     <string name="sort">Leave</string>
+    <string name="aval">Add your rating</string>
+    <string name="spunt">Select a score</string>
+    <string name="coment">Comment</string>
+    <string name="confirm">Confirm</string>
+    <string name="Dist">Distance</string>
+    <string name="pini">Initial Point</string>
+    <string name="descruta">Description</string>
+    <string name="inir">Start Route</string>
+    <string name="finr">Finish Route</string>
+    <string name="valo">Ratings</string>
+    <string name="auval">Add a rating</string>
+    <string name="vermas">View More</string>
+    <string name="clasr">Classify Route</string>
 </resources>

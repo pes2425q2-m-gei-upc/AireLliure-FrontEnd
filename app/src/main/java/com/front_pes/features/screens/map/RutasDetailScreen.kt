@@ -2,18 +2,22 @@ package com.front_pes.features.screens.map
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -23,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.CurrentUser
 import com.front_pes.R
+import com.front_pes.features.screens.settings.LanguageViewModel
+import com.front_pes.getString
 
 const val RutasDetailScreenDestination = "RutasDetail"
 
@@ -45,6 +51,101 @@ fun ComentariUsuari(nom: String, rating: Int, comentari: String) {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ClasificacioDialog(
+    onDismiss: () -> Unit,
+    onGuardar: (String, String) -> Unit,
+    currentDificultat: String,
+    currentAccesibilitat: String
+) {
+    var selectedDificultat by remember { mutableStateOf(currentDificultat) }
+    var expandedDificultat by remember { mutableStateOf(false) }
+
+    var selectedAccesibilitat by remember { mutableStateOf(currentAccesibilitat) }
+    var expandedAccesibilitat by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Classificació de la Ruta") },
+        text = {
+            Column {
+                Text("Dificultat Esportiva")
+                ExposedDropdownMenuBox(
+                    expanded = expandedDificultat,
+                    onExpandedChange = { expandedDificultat = !expandedDificultat }
+                ) {
+                    TextField(
+                        value = selectedDificultat,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Selecciona dificultat") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedDificultat) },
+                        modifier = Modifier.menuAnchor()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expandedDificultat,
+                        onDismissRequest = { expandedDificultat = false }
+                    ) {
+                        listOf("Alta", "Mitjana", "Baixa").forEach { option ->
+                            DropdownMenuItem(
+                                text = { Text(option) },
+                                onClick = {
+                                    selectedDificultat = option
+                                    expandedDificultat = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text("Accessibilitat Respiratòria")
+                ExposedDropdownMenuBox(
+                    expanded = expandedAccesibilitat,
+                    onExpandedChange = { expandedAccesibilitat = !expandedAccesibilitat }
+                ) {
+                    TextField(
+                        value = selectedAccesibilitat,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Selecciona accessibilitat") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedAccesibilitat) },
+                        modifier = Modifier.menuAnchor()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expandedAccesibilitat,
+                        onDismissRequest = { expandedAccesibilitat = false }
+                    ) {
+                        listOf("Baixa", "Moderada", "Alta").forEach { option ->
+                            DropdownMenuItem(
+                                text = { Text(option) },
+                                onClick = {
+                                    selectedAccesibilitat = option
+                                    expandedAccesibilitat = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                // Aquí puedes guardar los valores seleccionados
+                onGuardar(selectedDificultat, selectedAccesibilitat)            }) {
+                Text("Guardar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel·lar")
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
@@ -57,16 +158,21 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
     val mitjana = viewModel.mitjanaValoracions
     val totalValoracions = viewModel.nombreValoracions
 
+    val context = LocalContext.current
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+
+    var showDialog by remember { mutableStateOf(false) }
     LaunchedEffect(Unit){ viewModel.get_informacio_ruta(ruta_id)  }
 
 
     if (showRatingDialog) {
         AlertDialog(
             onDismissRequest = { showRatingDialog = false },
-            title = { Text("Afegeix la teva valoració") },
+            title = { Text(text = (getString(context, R.string.aval, selectedLanguage))) },
             text = {
                 Column {
-                    Text("Selecciona una puntuació:")
+                    Text(text = (getString(context, R.string.spunt, selectedLanguage)))
                     Row {
                         for (i in 1..5) {
                             IconButton(onClick = { selectedRating = i }) {
@@ -82,7 +188,7 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
                     OutlinedTextField(
                         value = comentario,
                         onValueChange = { comentario = it },
-                        label = { Text("Comentari") }
+                        label = { Text(text = (getString(context, R.string.coment, selectedLanguage))) }
                     )
                 }
             },
@@ -101,7 +207,7 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
                     selectedRating = 0
                     comentario = ""
                 }) {
-                    Text("Confirmar")
+                    Text(text = (getString(context, R.string.confirm, selectedLanguage)))
                 }
             },
             dismissButton = {
@@ -110,7 +216,7 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
                     selectedRating = 0
                     comentario = ""
                 }) {
-                    Text("Cancel·lar")
+                    Text(text = (getString(context, R.string.cancel, selectedLanguage)))
                 }
             }
         )
@@ -166,21 +272,21 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
                 Column {
                     Text(buildAnnotatedString {
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append("Descripció: ")
+                            append((getString(context, R.string.descruta, selectedLanguage)) + ": ")
                         }
                         append(viewModel.obtenirItinerariAmbDescripcio())
                     })
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(buildAnnotatedString {
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append("Distància: ")
+                            append((getString(context, R.string.Dist, selectedLanguage)) + ": ")
                         }
                         append(viewModel.extreureDistanciaDescripcio() + " m")
                     })
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(buildAnnotatedString {
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append("Punt Inicial: ")
+                            append((getString(context, R.string.pini, selectedLanguage)) + ": ")
                         }
                         append(tota_info?.punt_inici?.toString() ?: "Desconeguda")
                     })
@@ -197,14 +303,42 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
                     onClick = { },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF07F285))
                 ) {
-                    Text("Iniciar Ruta", color = Color.Black)
+                    Text(text = (getString(context, R.string.inir, selectedLanguage)), color = Color.Black)
                 }
                 Button(
                     onClick = { },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF07F285))
                 ) {
-                    Text("Finalitzar Ruta", color = Color.Black)
+                    Text(text = (getString(context, R.string.finr, selectedLanguage)), color = Color.Black)
                 }
+            }
+
+            if (CurrentUser.administrador) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Button(
+                        onClick = { showDialog = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF07F285))
+                    ) {
+                        Text(
+                            text = (getString(context, R.string.clasr, selectedLanguage)),
+                            color = Color.Black
+                        )
+                    }
+                }
+            }
+            if (showDialog) {
+                ClasificacioDialog(
+                    currentDificultat = viewModel.dificultatEsportiva,
+                    currentAccesibilitat = viewModel.accesibilitatRespiratoria,
+                    onDismiss = { showDialog = false },
+                    onGuardar = { dificultat, accesibilitat ->
+                        viewModel.guardarClassificacio(dificultat, accesibilitat)
+                        showDialog = false
+                    }
+                )
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -212,7 +346,7 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
             // Valoraciones
             Column(modifier = Modifier.padding(horizontal = 24.dp)) {
                 Text(
-                    "Valoracions",
+                    text = (getString(context, R.string.valo, selectedLanguage)),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -221,14 +355,25 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
                     Icon(Icons.Default.Star, contentDescription = "Star", tint = Color.Yellow)
                     Text("($totalValoracions)")
                 }
-
+                Spacer(modifier = Modifier.height(15.dp))
                 // Lista de comentarios (ejemplo)
-                viewModel.valoracions.forEach { valoracio ->
-                    ComentariUsuari(
-                        nom = valoracio.nom_usuari,
-                        rating = valoracio.puntuacio.toInt(),
-                        comentari = valoracio.comentari
-                    )
+                Box(
+                    modifier = Modifier
+                        .height(200.dp) // Puedes ajustar la altura según diseño
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .background(Color(0xFFE0E0E0), shape = RoundedCornerShape(8.dp))
+                        .verticalScroll(rememberScrollState()) // También podrías usar LazyColumn
+                ) {
+                    Column {
+                        viewModel.valoracions.forEach { valoracio ->
+                            ComentariUsuari(
+                                nom = valoracio.nom_usuari,
+                                rating = valoracio.puntuacio.toInt(),
+                                comentari = valoracio.comentari
+                            )
+                        }
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))
@@ -240,7 +385,7 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
                     .padding(horizontal = 16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF07F285))
             ) {
-                Text("Afegeix una valoració!", color = Color.Black)
+                Text(text = (getString(context, R.string.auval, selectedLanguage)), color = Color.Black)
             }
         }
 

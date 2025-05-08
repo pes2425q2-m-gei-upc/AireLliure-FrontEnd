@@ -16,6 +16,19 @@ class RutaViewModel : ViewModel() {
 
     val nombreValoracions: Int
         get() = valoracions.size
+
+    var dificultatEsportiva by mutableStateOf("")
+        private set
+
+    var accesibilitatRespiratoria by mutableStateOf("")
+        private set
+
+    fun guardarClassificacio(dificultat: String, accesibilitat: String) {
+        dificultatEsportiva = dificultat
+        accesibilitatRespiratoria = accesibilitat
+        println("Guardat -> Dificultat: $dificultat | Accessibilitat: $accesibilitat")
+    }
+
     fun get_informacio_ruta(id_ruta: Int)= viewModelScope.launch {
         try{
             val resposta = RetrofitClient.apiService.get_info_ruta(id_ruta)

@@ -1,11 +1,16 @@
 package com.front_pes.features.screens.xats
 
 import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
 import com.front_pes.network.RetrofitClient
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.WebSocket
+import okhttp3.WebSocketListener
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -13,9 +18,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-import okhttp3.*
-import okio.ByteString
-import org.json.JSONObject
 
 
 class ChatDetailViewModel : ViewModel() {

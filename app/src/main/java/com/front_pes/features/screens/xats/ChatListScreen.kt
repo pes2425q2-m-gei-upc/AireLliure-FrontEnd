@@ -36,6 +36,7 @@ fun ChatListScreen(
     LaunchedEffect(Unit) {
         viewModel.carregarXats()
     }
+
     DisposableEffect(Unit) {
         onDispose {
             viewModel.carregarXats()
@@ -45,6 +46,10 @@ fun ChatListScreen(
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
+
+    LaunchedEffect(chatList.size) {
+        viewModel.carregarXats()
+    }
 
     Column(modifier = Modifier.fillMaxSize().padding(top = 80.dp, start = 10.dp, end = 10.dp)) {
 

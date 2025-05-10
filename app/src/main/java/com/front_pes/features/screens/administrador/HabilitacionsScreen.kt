@@ -55,10 +55,19 @@ fun HabilitacionsScreen(viewModel: HabilitacionsViewModel = viewModel()) {
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) { viewModel.get_all_usuaris_habilitats()}
-    LaunchedEffect(Unit) { viewModel.get_all_usuaris_deshabilitats()}
+    LaunchedEffect(Unit) {
+        viewModel.get_all_usuaris_habilitats();
+        viewModel.get_all_usuaris_deshabilitats();
+        viewModel.iniciarWebSocket();
+    }
+
     val usuarishabilitats = viewModel.habilitats
     val usuarisdeshabilitats = viewModel.deshabilitats
+
+    LaunchedEffect(usuarisdeshabilitats) {
+        viewModel.get_all_usuaris_habilitats();
+        viewModel.get_all_usuaris_deshabilitats();
+    }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(top = 90.dp, start = 10.dp, end = 24.dp),

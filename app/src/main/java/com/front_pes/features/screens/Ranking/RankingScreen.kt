@@ -61,13 +61,20 @@ fun RankingScreen(onChatClick: (Int) -> Unit, viewModel: RankingViewModel = view
     LaunchedEffect(Unit) {
         viewModel.ranking_tt_users()
         viewModel.ranking_n_amics()
+        viewModel.iniciarWebSocket()
     }
+
     val usuaris_all = viewModel.ranking_all_users
     val usuaris_amic = viewModel.ranking_amics
     var currentMode by remember { mutableStateOf(Selector.ALL) }
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
+
+    LaunchedEffect(usuaris_all) {
+        viewModel.ranking_tt_users()
+        viewModel.ranking_n_amics()
+    }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(top = 80.dp, start = 10.dp, end = 24.dp),

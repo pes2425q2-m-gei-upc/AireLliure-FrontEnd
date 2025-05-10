@@ -86,7 +86,7 @@ fun ClasificacioDialog(
                         expanded = expandedDificultat,
                         onDismissRequest = { expandedDificultat = false }
                     ) {
-                        listOf("Alta", "Mitjana", "Baixa").forEach { option ->
+                        listOf("Alta", "Media", "Baja").forEach { option ->
                             DropdownMenuItem(
                                 text = { Text(option) },
                                 onClick = {
@@ -117,7 +117,7 @@ fun ClasificacioDialog(
                         expanded = expandedAccesibilitat,
                         onDismissRequest = { expandedAccesibilitat = false }
                     ) {
-                        listOf("Baixa", "Moderada", "Alta").forEach { option ->
+                        listOf("Baja", "Moderada").forEach { option ->
                             DropdownMenuItem(
                                 text = { Text(option) },
                                 onClick = {
@@ -163,7 +163,10 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
 
     var showDialog by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit){ viewModel.get_informacio_ruta(ruta_id)  }
+    LaunchedEffect(Unit){
+        viewModel.get_informacio_ruta(ruta_id)
+        viewModel.getAssignacionsRuta(ruta_id)
+    }
 
 
     if (showRatingDialog) {
@@ -290,6 +293,20 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
                         }
                         append(tota_info?.punt_inici?.toString() ?: "Desconeguda")
                     })
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append((getString(context, R.string.dificultat, selectedLanguage)) + ": ")
+                        }
+                        append(viewModel.dificultatRuta)
+                    })
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append((getString(context, R.string.accesresp, selectedLanguage)) + ": ")
+                        }
+                        append(viewModel.accesibilitatRuta)
+                    })
                 }
             }
 
@@ -331,11 +348,12 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
             }
             if (showDialog) {
                 ClasificacioDialog(
-                    currentDificultat = viewModel.dificultatEsportiva,
-                    currentAccesibilitat = viewModel.accesibilitatRespiratoria,
+                    currentDificultat = viewModel.dificultatRuta ?: "",
+                    currentAccesibilitat = viewModel.accesibilitatRuta ?: "",
                     onDismiss = { showDialog = false },
                     onGuardar = { dificultat, accesibilitat ->
-                        viewModel.guardarClassificacio(dificultat, accesibilitat)
+                        viewModel.guardarClassificacio(dificultat, accesibilitat, ruta_id)
+                        viewModel.getAssignacionsRuta(ruta_id)
                         showDialog = false
                     }
                 )

@@ -102,4 +102,6 @@
     <string name="auval">Add a rating</string>
     <string name="vermas">View More</string>
     <string name="clasr">Classify Route</string>
+    <string name="dificultat">Sporting difficulty</string>
+    <string name="accesresp">Respiratory accessibility</string>
 </resources>

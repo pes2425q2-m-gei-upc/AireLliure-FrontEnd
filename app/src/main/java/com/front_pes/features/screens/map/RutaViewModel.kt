@@ -1,12 +1,16 @@
 package com.front_pes.features.screens.map
 
+import android.telecom.Call
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.front_pes.CurrentUser
 import com.front_pes.network.RetrofitClient
 import kotlinx.coroutines.launch
+import retrofit2.Callback
+import retrofit2.Response
 
 class RutaViewModel : ViewModel() {
     var all_info_ruta by mutableStateOf<RutaDetailResponse?>(null)
@@ -17,17 +21,55 @@ class RutaViewModel : ViewModel() {
     val nombreValoracions: Int
         get() = valoracions.size
 
-    var dificultatEsportiva by mutableStateOf("")
+    var dificultatRuta by mutableStateOf<String?>(null)
         private set
 
-    var accesibilitatRespiratoria by mutableStateOf("")
+    var accesibilitatRuta by mutableStateOf<String?>(null)
         private set
 
+    fun getAssignacionsRuta(rutaId: Int) = viewModelScope.launch {
+        try {
+            val dificultatResponse = RetrofitClient.apiService.getAssignacioEsportiva(rutaId)
+            dificultatRuta = dificultatResponse.dificultat
+
+            val accessibilitatResponse = RetrofitClient.apiService.getAssignacioAccessibilitat(rutaId)
+            accesibilitatRuta = accessibilitatResponse.accesibilitat
+        } catch (e: Exception) {
+            println("Error carregant assignacions: ${e.message}")
+        }
+    }
+
+    fun guardarClassificacio(dificultat: String, accesibilitat: String, rutaId: Int) = viewModelScope.launch {
+        try {
+            val difRequest = AssignacioDificultatRequest(usuari = CurrentUser.correu, ruta = rutaId, dificultat = dificultat)
+            val accRequest = AssignacioAccessibilitatRequest(usuari = CurrentUser.correu, ruta = rutaId, accesibilitat = accesibilitat)
+
+            println("Enviando dificultad: $difRequest")
+            println("Enviando accesibilidad: $accRequest")
+
+            val respDif = RetrofitClient.apiService.postAssignacioEsportiva(difRequest)
+            val respAcc = RetrofitClient.apiService.postAssignacioAccessibilitat(accRequest)
+
+            if (respDif.isSuccessful && respAcc.isSuccessful) {
+                println("Classificació guardada correctament")
+                getAssignacionsRuta(rutaId) // Recargar los valores tras guardar
+            } else {
+                println("Error al guardar classificació: ${respDif.code()} / ${respAcc.code()}")
+                println("RespDif ErrorBody: ${respDif.errorBody()?.string()}")
+                println("RespAcc ErrorBody: ${respAcc.errorBody()?.string()}")
+            }
+        } catch (e: Exception) {
+            println("Excepció al guardar classificació: ${e.localizedMessage}")
+        }
+    }
+    /*
     fun guardarClassificacio(dificultat: String, accesibilitat: String) {
-        dificultatEsportiva = dificultat
-        accesibilitatRespiratoria = accesibilitat
+        dificultatRuta = dificultat
+        accesibilitatRuta = accesibilitat
         println("Guardat -> Dificultat: $dificultat | Accessibilitat: $accesibilitat")
     }
+
+     */
 
     fun get_informacio_ruta(id_ruta: Int)= viewModelScope.launch {
         try{

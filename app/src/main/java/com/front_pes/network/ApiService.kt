@@ -6,6 +6,10 @@ import com.front_pes.features.screens.Ranking.RankingResponse
 import com.front_pes.features.screens.administrador.HabResponse
 import com.front_pes.features.screens.login.LoginRequest
 import com.front_pes.features.screens.login.LoginResponse
+import com.front_pes.features.screens.map.AccessibilitatResponse
+import com.front_pes.features.screens.map.AssignacioAccessibilitatRequest
+import com.front_pes.features.screens.map.AssignacioDificultatRequest
+import com.front_pes.features.screens.map.DificultatResponse
 import com.front_pes.features.screens.map.EstacioQualitatAireResponse
 import com.front_pes.features.screens.map.PresenciaResponse
 import com.front_pes.features.screens.map.PuntsResponse
@@ -214,6 +218,26 @@ interface ApiService {
     suspend fun afegir_valoracio(
         @Body request: RutaAfegirValRequest
     ): Response<Unit>
+
+    @POST("assignacions-esportiva/create/")
+    suspend fun postAssignacioEsportiva(
+        @Body request: AssignacioDificultatRequest
+    ): Response<Unit>
+
+    @POST("assignacions-accesibilitat-respiratoria/create/")
+    suspend fun postAssignacioAccessibilitat(
+        @Body request: AssignacioAccessibilitatRequest
+    ): Response<Unit>
+
+    @GET("assig-esportiva/{ruta}/")
+    suspend fun getAssignacioEsportiva(
+        @Path("ruta") rutaId: Int
+    ): DificultatResponse
+
+    @GET("assig-acc-resp/{ruta}/")
+    suspend fun getAssignacioAccessibilitat(
+        @Path("ruta") rutaId: Int
+    ): AccessibilitatResponse
 
 
 }

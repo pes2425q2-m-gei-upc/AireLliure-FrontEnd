@@ -102,4 +102,6 @@
     <string name="auval">Añade una valoración</string>
     <string name="vermas">Ver Más</string>
     <string name="clasr">Clasificar Ruta</string>
+    <string name="dificultat">Dificultad deportiva</string>
+    <string name="accesresp">Accesibilidad respiratoria</string>
 </resources>

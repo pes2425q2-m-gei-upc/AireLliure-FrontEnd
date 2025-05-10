@@ -34,6 +34,12 @@ fun ChatCreateScreen(
     LaunchedEffect(Unit) {
         viewModel.carregarAmistats()
         viewModel.carregarXats()
+        viewModel.iniciarWebSocket()
+    }
+
+    LaunchedEffect(amistats) {
+        viewModel.carregarAmistats()
+        viewModel.carregarXats()
     }
 
 

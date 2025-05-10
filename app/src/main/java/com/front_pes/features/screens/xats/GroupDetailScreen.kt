@@ -1,17 +1,48 @@
 package com.front_pes.features.screens.xats
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.CurrentUser
+import com.front_pes.features.screens.ActivitatsEvents.ActivityResponse
+import java.text.SimpleDateFormat
+import java.util.Locale
+
+fun convertToISO(dateString: String): String {
+    return try {
+        val inputFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
+        val date = inputFormat.parse(dateString)
+        outputFormat.format(date!!)
+    } catch (e: Exception) {
+        ""
+    }
+}
+
+fun formatISOToReadable(dateString: String?): String {
+    return try {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val date = inputFormat.parse(dateString ?: "")
+        outputFormat.format(date!!)
+    } catch (e: Exception) {
+        "-"
+    }
+}
+
 
 @Composable
 fun GroupDetailScreen(
@@ -23,10 +54,13 @@ fun GroupDetailScreen(
     var showDropdown by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showLeaveDialog by remember { mutableStateOf(false) }
+    var showCreateDialog by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(Unit) {
         viewModel.carregarGrup(groupId)
         viewModel.carregarAmistats()
+        viewModel.carregar_activitats(groupId)
     }
 
     Column(modifier = Modifier
@@ -165,6 +199,86 @@ fun GroupDetailScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+        var selectedActivitat by remember { mutableStateOf<ActivityResponse?>(null) }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Activitats del grup",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            IconButton(onClick = { showCreateDialog = true }) {
+                Icon(Icons.Default.Add, contentDescription = "Crear activitat")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f, fill = false),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(viewModel.activitats) { activitat ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { selectedActivitat = activitat },
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text(
+                            text = activitat.nom,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Del ${formatISOToReadable(activitat.data_inici)} al ${formatISOToReadable(activitat.data_fi)}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Text(
+                            text = "Límit: ${activitat.limit}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        if (activitat.descripcio.isNotBlank()) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = activitat.descripcio,
+                                style = MaterialTheme.typography.bodyMedium,
+                                maxLines = 2
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        selectedActivitat?.let { activitat ->
+            EventDetailsDialog2(
+                nom = activitat.nom,
+                descripcio = activitat.descripcio,
+                dataInici = activitat.data_inici,
+                dataFi = activitat.data_fi,
+                limit = activitat.limit.toString(),
+                onDismiss = { selectedActivitat = null }
+            )
+        }
+
+        if (showCreateDialog) {
+            CreatePrivateActivityDialog(
+                groupId = groupId,
+                onDismiss = { showCreateDialog = false },
+                onCreate = { nom, descripcio, inici, fi ->
+                    viewModel.crearActivitatPrivada(nom, descripcio, inici, fi, groupId)
+                }
+            )
+        }
 
         // BOTONS BOTTOM
         Row(
@@ -269,3 +383,84 @@ fun GroupDetailScreen(
         }
     }
 }
+@Composable
+fun EventDetailsDialog2(
+    nom: String?,
+    descripcio: String?,
+    dataInici: String?,
+    dataFi: String?,
+    limit: String?,
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = { onDismiss() }) {
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.background,
+            tonalElevation = 8.dp
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Detalls de l'activitat", style = MaterialTheme.typography.titleLarge)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Nom: ${nom ?: "Desconegut"}")
+                Text("Descripció: ${descripcio ?: "-"}")
+                Text("Data inici: ${com.front_pes.features.screens.ActivitatsEvents.formatISOToReadable(dataInici) ?: "-"}")
+                Text("Data fi: ${com.front_pes.features.screens.ActivitatsEvents.formatISOToReadable(dataFi) ?: "-"}")
+                Text("Límit: ${limit ?: "-"}")
+
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                    TextButton(onClick = onDismiss) {
+                        Text("Tancar")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CreatePrivateActivityDialog(
+    groupId: Int,
+    onDismiss: () -> Unit,
+    onCreate: (String, String, String, String) -> Unit
+) {
+    Dialog(onDismissRequest = { onDismiss() }) {
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.background,
+            tonalElevation = 8.dp
+        ) {
+            var nom by remember { mutableStateOf("") }
+            var descripcio by remember { mutableStateOf("") }
+            var dataInici by remember { mutableStateOf("") }
+            var dataFi by remember { mutableStateOf("") }
+            var limit by remember { mutableStateOf("") }
+
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Nova activitat privada", style = MaterialTheme.typography.titleLarge)
+
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(value = nom, onValueChange = { nom = it }, label = { Text("Nom") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = descripcio, onValueChange = { descripcio = it }, label = { Text("Descripció") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = dataInici, onValueChange = { dataInici = it }, label = { Text("Data inici (dd/MM/yyyy)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = dataFi, onValueChange = { dataFi = it }, label = { Text("Data fi (dd/MM/yyyy)") }, modifier = Modifier.fillMaxWidth())
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                    TextButton(onClick = { onDismiss() }) { Text("Cancel·lar") }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        val iniciISO = convertToISO(dataInici)
+                        val fiISO = convertToISO(dataFi)
+                        onCreate(nom, descripcio, iniciISO, fiISO)
+                        onDismiss()
+                    }) {
+                        Text("Crear")
+                    }
+                }
+            }
+        }
+    }
+}
+

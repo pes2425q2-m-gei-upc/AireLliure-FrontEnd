@@ -39,4 +39,5 @@
     <string name="hab">Habilita los permisos de localización para poder utilizar de manera completa la aplicación.</string>
     <string name="aceptar">Aceptar</string>
     <string name="Relacions">Relaciones</string>
+    <string name="event_identif">Evento</string>
 </resources>

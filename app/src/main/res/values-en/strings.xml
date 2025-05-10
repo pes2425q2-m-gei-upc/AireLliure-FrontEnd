@@ -39,4 +39,5 @@
     <string name="hab">Enable location permissions to fully use the app.</string>
     <string name="aceptar">Accept</string>
     <string name="Relacions">Relations</string>
+    <string name="event_identif">Event</string>
 </resources>

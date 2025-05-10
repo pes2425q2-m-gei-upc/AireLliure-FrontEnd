@@ -108,6 +108,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.NavigationBarItemDefaults
 
 
@@ -117,6 +118,8 @@ import java.util.Locale
 
 import com.front_pes.utils.SelectorIndex
 import com.front_pes.SelectedContaminants
+import com.front_pes.features.screens.ActivitatsEvents.EventScreen
+import com.front_pes.features.screens.ActivitatsEvents.eventScreen
 import com.front_pes.features.screens.map.EstacioQualitatAireResponse
 import com.front_pes.features.screens.map.MapViewModel
 import com.front_pes.features.screens.map.RutaAmbPunt
@@ -178,6 +181,7 @@ fun ContentScreen(
         6-> BloqueigScreen(
             onNavigateToRelations={onChangeIndex(4)})
         7-> HabilitacionsScreen()
+        8 -> EventScreen()
     }
 }
 
@@ -193,13 +197,13 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
         2 to (getString(context, R.string.settings, selectedLanguage) to Icons.Default.Settings),
         3 to (getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email),
         4 to (getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face),
-        5 to (getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info)
+        5 to (getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info),
+        8 to (getString(context, R.string.event_identif, selectedLanguage) to Icons.Default.ThumbUp)
     )
 
     val adminDrawerItems = if (CurrentUser.administrador) {
         listOf(7 to (getString(context, R.string.admin, selectedLanguage) to Icons.Default.Warning))
     } else {
-
         emptyList()
     }
 

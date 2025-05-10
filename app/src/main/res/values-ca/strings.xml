@@ -39,4 +39,5 @@
     <string name="hab">Habilita els permissos de localització per poder utilitzar de manera completa l\'aplicació.</string>
     <string name="aceptar">Acceptar</string>
     <string name="Relacions">Relacions</string>
+    <string name="event_identif">Event</string>
 </resources>

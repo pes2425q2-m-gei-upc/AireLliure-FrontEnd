@@ -1,5 +1,9 @@
 package com.front_pes.network
 
+import com.front_pes.features.screens.ActivitatsEvents.ActivityPrivRequest
+import com.front_pes.features.screens.ActivitatsEvents.ActivityRequest
+import com.front_pes.features.screens.ActivitatsEvents.ActivityResponse
+import com.front_pes.features.screens.ActivitatsEvents.ApuntarseRequest
 import com.front_pes.features.screens.xamistat.BloqueigRequest
 import com.front_pes.features.screens.xamistat.BloqueigResponse
 import com.front_pes.features.screens.Ranking.RankingResponse
@@ -201,6 +205,39 @@ interface ApiService {
     suspend fun rehabilitar(
         @Path("correu_usuari") correuusuari: String
     ): Response<Unit>
+
+    @GET("events-de-calendari-publics/")
+    suspend fun all_events(): List<ActivityResponse>
+
+    @GET("events-de-calendari-publics/{pk}/")
+    suspend fun get_event_by_id(
+        @Path("pk") pk: Int
+    ): ActivityResponse
+
+    @POST("events-de-calendari-publics/create/")
+    suspend fun create_new_event(
+        @Body body: ActivityRequest
+    ): Response<Unit>
+
+    @POST("events-de-calendari-privats/create/")
+    suspend fun create_new_event_privat(
+        @Body body: ActivityPrivRequest
+    ): Response<Unit>
+
+    @POST("apuntats/create/")
+    suspend fun apuntarse(
+        @Body body: ApuntarseRequest
+    ): Response<Unit>
+
+    @DELETE("events-de-calendari-publics/{pk}/delete/")
+    suspend fun eliminar_event_public(
+        @Path("pk") pk:Int
+    ): Response<Unit>
+
+    @GET("events-privats-xat/{pk}/")
+    suspend fun get_activitats_by_xat(
+        @Path("pk") pk: Int
+    ): List<ActivityResponse>
 
 
 

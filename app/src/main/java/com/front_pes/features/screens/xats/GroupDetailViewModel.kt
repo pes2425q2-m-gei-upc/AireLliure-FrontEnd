@@ -4,6 +4,8 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.front_pes.CurrentUser
+import com.front_pes.features.screens.ActivitatsEvents.ActivityPrivRequest
+import com.front_pes.features.screens.ActivitatsEvents.ActivityResponse
 import com.front_pes.features.screens.xamistat.LlistaAmistatResponse
 import com.front_pes.network.RetrofitClient
 import kotlinx.coroutines.launch
@@ -19,6 +21,27 @@ class GroupDetailViewModel : ViewModel() {
     var membres by mutableStateOf<List<String>>(emptyList())
     var amistats by mutableStateOf<List<LlistaAmistatResponse>>(emptyList())
     var errorMessage by mutableStateOf<String?>(null)
+    var activitats by mutableStateOf<List<ActivityResponse>>(emptyList())
+
+    suspend fun carregar_activitats(id:Int){
+        val resposta = RetrofitClient.apiService.get_activitats_by_xat(id)
+        activitats = resposta
+    }
+
+    fun crearActivitatPrivada(
+        nom: String,
+        desc: String,
+        data_inici: String,
+        data_fi: String,
+        groupId: Int
+    )=viewModelScope.launch {
+        try{
+            val resposta = RetrofitClient.apiService.create_new_event_privat(ActivityPrivRequest(nom=nom, descripcio = desc, data_inici= data_inici, data_fi = data_fi, creador = CurrentUser.correu, xat=groupId))
+            carregar_activitats(groupId)
+        }catch(e:Exception){
+            println("Error al crear event public: ${e.message}")
+        }
+    }
 
     fun carregarGrup(id: Int) {
         RetrofitClient.apiService.getXatGrupalById(id)

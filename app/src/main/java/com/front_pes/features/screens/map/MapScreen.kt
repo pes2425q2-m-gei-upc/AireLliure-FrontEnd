@@ -74,12 +74,11 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
     var selectedRuta by remember { mutableStateOf<RutaAmbPunt?>(null) }
     var isBottomSheetVisible by remember { mutableStateOf(false) }
 
-
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
 
-    var isTracking by remember { mutableStateOf(false) }
-    var totalDistance by remember { mutableStateOf(0f) } // in meters
+    var isTracking = viewModel.isTracking
+    var totalDistance = viewModel.totalDistance;
     var previousLocation by remember { mutableStateOf<Location?>(null) }
 
     val locationRequest = remember {
@@ -93,7 +92,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                 val loc = result.lastLocation ?: return
                 if (previousLocation != null) {
                     val dist = previousLocation!!.distanceTo(loc)
-                    totalDistance += dist
+                    viewModel.totalDistance += dist
                 }
                 previousLocation = loc
             }
@@ -322,17 +321,21 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                             .map { it.trim() }
                             .filter { it.isNotEmpty() }
 
+                        val distIndex = lines.indexOfFirst { line ->
+                            line.startsWith("Distància:")
+                        }
+
+                        val displayLines = if (distIndex >= 0) {
+                            lines.subList(0, distIndex + 1)
+                        } else {
+                            lines
+                        }
+
                         Column {
                             Text(it.ruta.nom, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                             Spacer(Modifier.height(8.dp))
-//                            // Distancia
-//                            Text(
-//                                text = getString(context, R.string.dist, selectedLanguage) + ": ${it.ruta.dist_km} km",
-//                                style = MaterialTheme.typography.bodyLarge
-//                            )
-                            Spacer(Modifier.height(8.dp))
                             // Descripción dividida
-                            lines.forEach { line ->
+                            displayLines.forEach { line ->
                                 Text(
                                     text = line,
                                     fontSize = 20.sp,
@@ -350,27 +353,31 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                         ) {
                             Text(text = getString(context, R.string.vermas, selectedLanguage))
                         }
-                    }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.TopCenter
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                if ((viewModel.nomRutaRecorreguda == selectedRuta!!.ruta.id.toString()) || !isTracking) {
+                                    Button(
+                                        onClick = {
+                                            viewModel.toggleTracking()
+                                            viewModel.targetDistance = lines
+                                                .firstOrNull { it.contains("Distància:") }
+                                                ?.substringAfter("Distància:")
+                                                ?.filter { it.isDigit() || it == '.' }
+                                                ?.replace(".", "")
+                                                ?.toFloatOrNull() ?: 0f
+                                            viewModel.nomRutaRecorreguda = selectedRuta!!.ruta.id.toString()
+                                        }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        contentAlignment = Alignment.BottomCenter
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            if (isTracking) {
-                                Text(
-                                    text = "Distancia: ${String.format("%.2f", totalDistance / 1000)} km",
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.padding(bottom = 8.dp)
-                                        )
+                                    ) {
+                                        Text(text = if (isTracking) "Detener y resetear" else "Recorrer ruta")
                                     }
-                            Button(
-                                onClick = { isTracking = !isTracking },
-                            ) {
-                                    Text(text = if (isTracking) "Detener y resetear" else "Recorrer ruta")
+                                }
                             }
                         }
                     }

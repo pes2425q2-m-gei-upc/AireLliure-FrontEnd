@@ -1,7 +1,12 @@
 package com.front_pes.features.screens.map
 
 import android.util.Log
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.front_pes.network.RetrofitClient
 import kotlinx.coroutines.launch
@@ -22,6 +27,16 @@ class MapViewModel : ViewModel() {
 
     private val _valuesMap = mutableStateMapOf<Int, Map<Int, Double>>()
     val valuesMap: Map<Int, Map<Int, Double>> get() = _valuesMap
+
+    var totalDistance by mutableStateOf(0f)
+    var targetDistance by mutableStateOf(0f)
+    var isTracking by mutableStateOf(false)
+    var nomRutaRecorreguda by mutableStateOf("")
+    val rutaFinalitzada by derivedStateOf { totalDistance >= targetDistance }
+
+    fun toggleTracking() {
+        isTracking = !isTracking;
+    }
 
     fun fetchAveragesForStations(
         stations: List<EstacioQualitatAireResponse>,

@@ -445,15 +445,47 @@ fun MainScreen(
 
                     val customColors = LocalCustomColors.current
 
+                    val isTracking by remember { derivedStateOf { mapViewModel.isTracking } }
+                    val totalDistance by remember { derivedStateOf { mapViewModel.totalDistance } }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(start = 32.dp),
+                        contentAlignment = Alignment.BottomStart
+                    ) {
+                        if (isTracking) {
+                            Box(
+                                modifier = Modifier
+                                    .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
+                                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                            ) {
+                                val targetDistance = mapViewModel.targetDistance
+                                val rutaFinalitzada = mapViewModel.rutaFinalitzada
+                                Text(
+                                    text = if (rutaFinalitzada) {
+                                        "¡Ruta finalizada!"
+                                    } else {
+                                        "Ruta: ${String.format("%.2f", totalDistance / 1000)} km / " +
+                                                "${String.format("%.2f", targetDistance / 1000)} km"
+                                    },
+                                    fontSize = 16.sp,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    }
+
                     Box(
                         contentAlignment = Alignment.BottomEnd,
                         modifier = Modifier.fillMaxSize()
                     ) {
+
                         Column(
                             horizontalAlignment = Alignment.End,
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                             modifier = Modifier
-                                .padding(end = 16.dp, bottom = 16.dp)
+                                .padding(end = 8.dp, bottom = 8.dp)
                         ) {
                             AnimatedVisibility(
                                 visible = expanded,

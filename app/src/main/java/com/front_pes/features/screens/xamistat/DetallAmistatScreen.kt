@@ -119,7 +119,7 @@ fun DetallAmistatScreen(userId: String, onBack: () -> Unit, viewModel: DetallAmi
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text(
-                    text = (getString(context, R.string.goback, selectedLanguage)),
+                    text = "Tornar enrere",
                     color = Color.White,
                     fontSize = 14.sp
                 )
@@ -135,7 +135,7 @@ fun DetallAmistatScreen(userId: String, onBack: () -> Unit, viewModel: DetallAmi
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
             ) {
                 Text(
-                    text = (getString(context, R.string.bloquear, selectedLanguage)),
+                    text = "Block",
                     color = Color.Black,
                     fontSize = 14.sp
                 )

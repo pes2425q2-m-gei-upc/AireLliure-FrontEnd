@@ -33,12 +33,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.front_pes.R
-import com.front_pes.features.screens.settings.LanguageViewModel
-import com.front_pes.getString
 
 
 @Composable
@@ -47,12 +43,6 @@ fun BloqueigScreen(onNavigateToRelations: () -> Unit, viewModel: BloqueigViewMod
     val scrollState = rememberLazyListState()
     var searchText by remember { mutableStateOf("") }
     var selected_nav by remember { mutableStateOf(BottomNavItem.Relacions) }
-    val languageViewModel: LanguageViewModel = viewModel()
-    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
-    val context = LocalContext.current
-
-    val labelRelacions = getString(context, R.string.Relacions, selectedLanguage)
-    val labelBloqueigs = getString(context, R.string.bloqueo, selectedLanguage)
 
     LaunchedEffect(Unit) { viewModel.get_all_bloquejats()}
     val tots_bloqueig = viewModel.usuaris_bloquejats
@@ -68,7 +58,7 @@ fun BloqueigScreen(onNavigateToRelations: () -> Unit, viewModel: BloqueigViewMod
         )
         {
             Text(
-                text = (getString(context, R.string.bloqueo, selectedLanguage)),
+                text = "Bloqueigs",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color =  MaterialTheme.colorScheme.primary,
@@ -79,7 +69,7 @@ fun BloqueigScreen(onNavigateToRelations: () -> Unit, viewModel: BloqueigViewMod
         TextField(
             value = searchText,
             onValueChange = { searchText = it },
-            placeholder = { Text(text = (getString(context, R.string.buscusu, selectedLanguage))) },
+            placeholder = { Text("Cerca usuaris...") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
@@ -99,13 +89,13 @@ fun BloqueigScreen(onNavigateToRelations: () -> Unit, viewModel: BloqueigViewMod
         NavigationBar {
             NavigationBarItem(
                 icon = { Icon(Icons.Default.Share, contentDescription = null) },
-                label = { Text(labelRelacions) },
+                label = { Text(BottomNavItem.Relacions.label) },
                 selected = selected_nav == BottomNavItem.Relacions,
                 onClick = { onNavigateToRelations() }
             )
             NavigationBarItem(
                 icon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                label = { Text(labelBloqueigs) },
+                label = { Text(BottomNavItem.Bloqueigs.label) },
                 selected = selected_nav == BottomNavItem.Bloqueigs,
                 onClick = { }
             )

@@ -31,12 +31,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.front_pes.R
-import com.front_pes.features.screens.settings.LanguageViewModel
-import com.front_pes.getString
 
 const val HabilitacionsScreen = "HabilitacioListScreen"
 enum class Selector{
@@ -51,23 +47,10 @@ fun HabilitacionsScreen(viewModel: HabilitacionsViewModel = viewModel()) {
     val scrollState = rememberLazyListState()
     var searchText by remember { mutableStateOf("") }
 
-    val languageViewModel: LanguageViewModel = viewModel()
-    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
-    val context = LocalContext.current
-
-    LaunchedEffect(Unit) {
-        viewModel.get_all_usuaris_habilitats();
-        viewModel.get_all_usuaris_deshabilitats();
-        viewModel.iniciarWebSocket();
-    }
-
+    LaunchedEffect(Unit) { viewModel.get_all_usuaris_habilitats()}
+    LaunchedEffect(Unit) { viewModel.get_all_usuaris_deshabilitats()}
     val usuarishabilitats = viewModel.habilitats
     val usuarisdeshabilitats = viewModel.deshabilitats
-
-    LaunchedEffect(usuarisdeshabilitats) {
-        viewModel.get_all_usuaris_habilitats();
-        viewModel.get_all_usuaris_deshabilitats();
-    }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(top = 90.dp, start = 10.dp, end = 24.dp),
@@ -81,7 +64,7 @@ fun HabilitacionsScreen(viewModel: HabilitacionsViewModel = viewModel()) {
         )
         {
             Text(
-                text = (getString(context, R.string.USU, selectedLanguage)),
+                text = "USUARIS",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (currentMode == Selector.ALL) MaterialTheme.colorScheme.primary else Color.Gray,
@@ -90,7 +73,7 @@ fun HabilitacionsScreen(viewModel: HabilitacionsViewModel = viewModel()) {
             )
 
             Text(
-                text = (getString(context, R.string.DESHAB, selectedLanguage)),
+                text = "DESHABILITATS",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (currentMode == Selector.DESHABILITATS) MaterialTheme.colorScheme.primary else Color.Gray,
@@ -102,7 +85,7 @@ fun HabilitacionsScreen(viewModel: HabilitacionsViewModel = viewModel()) {
         TextField(
             value = searchText,
             onValueChange = { searchText = it },
-            placeholder = { Text(text = (getString(context, R.string.buscusu, selectedLanguage))) },
+            placeholder = { Text("Cerca usuaris...") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),

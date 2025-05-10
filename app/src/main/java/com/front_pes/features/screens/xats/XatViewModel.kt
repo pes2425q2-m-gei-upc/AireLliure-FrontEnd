@@ -1,19 +1,21 @@
 package com.front_pes.features.screens.xats
 
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import com.front_pes.CurrentUser
+import com.front_pes.features.screens.login.LoginRequest
+import com.front_pes.features.screens.login.LoginResponse
+import com.front_pes.features.screens.xats.LlistaXatResponse
 import com.front_pes.network.RetrofitClient
 import kotlinx.coroutines.launch
-import okhttp3.*
-import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+
 
 class XatViewModel: ViewModel() {
     /* VARIABLE ON ES GUARDARAN LES DADES DE RETORN DE LA PETICIO*/
@@ -58,45 +60,5 @@ class XatViewModel: ViewModel() {
         } catch (e: Exception) {
             println("Error carregant xats: ${e.message}")
         }
-    }
-
-    private var webSocket: WebSocket? = null
-
-    fun iniciarWebSocket() {
-        val client = OkHttpClient()
-        val request = Request.Builder().url("wss://airelliure-backend.onrender.com/ws/modelos/").build() // Asegúrate de usar tu URL real
-        webSocket = client.newWebSocket(request, object : WebSocketListener() {
-            override fun onOpen(webSocket: WebSocket, response: okhttp3.Response?) {
-                Log.d("WebSocket", "Conexión abierta")
-            }
-
-            override fun onMessage(webSocket: WebSocket, text: String) {
-                Log.d("WebSocket", "Mensaje recibido: $text")
-
-                try {
-                    val json = JSONObject(text)
-                    val modelo = json.optString("modelo")
-                    if (modelo == "XatIndividual" ||modelo == "XatGrupal") {
-                        carregarXats()
-                    }
-                } catch (e: Exception) {
-                    Log.e("WebSocket", "Error procesando mensaje: ${e.message}")
-                }
-            }
-
-            override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
-                webSocket.close(1000, null)
-                Log.d("WebSocket", "Conexión cerrándose: $reason")
-            }
-
-            override fun onFailure(webSocket: WebSocket, t: Throwable, response: okhttp3.Response?) {
-                Log.e("WebSocket", "Error: ${t.message}")
-            }
-        })
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        webSocket?.close(1000, null)
     }
 }

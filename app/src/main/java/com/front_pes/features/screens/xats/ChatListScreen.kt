@@ -11,17 +11,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.front_pes.R
-import com.front_pes.features.screens.settings.LanguageViewModel
-import com.front_pes.getString
 
 const val ChatListScreen = "ChatListScreen"
 const val ChatListScreenDestination = "chats"
@@ -35,22 +29,13 @@ fun ChatListScreen(
 ) {
     LaunchedEffect(Unit) {
         viewModel.carregarXats()
-        viewModel.iniciarWebSocket()
     }
-
     DisposableEffect(Unit) {
         onDispose {
             viewModel.carregarXats()
         }
     }
     val chatList = viewModel.xats
-    val languageViewModel: LanguageViewModel = viewModel()
-    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
-    val context = LocalContext.current
-
-    LaunchedEffect(chatList.size) {
-        viewModel.carregarXats()
-    }
 
     Column(modifier = Modifier.fillMaxSize().padding(top = 80.dp, start = 10.dp, end = 10.dp)) {
 
@@ -66,7 +51,7 @@ fun ChatListScreen(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = (getString(context, R.string.creaconv, selectedLanguage)),
+                    "Crear Conversació",
                     color = MaterialTheme.colorScheme.onSurface
                     )
             }
@@ -76,14 +61,14 @@ fun ChatListScreen(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = (getString(context, R.string.creagrup, selectedLanguage)),
+                    "Crear Grup",
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
 
         Text(
-            text = (getString(context, R.string.chats, selectedLanguage)),
+            text = "Xats",
             style = MaterialTheme.typography.headlineLarge,
             modifier = Modifier.padding(16.dp)
         )

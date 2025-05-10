@@ -9,9 +9,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -100,7 +101,12 @@ fun LoginScreen(
                 onValueChange = { viewModel.onEmailChange(it) },
                 label = { Text("Email") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xBA22A908),
+                    unfocusedBorderColor = Color.Gray,
+                    errorBorderColor = Color.Red
+                )
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -111,7 +117,12 @@ fun LoginScreen(
                 label = { Text(text = getString(context, R.string.password, selectedLanguage)) },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xBA22A908),
+                    unfocusedBorderColor = Color.Gray,
+                    errorBorderColor = Color.Red
+                )
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -136,7 +147,7 @@ fun LoginScreen(
                             Brush.linearGradient(
                                 colors = listOf(
                                     Color(0xFF05C7F2),
-                                    Color(0xFF07F285)
+                                    Color(0xBA22A908)
                                 )
                             ),
                             shape = RoundedCornerShape(8.dp)
@@ -157,18 +168,8 @@ fun LoginScreen(
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 Button(
-                    onClick = {
-                        viewModel.signInWithGitHub(context,
-                        onSuccess = {
-                            // Navegar a la pantalla principal
-                            onNavigateToMap()
-                        },
-                        onError = { errorMessage ->
-                            // Mostrar mensaje de error
-                            Log.e("GitHubLogin", errorMessage)
-                        }
-                    )},
-                    colors = ButtonDefaults.buttonColors(Color(0xFF000000)),
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(Color(0xFF3B5998)),
                     modifier = Modifier
                         .shadow(2.dp, RoundedCornerShape(8.dp))
                         .weight(0.7f),
@@ -176,12 +177,12 @@ fun LoginScreen(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
-                            painter = painterResource(id = R.drawable.git36), // Reemplaza por tu recurso de logo de Google
+                            painter = painterResource(id = R.drawable.fb36), // Reemplaza por tu recurso de logo de Google
                             contentDescription = "Facebook",
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(15.dp))
-                        Text(text = "GitHub", color = Color.White)
+                        Text(text = "Facebook", color = Color.White)
                     }
                 }
                 Spacer(modifier = Modifier.width(20.dp))
@@ -229,7 +230,7 @@ fun LoginScreen(
                         Brush.linearGradient(
                             colors = listOf(
                                 Color(0xFF05C7F2),
-                                Color(0xFF07F285)
+                                Color(0xBA22A908)
                             )
                         ),
                         shape = RoundedCornerShape(8.dp)

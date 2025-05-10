@@ -41,15 +41,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.front_pes.R
-import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.features.screens.xats.XatViewModel
-import com.front_pes.getString
-import okhttp3.WebSocket
 
 const val LlistatAmistatScreen = "AmistatListScreen"
 enum class Selector{
@@ -59,9 +54,9 @@ enum class Selector{
     ENVIADES
 }
 
-enum class BottomNavItem(){
-    Relacions,
-    Bloqueigs
+enum class BottomNavItem(val label: String){
+    Relacions("Relacions"),
+    Bloqueigs("Bloqueigs")
 }
 
 
@@ -72,23 +67,13 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, onNavigateToBlocks: (
     val scrollState = rememberLazyListState()
     var searchText by remember { mutableStateOf("") }
     var selected_nav by remember { mutableStateOf(BottomNavItem.Relacions) }
-    val languageViewModel: LanguageViewModel = viewModel()
-    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
-    val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        viewModel.getXatsAmics();
-        viewModel.iniciarWebSocket();
-    }
+    LaunchedEffect(Unit) { viewModel.getXatsAmics()}
     LaunchedEffect(Unit) { viewModel.get_usuaris() }
-
     val amistatList = viewModel.llista_amics
     val usuarisList = viewModel.all_users
     val all_rebudes = viewModel.all_rebudes
     val all_enviades = viewModel.all_enviades
-    val labelRelacions = getString(context, R.string.Relacions, selectedLanguage)
-    val labelBloqueigs = getString(context, R.string.bloqueo, selectedLanguage)
-
     Column(
         modifier = Modifier.fillMaxSize().padding(top = 90.dp, start = 10.dp, end = 24.dp),
     ) {
@@ -103,7 +88,7 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, onNavigateToBlocks: (
         )
         {
             Text(
-                text = (getString(context, R.string.amigos, selectedLanguage)),
+                text = "Amistats",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (currentMode == Selector.AMISTATS) MaterialTheme.colorScheme.primary else Color.Gray,
@@ -112,7 +97,7 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, onNavigateToBlocks: (
             )
 
             Text(
-                text = (getString(context, R.string.usuarios, selectedLanguage)),
+                text = "Usuaris",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (currentMode == Selector.USUARIS) MaterialTheme.colorScheme.primary else Color.Gray,
@@ -120,7 +105,7 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, onNavigateToBlocks: (
                     .padding(10.dp)
             )
             Text(
-                text = (getString(context, R.string.pend, selectedLanguage)),
+                text = "Pendents",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (currentMode == Selector.REBUDES) MaterialTheme.colorScheme.primary else Color.Gray,
@@ -128,7 +113,7 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, onNavigateToBlocks: (
                     .padding(10.dp)
             )
             Text(
-                text = (getString(context, R.string.enviado, selectedLanguage)),
+                text = "Enviades",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (currentMode == Selector.ENVIADES) MaterialTheme.colorScheme.primary else Color.Gray,
@@ -140,7 +125,7 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, onNavigateToBlocks: (
         TextField(
             value = searchText,
             onValueChange = { searchText = it },
-            placeholder = { Text(text = (getString(context, R.string.buscusu, selectedLanguage))) },
+            placeholder = { Text("Cerca usuaris...") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
@@ -174,13 +159,13 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, onNavigateToBlocks: (
         NavigationBar {
             NavigationBarItem(
                 icon = { Icon(Icons.Default.Share, contentDescription = null) },
-                label = { Text(labelRelacions) },
+                label = { Text(BottomNavItem.Relacions.label) },
                 selected = selected_nav == BottomNavItem.Relacions,
                 onClick = { selected_nav = BottomNavItem.Relacions }
             )
             NavigationBarItem(
                 icon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                label = { Text(labelBloqueigs) },
+                label = { Text(BottomNavItem.Bloqueigs.label) },
                 selected = selected_nav == BottomNavItem.Bloqueigs,
                 onClick = { onNavigateToBlocks() }
             )

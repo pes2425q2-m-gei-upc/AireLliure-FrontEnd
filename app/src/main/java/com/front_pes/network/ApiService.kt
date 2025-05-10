@@ -9,9 +9,6 @@ import com.front_pes.features.screens.login.LoginResponse
 import com.front_pes.features.screens.map.EstacioQualitatAireResponse
 import com.front_pes.features.screens.map.PresenciaResponse
 import com.front_pes.features.screens.map.PuntsResponse
-import com.front_pes.features.screens.map.RutaAfegirValRequest
-import com.front_pes.features.screens.map.RutaDetailResponse
-import com.front_pes.features.screens.map.RutaWrapperResponse
 import com.front_pes.features.screens.map.RutasResponse
 import com.front_pes.features.screens.register.RegisterRequest
 import com.front_pes.features.screens.register.RegisterResponse
@@ -205,15 +202,7 @@ interface ApiService {
         @Path("correu_usuari") correuusuari: String
     ): Response<Unit>
 
-    @GET("rutas/{pk}/info/")
-    suspend fun get_info_ruta(
-        @Path("pk") pk:Int
-    ): RutaWrapperResponse
 
-    @POST("valoracions/create/")
-    suspend fun afegir_valoracio(
-        @Body request: RutaAfegirValRequest
-    ): Response<Unit>
 
 
 }

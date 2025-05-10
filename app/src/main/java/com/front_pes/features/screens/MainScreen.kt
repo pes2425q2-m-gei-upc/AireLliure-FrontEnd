@@ -117,8 +117,6 @@ import java.util.Locale
 
 import com.front_pes.utils.SelectorIndex
 import com.front_pes.SelectedContaminants
-
-import com.front_pes.features.screens.map.RutasDetailScreen
 import com.front_pes.features.screens.map.EstacioQualitatAireResponse
 import com.front_pes.features.screens.map.MapViewModel
 import com.front_pes.features.screens.map.RutaAmbPunt
@@ -136,10 +134,7 @@ fun ContentScreen(
     onNavigateToCreateGroup: () -> Unit,
     onNavigateToChat: (Int, String) -> Unit,
     onNavigateToGroupDetail: (Int) -> Unit,
-    onChangeIndex: (Int) -> Unit,
-    selectedRutaInt: Int?,
-    onRutaSelected: (Int) -> Unit,
-    onRutaBack: () -> Unit
+    onChangeIndex: (Int) -> Unit
 )
 
  {
@@ -153,25 +148,7 @@ fun ContentScreen(
     }
     when (selectedIndex) {
         0 -> UserPageScreen(title = getString(context, R.string.username, currentLocale), onNavigateToLogin = onNavigateToLogin)
-        1 -> {
-            if(selectedRutaInt == null) {
-                MapScreen(
-                    title = getString(context, R.string.map, currentLocale),
-                    reloadTrigger = reloadMap,
-                            onRutaClick = { rutaID ->
-                                onRutaSelected(rutaID)
-                    },
-                )
-            }
-            else {
-                selectedRutaInt?.let { rutaId ->
-                    RutasDetailScreen(
-                        onBack = { onRutaBack() },
-                        ruta_id = rutaId
-                    )
-                }
-                }
-        }
+        1 -> MapScreen(title = getString(context, R.string.map, currentLocale), reloadTrigger = reloadMap)
         2 -> SettingsScreen(onNavigateToLogin = onNavigateToLogin)
         3 -> ChatListScreen(
             onChatClick = { chatId, userName ->
@@ -285,9 +262,7 @@ fun DrawerItem(text: String, icon: ImageVector, selected: Boolean, onClick: () -
 @Composable
 fun SearchBar(modifier: Modifier = Modifier) {
     var textSearch by remember { mutableStateOf("") }
-    val context = LocalContext.current
-    val languageViewModel: LanguageViewModel = viewModel()
-    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -309,7 +284,7 @@ fun SearchBar(modifier: Modifier = Modifier) {
         TextField(
             value = textSearch,
             onValueChange = { textSearch = it },
-            placeholder = { Text(text = (getString(context, R.string.buscar, selectedLanguage)), color = Color.Gray) },
+            placeholder = { Text("Buscar", color = Color.Gray) },
             singleLine = true,
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
@@ -358,12 +333,11 @@ fun MainScreen(
 
     var reloadMap by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableIntStateOf(selectedIndex) }
-    var selectedRutaInt by remember { mutableStateOf<Int?>(null) }
     var mapFilterIndex by remember { mutableIntStateOf(0) } // 0: Calidad aire, 1: Rutas
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val hideBars = selectedIndex == 0 || selectedIndex == 2 || selectedRutaInt != null
+    val hideBars = selectedIndex == 0 || selectedIndex == 2
 
     // Load estacions and rutas
     LaunchedEffect(Unit) {
@@ -413,31 +387,26 @@ fun MainScreen(
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                if (selectedRutaInt == null) {
-                    Box(
-                        modifier = Modifier
-                            .padding(start = 16.dp, top = 32.dp)
-                            .background(
-                                MaterialTheme.colorScheme.surface,
-                                shape = RoundedCornerShape(16.dp)
-                            )
-                            .padding(8.dp)
-                            .size(40.dp)
-                    ) {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(
-                                imageVector = Icons.Filled.Menu,
-                                contentDescription = "User Profile",
-                                modifier = Modifier.size(26.dp),
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
+                Box(
+                    modifier = Modifier
+                        .padding(start = 16.dp, top = 32.dp)
+                        .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp))
+                        .padding(8.dp)
+                        .size(40.dp)
+                ) {
+                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                        Icon(
+                            imageVector = Icons.Filled.Menu,
+                            contentDescription = "User Profile",
+                            modifier = Modifier.size(26.dp),
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 }
             },
 
             floatingActionButton = {
-                if (selectedIndex == 1 && selectedRutaInt == null) {
+                if (selectedIndex == 1) {
                     var expanded by remember { mutableStateOf(false) }
                     var showFilterDialog by remember { mutableStateOf(false) }
                     var showPopup by remember { mutableStateOf(false) }
@@ -516,7 +485,7 @@ fun MainScreen(
                                 text = {
                                     Column(modifier = Modifier.padding(8.dp)) {
 
-                                        val tabTitles = listOf((getString(context, R.string.routes, selectedLanguage)),(getString(context, R.string.estaciones, selectedLanguage)))
+                                        val tabTitles = listOf("Rutas", "Estaciones")
 
                                         TabRow(
                                             selectedTabIndex = selectedTabIndex,
@@ -692,10 +661,7 @@ fun MainScreen(
                 onNavigateToChat = onNavigateToChat,
                 onNavigateToGroupDetail = onNavigateToGroupDetail,
                 reloadMap = reloadMap,
-                onChangeIndex = { selectedIndex = it },
-                selectedRutaInt = selectedRutaInt,
-                onRutaSelected = { selectedRutaInt = it },
-                onRutaBack = { selectedRutaInt = null }
+                onChangeIndex = { selectedIndex = it }
             )
         }
     }
@@ -713,13 +679,10 @@ fun FilterDialog(onDismiss: () -> Unit) {
             contaminantes.map { it in SelectedContaminants.selected }
         )
     }
-    val languageViewModel: LanguageViewModel = viewModel()
-    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
-    val context = LocalContext.current
 
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text =(getString(context, R.string.f_p_cont, selectedLanguage)), fontWeight = FontWeight.Bold) },
+        title = { Text("Filtrar por contaminantes", fontWeight = FontWeight.Bold) },
         text = {
             Column (
                 verticalArrangement = Arrangement.spacedBy((-5).dp)
@@ -766,7 +729,7 @@ fun FilterDialog(onDismiss: () -> Unit) {
                     ),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text(text = (getString(context, R.string.qfilt, selectedLanguage)))
+                    Text("Quitar filtros")
                 }
 
                 // Botón "Cerrar" a la derecha
@@ -778,7 +741,7 @@ fun FilterDialog(onDismiss: () -> Unit) {
                     ),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text(text = (getString(context, R.string.cerrar, selectedLanguage)))
+                    Text("Cerrar")
                 }
             }
         }

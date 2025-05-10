@@ -251,11 +251,6 @@ private fun AppNavigation(currentLocale: String) {
                 )
             }
         }
-
-
-
-
-
     }
 }
 

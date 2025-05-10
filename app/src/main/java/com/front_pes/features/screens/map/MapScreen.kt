@@ -51,7 +51,7 @@ val idToContaminantName = mapOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigger: Boolean = false) {
+fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit, title: String, reloadTrigger: Boolean = false) {
 
     val selectedIndex by remember { derivedStateOf { SelectorIndex.selectedIndex } }
 
@@ -71,6 +71,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
     var selectedEstacio by remember { mutableStateOf<EstacioQualitatAireResponse?>(null) }
     var selectedRuta by remember { mutableStateOf<RutaAmbPunt?>(null) }
     var isBottomSheetVisible by remember { mutableStateOf(false) }
+
 
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
@@ -175,6 +176,34 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
             }
         }
     }
+    LaunchedEffect(SelectorIndex.selectedEstacio) {
+        SelectorIndex.selectedEstacio?.let { estacio ->
+            Log.d("MAP", "MapScreen: Estación recibida → ${estacio.nom_estacio}")
+
+            selectedEstacio = estacio
+            selectedRuta = null
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(
+                LatLng(estacio.latitud, estacio.longitud),
+                16f // Zoom que tú quieras
+            )
+            SelectorIndex.selectedEstacio = null
+        }
+    }
+
+    LaunchedEffect(SelectorIndex.selectedRuta) {
+        SelectorIndex.selectedRuta?.let { ruta ->
+            Log.d("MAP", "MapScreen: Ruta recibida → ${ruta.ruta.nom}")
+
+            selectedRuta = ruta
+            selectedEstacio = null
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(
+                LatLng(ruta.punt.latitud, ruta.punt.longitud),
+                16f
+            )
+            SelectorIndex.selectedRuta = null
+        }
+    }
+
 
     Surface(modifier = Modifier.fillMaxSize()) {
         // Modal inferior
@@ -203,7 +232,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
 
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Contaminantes medidos:",
+                            text = (getString(context, R.string.contmed, selectedLanguage)),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -213,7 +242,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                         val presencias = viewModel.valuesMap[it.id] ?: emptyMap()
                         if (presencias.isEmpty()) {
                             Text(
-                                text = "No hay datos disponibles.",
+                                text = (getString(context, R.string.nodatos, selectedLanguage)),
                                 style = MaterialTheme.typography.bodySmall
                             )
                         } else {
@@ -267,6 +296,15 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
+                        }
+                        Button(
+                            onClick = {
+                                println(it.ruta.id)
+                                onRutaClick(it.ruta.id)
+                            },
+                            modifier = Modifier.padding(top = 8.dp)
+                        ) {
+                            Text(text = getString(context, R.string.vermas, selectedLanguage))
                         }
                     }
 

@@ -3,11 +3,15 @@ package com.front_pes.network
 import com.front_pes.features.screens.xamistat.BloqueigRequest
 import com.front_pes.features.screens.xamistat.BloqueigResponse
 import com.front_pes.features.screens.Ranking.RankingResponse
+import com.front_pes.features.screens.administrador.HabResponse
 import com.front_pes.features.screens.login.LoginRequest
 import com.front_pes.features.screens.login.LoginResponse
 import com.front_pes.features.screens.map.EstacioQualitatAireResponse
 import com.front_pes.features.screens.map.PresenciaResponse
 import com.front_pes.features.screens.map.PuntsResponse
+import com.front_pes.features.screens.map.RutaAfegirValRequest
+import com.front_pes.features.screens.map.RutaDetailResponse
+import com.front_pes.features.screens.map.RutaWrapperResponse
 import com.front_pes.features.screens.map.RutasResponse
 import com.front_pes.features.screens.register.RegisterRequest
 import com.front_pes.features.screens.register.RegisterResponse
@@ -184,8 +188,32 @@ interface ApiService {
         @Path("pk") pk:Int
     ): Response<Unit>
 
+    @GET("/deshabilitats/")
+    suspend fun getdeshabilitats(): List<HabResponse>
 
+    @GET("/habilitats/")
+    suspend fun gethabilitats(): List<HabResponse>
 
+    @PATCH("usuaris/{correu_deshabilitador}/deshabilitar/{correu_usuari}/")
+    suspend fun deshabilitar(
+        @Path("correu_deshabilitador") correudeshabilitador: String,
+        @Path("correu_usuari") correuusuari: String
+    ): Response<Unit>
+
+    @PATCH("usuaris/{correu_usuari}/rehabilitar/")
+    suspend fun rehabilitar(
+        @Path("correu_usuari") correuusuari: String
+    ): Response<Unit>
+
+    @GET("rutas/{pk}/info/")
+    suspend fun get_info_ruta(
+        @Path("pk") pk:Int
+    ): RutaWrapperResponse
+
+    @POST("valoracions/create/")
+    suspend fun afegir_valoracio(
+        @Body request: RutaAfegirValRequest
+    ): Response<Unit>
 
 
 }

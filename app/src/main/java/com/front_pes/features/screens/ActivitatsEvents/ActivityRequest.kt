@@ -1,10 +1,12 @@
 package com.front_pes.features.screens.ActivitatsEvents
 
+import com.google.gson.annotations.SerializedName
+
 data class ActivityRequest(
-    val nom: String,
-    val descripcio: String,
-    val data_inici: String, // en formato ISO ha de estar para el datetime
-    val data_fi: String, // en formato ISO ha de estar para el datetime.
-    val creador: String,
-    val limit: Int
+    @SerializedName("nom") val nom: String,
+    @SerializedName("descripció") val descripcio: String, // <-- con tilde aquí
+    @SerializedName("data_inici") val data_inici: String,
+    @SerializedName("data_fi") val data_fi: String,
+    @SerializedName("creador_event") val creador: String,
+    @SerializedName("limit") val limit: Int
 )

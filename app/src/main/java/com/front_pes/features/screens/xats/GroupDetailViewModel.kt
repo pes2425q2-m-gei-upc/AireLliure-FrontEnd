@@ -1,8 +1,11 @@
 package com.front_pes.features.screens.xats
 
+import androidx.annotation.OptIn
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.util.Log
+import androidx.media3.common.util.UnstableApi
 import com.front_pes.CurrentUser
 import com.front_pes.features.screens.ActivitatsEvents.ActivityPrivRequest
 import com.front_pes.features.screens.ActivitatsEvents.ActivityResponse
@@ -23,8 +26,10 @@ class GroupDetailViewModel : ViewModel() {
     var errorMessage by mutableStateOf<String?>(null)
     var activitats by mutableStateOf<List<ActivityResponse>>(emptyList())
 
+    @OptIn(UnstableApi::class)
     suspend fun carregar_activitats(id:Int){
         val resposta = RetrofitClient.apiService.get_activitats_by_xat(id)
+        Log.d("ACTIVITATS", resposta.toString())
         activitats = resposta
     }
 
@@ -36,7 +41,15 @@ class GroupDetailViewModel : ViewModel() {
         groupId: Int
     )=viewModelScope.launch {
         try{
+            println("YEEEHHHHHHHHHHHHHHHHHHHHHAA")
+            println(groupId)
             val resposta = RetrofitClient.apiService.create_new_event_privat(ActivityPrivRequest(nom=nom, descripcio = desc, data_inici= data_inici, data_fi = data_fi, creador = CurrentUser.correu, xat=groupId))
+            println(resposta.code())
+            if (resposta.isSuccessful){
+                print(("Perfecte"))
+            } else {
+                println("Error al crear event privat: código ${resposta.code()}, errorBody: ${resposta.errorBody()?.string()}")
+            }
             carregar_activitats(groupId)
         }catch(e:Exception){
             println("Error al crear event public: ${e.message}")
@@ -59,7 +72,6 @@ class GroupDetailViewModel : ViewModel() {
                         }
                     }
                 }
-
                 override fun onFailure(call: Call<GroupDetailResponse>, t: Throwable) {
                     println("Error carregant grup: ${t.message}")
                 }

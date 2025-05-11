@@ -1,5 +1,6 @@
 package com.front_pes.features.screens.ActivitatsEvents
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -26,6 +27,9 @@ class eventViewModel: ViewModel() {
      */
     var errorMessage by mutableStateOf<String?>(null)
 
+    var apuntadoCorrectamente by mutableStateOf(false)
+        private set
+
     fun get_all_publiques()=viewModelScope.launch {
         try{
             val resposta = RetrofitClient.apiService.all_events()
@@ -36,15 +40,32 @@ class eventViewModel: ViewModel() {
     }
     fun crear_activitat_event_public(nom:String, desc: String, data_inici:String, data_fi:String, limit:Int)=viewModelScope.launch {
         try{
-            val resposta = RetrofitClient.apiService.create_new_event(ActivityRequest(nom=nom, descripcio = desc, data_inici= data_inici, data_fi = data_fi, creador = CurrentUser.correu, limit = limit))
+            val resposta = RetrofitClient.apiService.create_new_event(
+                ActivityRequest(
+                    nom = nom,
+                    descripcio = desc,
+                    data_inici = data_inici,
+                    data_fi = data_fi,
+                    creador = CurrentUser.correu,
+                    limit = limit
+                )
+            )
+            if (resposta.isSuccessful) {
+                println("ENVIADOOOOOUUUUUUUUUUU")
+                get_all_publiques()
+            } else {
+                println("Error al crear event public: código ${resposta.code()}, errorBody: ${resposta.errorBody()?.string()}")
+            }
             get_all_publiques()
         }catch(e:Exception){
             println("Error al crear event public: ${e.message}")
         }
     }
-    fun apuntarse_activitat(id_event: Int)=viewModelScope.launch {
+    fun apuntarse_activitat(id_event: Int,  onSuccess: () -> Unit = {})=viewModelScope.launch {
         try{
             val resposta = RetrofitClient.apiService.apuntarse(ApuntarseRequest(event = id_event, usuari = CurrentUser.correu))
+            apuntadoCorrectamente = true
+            onSuccess() // Esto cerrará el diálogo
         }catch(e:Exception){
             println("Error al apuntar-se: ${e.message}")
         }

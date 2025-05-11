@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -163,7 +164,9 @@ fun EventScreen(viewModel: eventViewModel = viewModel()) {
                 dataFi = event.data_fi,
                 limit = event.limit.toString(),
                 onDismiss = { selectedEvent = null },
-                agregar={viewModel.apuntarse_activitat(event.id)}
+                agregar = { onSuccess ->
+                    viewModel.apuntarse_activitat(event.id, onSuccess)
+                }
             )
         }
     }
@@ -330,8 +333,22 @@ fun EventDetailsDialog(
     dataFi: String?,
     limit: String?,
     onDismiss: () -> Unit,
-    agregar: () -> Unit
+    agregar: (onSuccess: () -> Unit) -> Unit
 ) {
+    var showCheck by remember { mutableStateOf(false) }
+    var closeDialog by remember { mutableStateOf(false) }
+    var startClosingDialog by remember { mutableStateOf(false) }
+
+    if (closeDialog) {
+        onDismiss()
+    }
+
+    if (startClosingDialog) {
+        LaunchedEffect(Unit) {
+            delay(1000)
+            closeDialog = true
+        }
+    }
     Dialog(onDismissRequest = { onDismiss() }) {
         Surface(
             shape = RoundedCornerShape(16.dp),
@@ -355,7 +372,10 @@ fun EventDetailsDialog(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
-                        agregar()
+                        agregar {
+                            showCheck = true
+                            startClosingDialog = true
+                        }
                     }) {
                         Text("Apuntar-se")
                     }

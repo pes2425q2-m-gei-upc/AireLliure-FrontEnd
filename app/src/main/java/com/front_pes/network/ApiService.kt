@@ -239,6 +239,22 @@ interface ApiService {
         @Path("pk") pk: Int
     ): List<ActivityResponse>
 
+    @DELETE("eliminar-participacio/{pk_usuari}/{pk_event}/")
+    suspend fun eliminar_participacio(
+        @Path("pk_usuari") pk_usuari:String,
+        @Path("pk_event") pk_event: Int
+    ): Response<Unit>
+
+    @GET("events-pudels-usuari/{pk}/")
+    suspend fun get_on_participo(
+        @Path("pk") pk: String
+    ): List<ActivityResponse>
+
+    @PATCH("events-de-calendari-publics/{pk}/update/")
+    suspend fun editar_event_public(
+        @Path("pk") pk:Int,
+        @Body body: ActivityRequest
+    ): Response<Unit>
 
 
 

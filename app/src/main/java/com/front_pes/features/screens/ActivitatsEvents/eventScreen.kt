@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.front_pes.CurrentUser
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
@@ -76,8 +77,10 @@ fun EventScreen(viewModel: eventViewModel = viewModel()) {
 
     LaunchedEffect(Unit) {
         viewModel.get_all_publiques()
+        viewModel.get_participacions()
     }
     val eventList = viewModel.events
+    val participacions = viewModel.participacions
 
     Column(
         modifier = Modifier
@@ -158,17 +161,25 @@ fun EventScreen(viewModel: eventViewModel = viewModel()) {
         }
         selectedEvent?.let { event ->
             EventDetailsDialog(
-                nom = event.nom,
-                descripcio = event.descripcio,
-                dataInici = event.data_inici,
-                dataFi = event.data_fi,
-                limit = event.limit.toString(),
+                event = event,
                 onDismiss = { selectedEvent = null },
-                agregar = { onSuccess ->
-                    viewModel.apuntarse_activitat(event.id, onSuccess)
-                }
+                onApuntar = {
+                    viewModel.apuntarse_activitat(event.id) {
+                        selectedEvent = null
+                    }
+                },
+                onAbandonar = {
+                    viewModel.abandonar(event.id) {
+                        selectedEvent = null
+                    }
+                },
+                onUpdate = { nom, desc, inici, fi, limit ->
+                    viewModel.editar_event(event.id, nom, desc, inici, fi, limit)
+                },
+                participacions = participacions
             )
         }
+
     }
 }
 
@@ -325,30 +336,29 @@ fun AddEventDialog(
         }
     }
 }
+
 @Composable
 fun EventDetailsDialog(
-    nom: String?,
-    descripcio: String?,
-    dataInici: String?,
-    dataFi: String?,
-    limit: String?,
+    event: ActivityResponse,
+    participacions: List<ActivityResponse>,
     onDismiss: () -> Unit,
-    agregar: (onSuccess: () -> Unit) -> Unit
+    onApuntar: () -> Unit,
+    onAbandonar: () -> Unit,
+    onUpdate: (String, String, String, String, Int) -> Unit
 ) {
-    var showCheck by remember { mutableStateOf(false) }
-    var closeDialog by remember { mutableStateOf(false) }
-    var startClosingDialog by remember { mutableStateOf(false) }
+    val isAuthor = CurrentUser.correu == event.creador_event
+    val isParticipant = participacions.any { it.id == event.id }
 
-    if (closeDialog) {
-        onDismiss()
-    }
+    var editMode by remember { mutableStateOf(false) }
 
-    if (startClosingDialog) {
-        LaunchedEffect(Unit) {
-            delay(1000)
-            closeDialog = true
-        }
-    }
+    var nom by remember { mutableStateOf(event.nom ?: "") }
+    var descripcio by remember { mutableStateOf(event.descripcio ?: "") }
+    var dataInici by remember { mutableStateOf(formatISOToReadable(event.data_inici) ?: "") }
+    var dataFi by remember { mutableStateOf(formatISOToReadable(event.data_fi) ?: "") }
+    var limit by remember { mutableStateOf(event.limit?.toString() ?: "") }
+
+
+
     Dialog(onDismissRequest = { onDismiss() }) {
         Surface(
             shape = RoundedCornerShape(16.dp),
@@ -358,30 +368,54 @@ fun EventDetailsDialog(
             Column(modifier = Modifier.padding(16.dp)) {
                 Text("Detalls de l'activitat", style = MaterialTheme.typography.titleLarge)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("Nom: ${nom ?: "Desconegut"}")
-                Text("Descripció: ${descripcio ?: "-"}")
-                Text("Data inici: ${formatISOToReadable(dataInici) ?: "-"}")
-                Text("Data fi: ${formatISOToReadable(dataFi) ?: "-"}")
-                Text("Límit: ${limit ?: "-"}")
 
+                if (editMode) {
+                    OutlinedTextField(value = nom, onValueChange = { nom = it }, label = { Text("Nom") })
+                    OutlinedTextField(value = descripcio, onValueChange = { descripcio = it }, label = { Text("Descripció") })
+                    OutlinedTextField(value = dataInici, onValueChange = { dataInici = it }, label = { Text("Data inici") })
+                    OutlinedTextField(value = dataFi, onValueChange = { dataFi = it }, label = { Text("Data fi") })
+                    OutlinedTextField(value = limit, onValueChange = { limit = it }, label = { Text("Límit") })
+                } else {
+                    Text("Nom: $nom")
+                    Text("Descripció: $descripcio")
+                    Text("Data inici: $dataInici")
+                    Text("Data fi: $dataFi")
+                    Text("Límit: $limit")
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                    TextButton(onClick = onDismiss) {
-                        Text("Tancar")
+                    TextButton(onClick = onDismiss) { Text("Tancar") }
+
+                    if (isAuthor && !editMode) {
+                        TextButton(onClick = { editMode = true }) { Text("Editar") }
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(onClick = {
-                        agregar {
-                            showCheck = true
-                            startClosingDialog = true
+
+                    if (editMode) {
+                        Button(onClick = {
+                            (limit.toIntOrNull() ?: event.limit)?.let {
+                                onUpdate(
+                                    nom,
+                                    descripcio,
+                                    convertToISO(dataInici),
+                                    convertToISO(dataFi),
+                                    it
+                                )
+                            }
+                            editMode = false
+                            onDismiss()
+                        }) {
+                            Text("Actualitzar")
                         }
-                    }) {
-                        Text("Apuntar-se")
+                    } else {
+                        Button(onClick = {
+                            if (isParticipant) onAbandonar() else onApuntar()
+                        }) {
+                            Text(if (isParticipant) "Abandonar" else "Apuntar-se")
+                        }
                     }
                 }
             }
         }
     }
 }
-

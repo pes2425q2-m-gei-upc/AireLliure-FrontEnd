@@ -197,7 +197,7 @@ class LlistatAmistatViewModel: ViewModel() {
                 try {
                     val json = JSONObject(text)
                     val modelo = json.optString("modelo")
-                    if (modelo == "Amistat") {
+                    if (modelo == "Amistat" || modelo == "Usuario") {
                         get_usuaris();
                         get_rebudes();
                         get_enviades();

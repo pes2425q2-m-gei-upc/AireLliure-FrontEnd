@@ -9,6 +9,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
@@ -29,14 +32,23 @@ import com.front_pes.CurrentUser
 import com.front_pes.R
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.getString
+import kotlinx.coroutines.launch
 
 const val RutasDetailScreenDestination = "RutasDetail"
 
 @OptIn(ExperimentalMaterial3Api::class)
 
 @Composable
-fun ComentariUsuari(nom: String, rating: Int, comentari: String) {
-    Column(modifier = Modifier.padding(16.dp)) {
+fun ComentariUsuari(nom: String,
+                    rating: Int,
+                    comentari: String,
+                    esMeu: Boolean,
+                    onEdit: () -> Unit,
+                    onDelete: () -> Unit) {
+
+        var expanded by remember { mutableStateOf(false) }
+
+        Column(modifier = Modifier.padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Default.Person, contentDescription = "User")
             Spacer(modifier = Modifier.width(8.dp))
@@ -44,6 +56,31 @@ fun ComentariUsuari(nom: String, rating: Int, comentari: String) {
             Spacer(modifier = Modifier.width(8.dp))
             repeat(rating) {
                 Icon(Icons.Default.Star, contentDescription = "Star", tint = Color.Yellow)
+            }
+            if (esMeu) {
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(onClick = { expanded = true }) {
+                    Icon(Icons.Default.MoreVert, contentDescription = "Opcions")
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Editar") },
+                        onClick = {
+                            expanded = false
+                            onEdit()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Eliminar") },
+                        onClick = {
+                            expanded = false
+                            onDelete()
+                        }
+                    )
+                }
             }
         }
         Text(text = comentari)
@@ -157,10 +194,16 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
     val tota_info = viewModel.all_info_ruta
     val mitjana = viewModel.mitjanaValoracions
     val totalValoracions = viewModel.nombreValoracions
+    val coroutineScope = rememberCoroutineScope()
 
     val context = LocalContext.current
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+
+    var showEditDialog by remember { mutableStateOf(false) }
+    var valoracioSeleccionada by remember { mutableStateOf<valoracions?>(null) }
+    var nuevoComent by remember { mutableStateOf("") }
+    var nuevoRating by remember { mutableStateOf(0f) }
 
     var showDialog by remember { mutableStateOf(false) }
     LaunchedEffect(Unit){
@@ -380,7 +423,7 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
             Spacer(modifier = Modifier.height(24.dp))
 
             // Valoraciones
-            Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+            Column {
                 Text(
                     text = (getString(context, R.string.valo, selectedLanguage)),
                     style = MaterialTheme.typography.headlineSmall,
@@ -406,11 +449,79 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
                             ComentariUsuari(
                                 nom = valoracio.nom_usuari,
                                 rating = valoracio.puntuacio.toInt(),
-                                comentari = valoracio.comentari
+                                comentari = valoracio.comentari,
+                                esMeu = valoracio.usuari == CurrentUser.correu,
+                                onEdit = {
+                                    valoracioSeleccionada = valoracio
+                                    nuevoComent = valoracio.comentari
+                                    nuevoRating = valoracio.puntuacio
+                                    showEditDialog = true
+                                },
+                                onDelete = {
+                                    coroutineScope.launch {
+                                        val ok = viewModel.eliminarValoracio(valoracio.id)
+                                        if (ok) viewModel.get_informacio_ruta(ruta_id)
+                                    }
+                                }
                             )
                         }
                     }
                 }
+            }
+            if (showEditDialog && valoracioSeleccionada != null) {
+                AlertDialog(
+                    onDismissRequest = { showEditDialog = false },
+                    title = { Text("Editar valoració") },
+                    text = {
+                        Column {
+                            Row {
+                                repeat(5) { i ->
+                                    IconButton(onClick = { nuevoRating = (i + 1).toFloat() }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Star,
+                                            contentDescription = "Estrella",
+                                            tint = if ((i + 1) <= nuevoRating) Color.Yellow else Color.Gray
+                                        )
+                                    }
+                                }
+                            }
+                            OutlinedTextField(
+                                value = nuevoComent,
+                                onValueChange = { nuevoComent = it },
+                                label = { Text("Comentari") }
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            coroutineScope.launch {
+                                valoracioSeleccionada?.let {
+                                    viewModel.editarValoracio(
+                                        valoracioSeleccionada!!,
+                                        nuevoComent,
+                                        nuevoRating.toFloat(),
+
+                                        onSuccess = {
+                                            showEditDialog = false
+                                            viewModel.get_informacio_ruta(ruta_id)
+                                        },
+                                        onError = {
+                                            println("Error editant valoració: $it")
+                                            showEditDialog = false
+                                        })
+                                        showEditDialog = false
+                                    }
+                                }
+                        }) {
+                            Text("Guardar")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showEditDialog = false }) {
+                            Text("Cancel·lar")
+                        }
+                    }
+                )
             }
             Spacer(modifier = Modifier.height(24.dp))
 

@@ -107,4 +107,42 @@ class RutaViewModel : ViewModel() {
             .filter { it.isNotBlank() }
             .joinToString(" ")
     }
+
+    suspend fun editarValoracio(
+        valoracioOriginal: valoracions,
+        nouComentari: String,
+        novaPuntuacio: Float,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) = viewModelScope.launch {
+        try {
+            val request = UpdateValoracioRequest(
+                puntuacio = novaPuntuacio,
+                comentari = nouComentari,
+                usuari = valoracioOriginal.usuari,
+                ruta = valoracioOriginal.ruta,
+                nom_usuari = valoracioOriginal.nom_usuari
+            )
+
+            val response = RetrofitClient.apiService.updateValoracio(valoracioOriginal.id, request)
+
+            if (response.isSuccessful) {
+                onSuccess()
+            } else {
+                onError("Error: ${response.code()} - ${response.errorBody()?.string()}")
+            }
+        } catch (e: Exception) {
+            onError("Exception: ${e.message}")
+        }
+    }
+
+    suspend fun eliminarValoracio(id: Int): Boolean {
+        return try {
+            val resposta = RetrofitClient.apiService.deleteValoracio(id)
+            resposta.isSuccessful
+        } catch (e: Exception) {
+            println("Error eliminant valoració: ${e.message}")
+            false
+        }
+    }
 }

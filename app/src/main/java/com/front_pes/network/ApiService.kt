@@ -17,6 +17,8 @@ import com.front_pes.features.screens.map.RutaAfegirValRequest
 import com.front_pes.features.screens.map.RutaDetailResponse
 import com.front_pes.features.screens.map.RutaWrapperResponse
 import com.front_pes.features.screens.map.RutasResponse
+import com.front_pes.features.screens.map.UpdateValoracioRequest
+import com.front_pes.features.screens.map.UpdateValoracioResponse
 import com.front_pes.features.screens.register.RegisterRequest
 import com.front_pes.features.screens.register.RegisterResponse
 import com.front_pes.features.screens.user.UpdateProfileRequest
@@ -238,6 +240,17 @@ interface ApiService {
     suspend fun getAssignacioAccessibilitat(
         @Path("ruta") rutaId: Int
     ): List<AccessibilitatResponse>
+
+    @PATCH("valoracions/{id}/update/")
+    suspend fun updateValoracio(
+        @Path("id") id: Int,
+        @Body request: UpdateValoracioRequest
+    ): Response<UpdateValoracioResponse>
+
+    @DELETE("valoracions/{id}/delete/")
+    suspend fun deleteValoracio(
+        @Path("id") id: Int
+    ): Response<Unit>
 
 
 }

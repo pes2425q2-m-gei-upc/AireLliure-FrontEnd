@@ -372,6 +372,10 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                                                 ?.replace(".", "")
                                                 ?.toFloatOrNull() ?: 0f
                                             viewModel.nomRutaRecorreguda = selectedRuta!!.ruta.id.toString()
+                                            isBottomSheetVisible = false
+                                            if (viewModel.rutaFinalitzada) {
+                                                viewModel.rewardUser(context)
+                                            }
                                         }
 
                                     ) {

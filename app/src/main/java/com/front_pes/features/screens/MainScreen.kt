@@ -455,23 +455,44 @@ fun MainScreen(
                         contentAlignment = Alignment.BottomStart
                     ) {
                         if (isTracking) {
-                            Box(
-                                modifier = Modifier
-                                    .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
-                                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                            Column(
+                                modifier = Modifier.padding(bottom = 8.dp)
                             ) {
-                                val targetDistance = mapViewModel.targetDistance
-                                val rutaFinalitzada = mapViewModel.rutaFinalitzada
-                                Text(
-                                    text = if (rutaFinalitzada) {
-                                        "¡Ruta finalizada!"
-                                    } else {
-                                        "Ruta: ${String.format("%.2f", totalDistance / 1000)} km / " +
-                                                "${String.format("%.2f", targetDistance / 1000)} km"
-                                    },
-                                    fontSize = 16.sp,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
+                                if (mapViewModel.nomRutaRecorreguda.isNotBlank()) {
+                                    Button(
+                                        onClick = {
+                                            mapViewModel.toggleTracking()
+                                            mapViewModel.nomRutaRecorreguda = ""
+                                            mapViewModel.totalDistance = 0f
+                                            mapViewModel.targetDistance = 0f
+                                        },
+                                        modifier = Modifier
+                                            .wrapContentWidth()
+                                            .padding(end = 8.dp)
+                                    ) {
+                                        Text("Detener y resetear")
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
+                                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                                ) {
+                                    val targetDistance = mapViewModel.targetDistance
+                                    val rutaFinalitzada = mapViewModel.rutaFinalitzada
+
+                                    Text(
+                                        text = if (rutaFinalitzada) {
+                                            "¡Ruta finalizada!"
+                                        } else {
+                                            "Ruta: ${String.format("%.2f", totalDistance / 1000)} km / " +
+                                                    "${String.format("%.2f", targetDistance / 1000)} km"
+                                        },
+                                        fontSize = 16.sp,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
                             }
                         }
                     }

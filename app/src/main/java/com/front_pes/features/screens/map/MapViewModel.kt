@@ -1,6 +1,8 @@
 package com.front_pes.features.screens.map
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -14,7 +16,10 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import androidx.lifecycle.viewModelScope
+import com.front_pes.CurrentUser
 import com.front_pes.SelectedContaminants
+import com.front_pes.features.screens.user.UpdateProfileRequest
+import com.front_pes.features.screens.user.UpdateProfileResponse
 import com.front_pes.network.RetrofitClient.apiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -32,11 +37,39 @@ class MapViewModel : ViewModel() {
     var targetDistance by mutableStateOf(0f)
     var isTracking by mutableStateOf(false)
     var nomRutaRecorreguda by mutableStateOf("")
-    val rutaFinalitzada by derivedStateOf { totalDistance >= targetDistance }
+    //val rutaFinalitzada by derivedStateOf { totalDistance >= targetDistance }
+    val rutaFinalitzada = true
 
     fun toggleTracking() {
         isTracking = !isTracking;
     }
+
+    fun rewardUser(context: Context) {
+        var puntsAfegits = targetDistance.toInt()
+        val nousPunts = ((CurrentUser.punts ?: 0) + puntsAfegits)
+        val request = UpdateProfileRequest(punts = nousPunts)
+
+        val call = RetrofitClient.apiService.updateProfile(CurrentUser.correu, request)
+
+        call.enqueue(object : Callback<UpdateProfileResponse> {
+            override fun onResponse(call: Call<UpdateProfileResponse>, response: Response<UpdateProfileResponse>) {
+                if (response.isSuccessful) {
+                    val updatedUser = response.body()
+                    if (updatedUser != null) {
+                        CurrentUser.punts = updatedUser.punts
+                        Toast.makeText(context, "Has guanyat $puntsAfegits punts!", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(context, "Error al actualitzar punts", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<UpdateProfileResponse>, t: Throwable) {
+                Toast.makeText(context, "Error de xarxa", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
 
     fun fetchAveragesForStations(
         stations: List<EstacioQualitatAireResponse>,

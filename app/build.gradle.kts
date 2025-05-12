@@ -100,6 +100,9 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.11.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
 
+    // BUCKET S3
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
     //Kotlin
     implementation(libs.kotlin.serialization.json)
 

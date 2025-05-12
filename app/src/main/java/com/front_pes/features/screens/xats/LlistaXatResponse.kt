@@ -7,7 +7,9 @@ data class LlistaXatResponse(
     val usuari2: String?=null,
     val descripcio: String?=null,
     val creador: String?=null,
-    val membres: List<String>?=null
+    val membres: List<String>?=null,
+    val correu: String?=null,
+    val imatge: String?=null
 )
 
 typealias LlistatXatsResponse = List<LlistaXatResponse>

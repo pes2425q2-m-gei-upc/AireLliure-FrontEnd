@@ -104,6 +104,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.Image
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Surface
@@ -124,8 +125,27 @@ import com.front_pes.features.screens.map.EstacioQualitatAireResponse
 import com.front_pes.features.screens.map.MapViewModel
 import com.front_pes.features.screens.map.RutaAmbPunt
 import com.front_pes.ui.theme.LocalCustomColors
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import coil.compose.AsyncImage
+
 
 const val MainScreenDestination = "Main"
+
+@Composable
+fun FotoUsuari(url: String?) {
+    AsyncImage(
+        model = url ?: "", // por si es null
+        contentDescription = "user picture",
+        modifier = Modifier
+            .size(100.dp)
+            .padding(bottom = 8.dp)
+            .clip(CircleShape),
+        placeholder = painterResource(R.drawable.ic_user), // imagen por defecto mientras carga
+        error = painterResource(R.drawable.ic_user)         // imagen por defecto si falla
+    )
+}
 
 @Composable
 fun ContentScreen(
@@ -219,14 +239,16 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
 
     ) {
         Spacer(modifier = Modifier.height(25.dp))
-        Icon(
-            painter = painterResource(id = R.drawable.ic_user), // Usa una imagen aquí
-            contentDescription = "User Image",
-            modifier = Modifier
-                .size(100.dp) // Tamaño más grande
-                .padding(bottom = 8.dp),
-            tint = Color.Unspecified
-        )
+        if(CurrentUser.imatge != null)FotoUsuari(url = CurrentUser.imatge)
+        else{
+            Image(
+                painter = painterResource(id = R.drawable.ic_user), //para que ésto os funcione, poned el nombre de una foto que metáis en res/drawable, una vez conectemos back y front convertiré éste composable para que use API para obtener los valores
+                contentDescription = "user picture",
+                modifier = Modifier
+                    .size(175.dp)
+                    .clip(CircleShape)
+            )
+        }
         Text(CurrentUser.nom, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
         Text(CurrentUser.correu, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
 

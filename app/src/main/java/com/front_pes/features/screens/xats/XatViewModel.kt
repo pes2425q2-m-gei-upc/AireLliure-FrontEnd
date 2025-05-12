@@ -19,7 +19,7 @@ import retrofit2.Response
 
 class XatViewModel: ViewModel() {
     /* VARIABLE ON ES GUARDARAN LES DADES DE RETORN DE LA PETICIO*/
-    data class Xat(val id: Int, val nom: String)
+    data class Xat(val id: Int, val nom: String, val imatge:String?=null)
     var xats by mutableStateOf <List<Xat>>(emptyList())
     /* VARIABLE EN CAS D'ERROR*/
     var errorMessage by mutableStateOf<String?>(null)
@@ -40,9 +40,11 @@ class XatViewModel: ViewModel() {
                 ) {
                     if (response.code()== 200){
                         val resposta = response.body()
+                        println("yhyyyyyyyyyyyyyyyyyyyyyyyyyyyy")
+                        println(resposta)
                         resposta?.let {
                             xats = it.map{
-                                item -> Xat(id = item.id, nom= item.nom)
+                                    item -> Xat(id = item.id, nom= item.nom, imatge = item.imatge)
                             }
                         }
                     } else {

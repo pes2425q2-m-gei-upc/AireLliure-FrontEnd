@@ -16,10 +16,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
+import coil.compose.AsyncImage
+import com.front_pes.R
+
 
 const val ChatListScreen = "ChatListScreen"
 const val ChatListScreenDestination = "chats"
 
+@Composable
+fun FotoUsuari(url: String?) {
+    AsyncImage(
+        model = url ?: "", // por si es null
+        contentDescription = "user picture",
+        modifier = Modifier
+            .size(40.dp)
+            .padding(end = 16.dp)
+            .clip(CircleShape),
+        placeholder = painterResource(R.drawable.ic_user), // imagen por defecto mientras carga
+        error = painterResource(R.drawable.ic_user)         // imagen por defecto si falla
+    )
+}
 @Composable
 fun ChatListScreen(
     onChatClick: (chatId: Int, userName: String) -> Unit,
@@ -39,7 +59,7 @@ fun ChatListScreen(
 
     Column(modifier = Modifier.fillMaxSize().padding(top = 80.dp, start = 10.dp, end = 10.dp)) {
 
-        // Botones de acción
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -77,11 +97,17 @@ fun ChatListScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .padding(bottom = 80.dp) // Espacio final por si hay botones
+                .padding(bottom = 120.dp) // Espacio final por si hay botones
         ) {
             items(chatList) { chat ->
-                ChatListItem(name = chat.nom) {
-                    onChatClick(chat.id, chat.nom)
+                if(chat.imatge != null) {
+                    ChatListItemindiv(name = chat.nom, imatgeUrl = chat.imatge) {
+                        onChatClick(chat.id, chat.nom)
+                    }
+                } else {
+                    ChatListItem(name = chat.nom) {
+                        onChatClick(chat.id, chat.nom)
+                    }
                 }
             }
         }
@@ -90,7 +116,7 @@ fun ChatListScreen(
 }
 
 @Composable
-fun ChatListItem(name: String, onClick: () -> Unit) {
+fun ChatListItem(name: String,  onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -113,6 +139,33 @@ fun ChatListItem(name: String, onClick: () -> Unit) {
                     .size(40.dp)
                     .padding(end = 16.dp)
             )
+
+            Text(
+                text = name,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+@Composable
+fun ChatListItemindiv(name: String, imatgeUrl: String?,  onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clickable { onClick() },
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            if(imatgeUrl != null)FotoUsuari(url = imatgeUrl)
 
             Text(
                 text = name,

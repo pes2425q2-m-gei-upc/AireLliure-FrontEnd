@@ -50,8 +50,23 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.Locale
+import coil.compose.AsyncImage
+
 
 const val UserPageScreenDestination = "UserPage"
+
+@Composable
+fun FotoUsuari(url: String?) {
+    AsyncImage(
+        model = url ?: "", // por si es null
+        contentDescription = "user picture",
+        modifier = Modifier
+            .size(175.dp)
+            .clip(CircleShape),
+        placeholder = painterResource(R.drawable.ic_user), // imagen por defecto mientras carga
+        error = painterResource(R.drawable.ic_user)         // imagen por defecto si falla
+    )
+}
 
 @Composable
 fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
@@ -141,13 +156,14 @@ fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
             verticalArrangement = Arrangement.Top
         ) {
 
-            Image(
+            /*Image(
                 painter = painterResource(id = R.drawable.ic_user), //para que ésto os funcione, poned el nombre de una foto que metáis en res/drawable, una vez conectemos back y front convertiré éste composable para que use API para obtener los valores
                 contentDescription = "user picture",
                 modifier = Modifier
                     .size(175.dp)
                     .clip(CircleShape)
-            )
+            )*/
+            FotoUsuari(url = CurrentUser.imatge)
 
             Text(nom, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
             Text(correu, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)

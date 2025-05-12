@@ -256,6 +256,11 @@ interface ApiService {
         @Body body: ActivityRequest
     ): Response<Unit>
 
+    @GET("usuaris/{pk}/")
+    suspend fun get_user_by_id(
+        @Path("pk") pk:String
+    ): Response <LoginResponse>
+
 
 
 }

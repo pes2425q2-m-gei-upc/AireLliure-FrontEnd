@@ -19,8 +19,8 @@ import retrofit2.Response
 
 class LlistatAmistatViewModel: ViewModel() {
 
-    data class AmistatLine(val idAmistat: Int, val id: String, val nom: String, val correu: String)
-    data class UsuariLine(val id: String?=null, val nom: String?=null, val correu: String)
+    data class AmistatLine(val idAmistat: Int, val id: String, val nom: String, val correu: String, val imatge:String?=null)
+    data class UsuariLine(val id: String?=null, val nom: String?=null, val correu: String, val imatge: String?=null)
     /* VAR DEL LLISTAT DE AMICS */
     var llista_amics by mutableStateOf <List<AmistatLine>>(emptyList())
     /* VAR DE TOTS ELS USUARIS PER AL SELECTOR   */
@@ -47,7 +47,8 @@ class LlistatAmistatViewModel: ViewModel() {
                     idAmistat = item.idAmistat,
                     id = item.correu,
                     nom = item.nom,
-                    correu = item.correu
+                    correu = item.correu,
+                    imatge = item.imatge
                 )
             }
         } catch (e: Exception) {
@@ -64,7 +65,8 @@ class LlistatAmistatViewModel: ViewModel() {
                 UsuariLine(
                     id = item.correu,
                     nom = item.nom,
-                    correu = item.correu
+                    correu = item.correu,
+                    imatge = item.imatge
                 )
             }
         } catch (e: Exception) {
@@ -82,7 +84,8 @@ class LlistatAmistatViewModel: ViewModel() {
                     idAmistat = item.id,
                     id = item.solicita,
                     nom = item.nom,
-                    correu = item.solicita
+                    correu = item.solicita,
+                    imatge = item.imatge
                 )
             }
         } catch (e: Exception) {
@@ -100,7 +103,9 @@ class LlistatAmistatViewModel: ViewModel() {
                     idAmistat = item.id,
                     id = item.solicita,
                     nom = item.nom,
-                    correu = item.accepta ?: ""
+                    correu = item.accepta ?: "",
+                    imatge = item.imatge
+
                 )
             }
         } catch (e: Exception) {

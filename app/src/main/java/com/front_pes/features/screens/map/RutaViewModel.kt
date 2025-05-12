@@ -29,11 +29,12 @@ class RutaViewModel : ViewModel() {
 
     fun getAssignacionsRuta(rutaId: Int) = viewModelScope.launch {
         try {
-            val dificultatResponse = RetrofitClient.apiService.getAssignacioEsportiva(rutaId)
-            dificultatRuta = dificultatResponse.dificultat
+            val dificultatList = RetrofitClient.apiService.getAssignacioEsportiva(rutaId)
+            dificultatRuta = dificultatList.firstOrNull()?.dificultat
 
-            val accessibilitatResponse = RetrofitClient.apiService.getAssignacioAccessibilitat(rutaId)
-            accesibilitatRuta = accessibilitatResponse.accesibilitat
+            val accesibilitatList = RetrofitClient.apiService.getAssignacioAccessibilitat(rutaId)
+            accesibilitatRuta = accesibilitatList.firstOrNull()?.accesibilitat
+
         } catch (e: Exception) {
             println("Error carregant assignacions: ${e.message}")
         }

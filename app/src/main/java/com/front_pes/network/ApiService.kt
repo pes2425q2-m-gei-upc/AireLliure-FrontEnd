@@ -232,12 +232,12 @@ interface ApiService {
     @GET("assig-esportiva/{ruta}/")
     suspend fun getAssignacioEsportiva(
         @Path("ruta") rutaId: Int
-    ): DificultatResponse
+    ): List<DificultatResponse>
 
     @GET("assig-acc-resp/{ruta}/")
     suspend fun getAssignacioAccessibilitat(
         @Path("ruta") rutaId: Int
-    ): AccessibilitatResponse
+    ): List<AccessibilitatResponse>
 
 
 }

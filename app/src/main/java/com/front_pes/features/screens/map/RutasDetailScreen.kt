@@ -294,19 +294,35 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
                         append(tota_info?.punt_inici?.toString() ?: "Desconeguda")
                     })
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text(buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append((getString(context, R.string.dificultat, selectedLanguage)) + ": ")
-                        }
-                        append(viewModel.dificultatRuta)
-                    })
+                    if(viewModel.dificultatRuta != null) {
+                        Text(buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(
+                                    (getString(
+                                        context,
+                                        R.string.dificultat,
+                                        selectedLanguage
+                                    )) + ": "
+                                )
+                            }
+                            append(viewModel.dificultatRuta)
+                        })
+                    }
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text(buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append((getString(context, R.string.accesresp, selectedLanguage)) + ": ")
-                        }
-                        append(viewModel.accesibilitatRuta)
-                    })
+                    if(viewModel.accesibilitatRuta != null) {
+                        Text(buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(
+                                    (getString(
+                                        context,
+                                        R.string.accesresp,
+                                        selectedLanguage
+                                    )) + ": "
+                                )
+                            }
+                            append(viewModel.accesibilitatRuta)
+                        })
+                    }
                 }
             }
 
@@ -331,18 +347,20 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
             }
 
             if (CurrentUser.administrador) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Button(
-                        onClick = { showDialog = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF07F285))
+                if(viewModel.dificultatRuta == null || viewModel.accesibilitatRuta == null) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Text(
-                            text = (getString(context, R.string.clasr, selectedLanguage)),
-                            color = Color.Black
-                        )
+                        Button(
+                            onClick = { showDialog = true },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF07F285))
+                        ) {
+                            Text(
+                                text = (getString(context, R.string.clasr, selectedLanguage)),
+                                color = Color.Black
+                            )
+                        }
                     }
                 }
             }

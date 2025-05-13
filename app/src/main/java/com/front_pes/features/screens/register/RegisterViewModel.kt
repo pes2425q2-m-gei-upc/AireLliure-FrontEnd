@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.security.MessageDigest
 
 class  RegisterViewModel : ViewModel() {
     var email by mutableStateOf("")
@@ -21,14 +22,19 @@ class  RegisterViewModel : ViewModel() {
 
     var errorMessage by mutableStateOf<String?>(null)
 
+    fun hashPassword(password: String): String {
+        val bytes = MessageDigest.getInstance("SHA-256").digest(password.toByteArray())
+        return bytes.joinToString("") { "%02x".format(it) }
+    }
+
     fun register(onSuccess: () -> Unit) {
-        val call = RetrofitClient.apiService.register(RegisterRequest(correu = email, password = password, nom = username ))
+        val hashedPassword = hashPassword(password)
+        val call = RetrofitClient.apiService.register(RegisterRequest(correu = email, password = hashedPassword, nom = username ))
         call.enqueue(object : Callback<RegisterResponse> {
             override fun onResponse(call: Call<RegisterResponse>, response: Response<RegisterResponse>) {
                 if (response.code() == 201) {
                     response.body()?.let { userData ->
                         CurrentUser.correu = userData.correu
-                        CurrentUser.password = userData.password
                         CurrentUser.nom = userData.nom
                         CurrentUser.about = userData.about
                         CurrentUser.estat = userData.estat

@@ -22,6 +22,8 @@ import com.front_pes.features.screens.user.UpdateProfileRequest
 import com.front_pes.features.screens.user.UpdateProfileResponse
 import com.front_pes.network.RetrofitClient.apiService
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 
@@ -39,9 +41,54 @@ class MapViewModel : ViewModel() {
     var nomRutaRecorreguda by mutableStateOf("")
     //val rutaFinalitzada by derivedStateOf { totalDistance >= targetDistance }
     val rutaFinalitzada = true
+    var detenerRuta = false;
+    var trackingStartTime by mutableStateOf<Long?>(null)
+    var elapsedTime by mutableStateOf(0L) // en milisegundos
+    private var timerJob: Job? = null
 
-    fun toggleTracking() {
-        isTracking = !isTracking;
+    fun startTracking() {
+        isTracking = true
+        trackingStartTime = System.currentTimeMillis()
+        startTimer()
+        detenerRuta = false;
+    }
+
+    fun stopTracking(context: Context) {
+        isTracking = false
+        trackingStartTime?.let {
+            elapsedTime += System.currentTimeMillis() - it
+        }
+        trackingStartTime = null
+        stopTimer()
+        detenerRuta = true;
+
+        val velocitatPromitja = totalDistance / (elapsedTime/1000f)
+        val velocitatValida = velocitatPromitja <= 16
+        //val velocitatValida = false
+        if (rutaFinalitzada && detenerRuta) {
+            if (velocitatValida) {
+                rewardUser(context)
+            }
+            else {
+                Toast.makeText(context, "Ruta fraudulenta :/", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun startTimer() {
+        timerJob = viewModelScope.launch {
+            while (true) {
+                delay(1000L)
+                trackingStartTime?.let {
+                    elapsedTime = System.currentTimeMillis() - it
+                }
+            }
+        }
+    }
+
+    private fun stopTimer() {
+        timerJob?.cancel()
+        timerJob = null
     }
 
     fun rewardUser(context: Context) {

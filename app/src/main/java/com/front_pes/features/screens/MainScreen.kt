@@ -458,10 +458,32 @@ fun MainScreen(
                             Column(
                                 modifier = Modifier.padding(bottom = 8.dp)
                             ) {
-                                if (mapViewModel.nomRutaRecorreguda.isNotBlank()) {
+                                val elapsedMillis = mapViewModel.elapsedTime
+
+                                val elapsedFormatted = remember(elapsedMillis) {
+                                    val totalSeconds = elapsedMillis / 1000
+                                    val minutes = totalSeconds / 60
+                                    val seconds = totalSeconds % 60
+                                    String.format("%02d:%02d", minutes, seconds)
+                                }
+                                Row (
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
+                                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                                    ) {
+                                        Text(
+                                            text = elapsedFormatted,
+                                            fontSize = 16.sp,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(4.dp))
                                     Button(
                                         onClick = {
-                                            mapViewModel.toggleTracking()
+                                            mapViewModel.stopTracking(context)
                                             mapViewModel.nomRutaRecorreguda = ""
                                             mapViewModel.totalDistance = 0f
                                             mapViewModel.targetDistance = 0f
@@ -470,10 +492,10 @@ fun MainScreen(
                                             .wrapContentWidth()
                                             .padding(end = 8.dp)
                                     ) {
-                                        Text("Detener y resetear")
+                                        Text("Detener")
                                     }
-                                    Spacer(modifier = Modifier.height(8.dp))
                                 }
+                                Spacer(modifier = Modifier.height(4.dp))
                                 Box(
                                     modifier = Modifier
                                         .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
@@ -662,9 +684,6 @@ fun MainScreen(
                                     }
                                 }
                             )
-
-
-
                         }
                     }
                 }

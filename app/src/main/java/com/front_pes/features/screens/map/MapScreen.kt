@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -361,10 +362,10 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                             contentAlignment = Alignment.TopCenter
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                if ((viewModel.nomRutaRecorreguda == selectedRuta!!.ruta.id.toString()) || !isTracking) {
+                                if (!isTracking) {
                                     Button(
                                         onClick = {
-                                            viewModel.toggleTracking()
+                                            viewModel.startTracking()
                                             viewModel.targetDistance = lines
                                                 .firstOrNull { it.contains("Distància:") }
                                                 ?.substringAfter("Distància:")
@@ -373,9 +374,6 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                                                 ?.toFloatOrNull() ?: 0f
                                             viewModel.nomRutaRecorreguda = selectedRuta!!.ruta.id.toString()
                                             isBottomSheetVisible = false
-                                            if (viewModel.rutaFinalitzada) {
-                                                viewModel.rewardUser(context)
-                                            }
                                         }
 
                                     ) {
@@ -389,7 +387,6 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
             }
         }
     }
-
         // Mapa
         Box(modifier = Modifier.fillMaxSize()) {
             GoogleMap(

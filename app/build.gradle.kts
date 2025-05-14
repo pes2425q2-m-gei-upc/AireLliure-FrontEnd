@@ -102,5 +102,9 @@ dependencies {
     //Kotlin
     implementation(libs.kotlin.serialization.json)
 
+    //GoogleCalendar
+    implementation ("com.google.android.gms:play-services-auth:21.0.0")
+    implementation ("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation ("org.json:json:20231013")
 
 }

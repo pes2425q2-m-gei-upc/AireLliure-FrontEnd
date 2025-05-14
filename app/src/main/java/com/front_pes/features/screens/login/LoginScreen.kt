@@ -44,6 +44,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 
 import com.front_pes.features.screens.settings.updateUserStatus
 import androidx.compose.ui.platform.LocalContext
+import com.front_pes.CurrentUser
 
 const val LoginScreenDestination = "Login"
 
@@ -56,25 +57,48 @@ fun LoginScreen(
 {
 
     val isLoading by viewModel.isLoading.collectAsState()
-    val token = "8587200690-n4o3qjmpcp8lemk9kgki9v8drpepmlb3.apps.googleusercontent.com"
+    //val token = "8587200690-n4o3qjmpcp8lemk9kgki9v8drpepmlb3.apps.googleusercontent.com"
+
+    val clientId = "8587200690-n4o3qjmpcp8lemk9kgki9v8drpepmlb3.apps.googleusercontent.com"
+
+
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
-    val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts
-        .StartActivityForResult()
-    ) {
-        val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        Log.d("GoogleLogin", "Launcher triggered")
+
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
         try {
             val account = task.getResult(ApiException::class.java)
+            Log.d("GoogleLogin", "Google account: ${account.email}")
+
+            val authCode = account.serverAuthCode
             val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-            viewModel.signInWithGoogleCredential(credential) {
-                onNavigateToMap()
+
+            if (authCode != null) {
+                Log.d("GoogleLogin", "authCode recibido: $authCode")
+
+                viewModel.exchangeAuthCodeForAccessToken(authCode) { accessToken ->
+                    Log.d("GoogleLogin", "Access token recibido: $accessToken")
+                    CurrentUser.googleAccessToken = accessToken
+
+                    viewModel.signInWithGoogleCredential(credential) {
+                        onNavigateToMap()
+                    }
+                }
+            } else {
+                Log.e("GoogleLogin", "No se pudo obtener el serverAuthCode.")
             }
-        }
-        catch (ex: Exception) {
-            Log.d("AireLliure", "GoogleSignIn ha fallat")
+
+        } catch (ex: Exception) {
+            Log.e("GoogleLogin", "Error en Google Sign-In", ex)
         }
     }
+
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -188,14 +212,17 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.width(20.dp))
                 Button(
                     onClick = {
-                        val opciones = GoogleSignInOptions.Builder(
-                            GoogleSignInOptions.DEFAULT_SIGN_IN
-                        )
-                            .requestIdToken(token)
+                        val opciones = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                             .requestEmail()
+                            .requestIdToken(clientId)
+                            .requestServerAuthCode(clientId, true)
+                            .requestScopes(
+                                com.google.android.gms.common.api.Scope("https://www.googleapis.com/auth/calendar")
+                            )
                             .build()
-                        val googleSignInCliente = GoogleSignIn.getClient(context, opciones)
-                        launcher.launch(googleSignInCliente.signInIntent)
+
+                        val googleSignInClient = GoogleSignIn.getClient(context, opciones)
+                        launcher.launch(googleSignInClient.signInIntent)
                     },
                     modifier = Modifier
                         .shadow(2.dp, RoundedCornerShape(8.dp))

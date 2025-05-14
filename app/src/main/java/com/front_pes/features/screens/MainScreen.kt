@@ -112,6 +112,7 @@ import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.NavigationBarItemDefaults
 
 
+
 import com.front_pes.getString
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -124,6 +125,9 @@ import com.front_pes.features.screens.map.EstacioQualitatAireResponse
 import com.front_pes.features.screens.map.MapViewModel
 import com.front_pes.features.screens.map.RutaAmbPunt
 import com.front_pes.ui.theme.LocalCustomColors
+
+
+
 
 const val MainScreenDestination = "Main"
 
@@ -198,8 +202,9 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
         3 to (getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email),
         4 to (getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face),
         5 to (getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info),
-        8 to (getString(context, R.string.event_identif, selectedLanguage) to Icons.Default.ThumbUp)
+        6 to (getString(context, R.string.calendar, selectedLanguage) to Icons.Default.Info)
     )
+
 
     val adminDrawerItems = if (CurrentUser.administrador) {
         listOf(7 to (getString(context, R.string.admin, selectedLanguage) to Icons.Default.Warning))
@@ -324,6 +329,8 @@ fun MainScreen(
 
     val estacions = remember { mutableStateListOf<EstacioQualitatAireResponse>() }
     val rutesAmbPunt = remember { mutableStateListOf<RutaAmbPunt>() }
+    var showCalendarDialog by remember { mutableStateOf(false) }
+
 
     val navItemListMap = listOf(
         NavItem(getString(context, R.string.airQ, selectedLanguage), Icons.Default.Person),
@@ -381,9 +388,16 @@ fun MainScreen(
             DrawerContent(
                 selectedIndex = selectedIndex,
                 onItemClicked = { index ->
-                    selectedIndex = index
-                    scope.launch { drawerState.close() }
+                    if (index == 6) {
+                        showCalendarDialog = true
+                        scope.launch { drawerState.close() }
+                    } else {
+                        selectedIndex = index
+                        scope.launch { drawerState.close() }
+                    }
                 }
+
+
             )
         },
         gesturesEnabled = drawerState.isOpen
@@ -668,6 +682,19 @@ fun MainScreen(
                 onChangeIndex = { selectedIndex = it }
             )
         }
+        if (showCalendarDialog) {
+            AlertDialog(
+                onDismissRequest = { showCalendarDialog = false },
+                title = { Text("Calendario") },
+                text = { Text("Aquí mostraremos los eventos del usuario.") },
+                confirmButton = {
+                    Button(onClick = { showCalendarDialog = false }) {
+                        Text("Cerrar")
+                    }
+                }
+            )
+        }
+
     }
 }
 

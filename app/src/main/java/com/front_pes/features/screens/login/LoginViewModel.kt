@@ -17,9 +17,15 @@ import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.launch
+import okhttp3.FormBody
+import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import okhttp3.*
+import org.json.JSONObject
+import java.io.IOException
+
 
 class LoginViewModel : ViewModel() {
     private val auth: FirebaseAuth = Firebase.auth
@@ -99,4 +105,46 @@ class LoginViewModel : ViewModel() {
             })
         }
     }
+    fun exchangeAuthCodeForAccessToken(authCode: String, onTokenReceived: (String) -> Unit) {
+        val client = OkHttpClient()
+
+        val body = FormBody.Builder()
+            .add("code", authCode)
+            .add("client_id", "8587200690-n4o3qjmpcp8lemk9kgki9v8drpepmlb3.apps.googleusercontent.com")
+            .add("client_secret", "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")
+            .add("redirect_uri", "http://localhost")
+            .add("grant_type", "authorization_code")
+            .build()
+
+
+
+
+        val request = Request.Builder()
+            .url("https://oauth2.googleapis.com/token")
+            .post(body)
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) {
+                Log.e("TokenExchange", "Error: ${e.message}")
+            }
+
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                val responseBody = response.body?.string() ?: ""
+                Log.d("TokenExchange", "🟡 Respuesta cruda: $responseBody")
+
+                val json = JSONObject(responseBody)
+                val token = json.optString("access_token", "")
+                if (token.isNotEmpty()) {
+                    onTokenReceived(token)
+                } else {
+                    Log.e("TokenExchange", "No se recibió access_token")
+                }
+            }
+        })
+    }
+
+
+
 }
+

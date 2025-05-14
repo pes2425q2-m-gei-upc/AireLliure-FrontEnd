@@ -40,4 +40,6 @@
     <string name="aceptar">Aceptar</string>
     <string name="Relacions">Relaciones</string>
     <string name="event_identif">Evento</string>
+    <string name="calendar">Calendario</string>
+
 </resources>

@@ -103,4 +103,6 @@
     <string name="vermas">View More</string>
     <string name="clasr">Classify Route</string>
     <string name="event_identif">Event</string>
+    <string name="calendar">Calendar</string>
+
 </resources>

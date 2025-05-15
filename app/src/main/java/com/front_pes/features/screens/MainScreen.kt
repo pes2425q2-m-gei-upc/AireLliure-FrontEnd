@@ -1,5 +1,7 @@
 package com.front_pes.features.screens
 
+import android.content.Intent
+import android.net.Uri
 import com.front_pes.features.screens.xats.ChatListScreen
 import android.util.Log
 import androidx.activity.compose.BackHandler
@@ -241,6 +243,7 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
         3 to (getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email),
         4 to (getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face),
         5 to (getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info),
+        6 to (getString(context, R.string.calendar, selectedLanguage) to Icons.Default.Info),
         8 to (getString(context, R.string.event_identif, selectedLanguage) to Icons.Default.ThumbUp)
     )
 
@@ -430,9 +433,18 @@ fun MainScreen(
             DrawerContent(
                 selectedIndex = selectedIndex,
                 onItemClicked = { index ->
-                    selectedIndex = index
+                    if (index == 6) {
+                        val intent = Intent(Intent.ACTION_VIEW).apply {
+                            data = Uri.parse("content://com.android.calendar/time/")
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                        context.startActivity(intent)
+                    } else {
+                        selectedIndex = index
+                    }
                     scope.launch { drawerState.close() }
                 }
+
             )
         },
         gesturesEnabled = drawerState.isOpen

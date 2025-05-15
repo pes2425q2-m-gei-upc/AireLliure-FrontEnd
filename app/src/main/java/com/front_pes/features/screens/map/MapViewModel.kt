@@ -39,8 +39,8 @@ class MapViewModel : ViewModel() {
     var targetDistance by mutableStateOf(0f)
     var isTracking by mutableStateOf(false)
     var nomRutaRecorreguda by mutableStateOf("")
-    //val rutaFinalitzada by derivedStateOf { totalDistance >= targetDistance }
-    val rutaFinalitzada = true
+    val rutaFinalitzada by derivedStateOf { totalDistance >= targetDistance }
+    //val rutaFinalitzada = true
     var detenerRuta = false;
     var trackingStartTime by mutableStateOf<Long?>(null)
     var elapsedTime by mutableStateOf(0L) // en milisegundos

@@ -36,7 +36,8 @@ class DetallAmistatViewModel: ViewModel() {
                                 correu = it.correu,
                                 nom = it.nom,
                                 about = it.about,
-                                punts = it.punts
+                                punts = it.punts,
+                                imatge = it.imatge
                             )
                         }
                     } else {

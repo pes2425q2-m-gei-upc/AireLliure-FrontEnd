@@ -17,7 +17,7 @@ import retrofit2.Response
 
 class XatViewModel: ViewModel() {
     /* VARIABLE ON ES GUARDARAN LES DADES DE RETORN DE LA PETICIO*/
-    data class Xat(val id: Int, val nom: String)
+    data class Xat(val id: Int, val nom: String, val imatge:String?=null)
     var xats by mutableStateOf <List<Xat>>(emptyList())
     /* VARIABLE EN CAS D'ERROR*/
     var errorMessage by mutableStateOf<String?>(null)
@@ -40,7 +40,7 @@ class XatViewModel: ViewModel() {
                         val resposta = response.body()
                         resposta?.let {
                             xats = it.map{
-                                item -> Xat(id = item.id, nom= item.nom)
+                                item -> Xat(id = item.id, nom= item.nom, imatge = item.imatge)
                             }
                         }
                     } else {
@@ -66,7 +66,7 @@ class XatViewModel: ViewModel() {
         val client = OkHttpClient()
         val request = Request.Builder().url("wss://airelliure-backend.onrender.com/ws/modelos/").build() // Asegúrate de usar tu URL real
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
-            override fun onOpen(webSocket: WebSocket, response: okhttp3.Response?) {
+            override fun onOpen(webSocket: WebSocket, response: okhttp3.Response) {
                 Log.d("WebSocket", "Conexión abierta")
             }
 

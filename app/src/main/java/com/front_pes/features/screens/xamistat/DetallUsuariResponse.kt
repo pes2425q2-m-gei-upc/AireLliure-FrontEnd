@@ -7,5 +7,6 @@ data class DetallUsuariResponse(
     val estat: String?=null,
     val punts: Int?=null,
     val deshabilitador: String?=null,
-    val about: String?=null
+    val about: String?=null,
+    val imatge: String?=null
 )

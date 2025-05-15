@@ -10,6 +10,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import coil.compose.AsyncImage
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +31,10 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MailOutline
+import androidx.compose.material.icons.filled.ThumbUp
+
+import com.front_pes.features.screens.ActivitatsEvents.EventScreen
+import com.front_pes.features.screens.ActivitatsEvents.eventScreen
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -54,6 +63,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -82,6 +92,34 @@ import com.front_pes.features.screens.xamistat.LlistatAmistatScreen
 import com.front_pes.features.screens.xamistat.DetallAmistatScreen
 import com.front_pes.features.screens.administrador.HabilitacionsScreen
 
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.List
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.Tab
+import androidx.compose.ui.unit.dp
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleOut
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.NavigationBarItemDefaults
+
+
 import com.front_pes.getString
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -89,7 +127,27 @@ import java.util.Locale
 import com.front_pes.utils.SelectorIndex
 import com.front_pes.SelectedContaminants
 
+import com.front_pes.features.screens.map.RutasDetailScreen
+import com.front_pes.features.screens.map.EstacioQualitatAireResponse
+import com.front_pes.features.screens.map.MapViewModel
+import com.front_pes.features.screens.map.RutaAmbPunt
+import com.front_pes.ui.theme.LocalCustomColors
+
 const val MainScreenDestination = "Main"
+
+@Composable
+fun FotoUsuari(url: String?) {
+    AsyncImage(
+        model = url ?: "", // por si es null
+        contentDescription = "user picture",
+        modifier = Modifier
+            .size(100.dp)
+            .padding(bottom = 8.dp)
+            .clip(CircleShape),
+        placeholder = painterResource(R.drawable.ic_user), // imagen por defecto mientras carga
+        error = painterResource(R.drawable.ic_user)         // imagen por defecto si falla
+    )
+}
 
 @Composable
 fun ContentScreen(
@@ -101,7 +159,10 @@ fun ContentScreen(
     onNavigateToCreateGroup: () -> Unit,
     onNavigateToChat: (Int, String) -> Unit,
     onNavigateToGroupDetail: (Int) -> Unit,
-    onChangeIndex: (Int) -> Unit
+    onChangeIndex: (Int) -> Unit,
+    selectedRutaInt: Int?,
+    onRutaSelected: (Int) -> Unit,
+    onRutaBack: () -> Unit
 )
 
  {
@@ -115,7 +176,25 @@ fun ContentScreen(
     }
     when (selectedIndex) {
         0 -> UserPageScreen(title = getString(context, R.string.username, currentLocale), onNavigateToLogin = onNavigateToLogin)
-        1 -> MapScreen(title = getString(context, R.string.map, currentLocale), reloadTrigger = reloadMap)
+        1 -> {
+            if(selectedRutaInt == null) {
+                MapScreen(
+                    title = getString(context, R.string.map, currentLocale),
+                    reloadTrigger = reloadMap,
+                            onRutaClick = { rutaID ->
+                                onRutaSelected(rutaID)
+                    },
+                )
+            }
+            else {
+                selectedRutaInt?.let { rutaId ->
+                    RutasDetailScreen(
+                        onBack = { onRutaBack() },
+                        ruta_id = rutaId
+                    )
+                }
+                }
+        }
         2 -> SettingsScreen(onNavigateToLogin = onNavigateToLogin)
         3 -> ChatListScreen(
             onChatClick = { chatId, userName ->
@@ -145,6 +224,7 @@ fun ContentScreen(
         6-> BloqueigScreen(
             onNavigateToRelations={onChangeIndex(4)})
         7-> HabilitacionsScreen()
+        8 -> EventScreen()
     }
 }
 
@@ -160,14 +240,13 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
         2 to (getString(context, R.string.settings, selectedLanguage) to Icons.Default.Settings),
         3 to (getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email),
         4 to (getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face),
-        5 to (getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info)
+        5 to (getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info),
+        8 to (getString(context, R.string.event_identif, selectedLanguage) to Icons.Default.ThumbUp)
     )
 
     val adminDrawerItems = if (CurrentUser.administrador) {
-        Log.d("DEBUG-CHECK", " Entrando en miFuncionDePrueba()")
         listOf(7 to (getString(context, R.string.admin, selectedLanguage) to Icons.Default.Warning))
     } else {
-        Log.d("DEBUG-CHECK", " NO en miFuncionDePrueba()")
 
         emptyList()
     }
@@ -184,14 +263,16 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
 
     ) {
         Spacer(modifier = Modifier.height(25.dp))
-        Icon(
-            painter = painterResource(id = R.drawable.ic_user), // Usa una imagen aquí
-            contentDescription = "User Image",
-            modifier = Modifier
-                .size(100.dp) // Tamaño más grande
-                .padding(bottom = 8.dp),
-            tint = Color.Unspecified
-        )
+        if(CurrentUser.imatge != null)FotoUsuari(url = CurrentUser.imatge)
+        else{
+            Image(
+                painter = painterResource(id = R.drawable.ic_user), //para que ésto os funcione, poned el nombre de una foto que metáis en res/drawable, una vez conectemos back y front convertiré éste composable para que use API para obtener los valores
+                contentDescription = "user picture",
+                modifier = Modifier
+                    .size(175.dp)
+                    .clip(CircleShape)
+            )
+        }
         Text(CurrentUser.nom, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
         Text(CurrentUser.correu, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
 
@@ -212,11 +293,12 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
 
 @Composable
 fun DrawerItem(text: String, icon: ImageVector, selected: Boolean, onClick: () -> Unit) {
+    val customColors = LocalCustomColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp, horizontal = 16.dp)
-            .background(if (selected) Color(0xFF6B6B6B) else Color.Transparent, shape = RoundedCornerShape(12.dp))
+            .background(if (selected) customColors.selectedItem else Color.Transparent, shape = RoundedCornerShape(12.dp))
             .clickable { onClick() }
             .padding(horizontal = 4.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -230,7 +312,9 @@ fun DrawerItem(text: String, icon: ImageVector, selected: Boolean, onClick: () -
 @Composable
 fun SearchBar(modifier: Modifier = Modifier) {
     var textSearch by remember { mutableStateOf("") }
-
+    val context = LocalContext.current
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -252,7 +336,7 @@ fun SearchBar(modifier: Modifier = Modifier) {
         TextField(
             value = textSearch,
             onValueChange = { textSearch = it },
-            placeholder = { Text("Buscar", color = Color.Gray) },
+            placeholder = { Text(text = (getString(context, R.string.buscar, selectedLanguage)), color = Color.Gray) },
             singleLine = true,
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
@@ -284,6 +368,10 @@ fun MainScreen(
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
+    val mapViewModel: MapViewModel = viewModel()
+
+    val estacions = remember { mutableStateListOf<EstacioQualitatAireResponse>() }
+    val rutesAmbPunt = remember { mutableStateListOf<RutaAmbPunt>() }
 
     val navItemListMap = listOf(
         NavItem(getString(context, R.string.airQ, selectedLanguage), Icons.Default.Person),
@@ -297,11 +385,40 @@ fun MainScreen(
 
     var reloadMap by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableIntStateOf(selectedIndex) }
+    var selectedRutaInt by remember { mutableStateOf<Int?>(null) }
     var mapFilterIndex by remember { mutableIntStateOf(0) } // 0: Calidad aire, 1: Rutas
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val hideBars = selectedIndex == 0 || selectedIndex == 2
+    val hideBars = selectedIndex == 0 || selectedIndex == 2 || selectedRutaInt != null
+
+    // Load estacions and rutas
+    LaunchedEffect(Unit) {
+        mapViewModel.fetchEstacionsQualitatAire(
+            onSuccess = {
+                estacions.clear()
+                estacions.addAll(it)
+            },
+            onError = { Log.e("MainScreen", "Error cargando estaciones") }
+        )
+
+        mapViewModel.fetchRutes(
+            onSuccess = { rutas ->
+                rutas.forEach { ruta ->
+                    ruta.punt_inici?.let { puntId ->
+                        mapViewModel.fetchPuntByID(
+                            pk = puntId,
+                            onSuccess = { punt ->
+                                rutesAmbPunt.add(RutaAmbPunt(ruta = ruta, punt = punt))
+                            },
+                            onError = { Log.e("MainScreen", "Error cargando punto: $it") }
+                        )
+                    }
+                }
+            },
+            onError = { Log.e("MainScreen", "Error cargando rutas") }
+        )
+    }
 
     BackHandler {
         selectedIndex = 1
@@ -323,52 +440,291 @@ fun MainScreen(
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                Box(
-                    modifier = Modifier
-                        .padding(start = 16.dp, top = 32.dp)
-                        .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp))
-                        .padding(8.dp)
-                        .size(40.dp)
-                ) {
-                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "User Profile",
-                            modifier = Modifier.size(26.dp),
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
+                if (selectedRutaInt == null) {
+                    Box(
+                        modifier = Modifier
+                            .padding(start = 16.dp, top = 32.dp)
+                            .background(
+                                MaterialTheme.colorScheme.surface,
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                            .padding(8.dp)
+                            .size(40.dp)
+                    ) {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(
+                                imageVector = Icons.Filled.Menu,
+                                contentDescription = "User Profile",
+                                modifier = Modifier.size(26.dp),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                     }
                 }
             },
 
             floatingActionButton = {
-                var showFilterDialog by remember { mutableStateOf(false) }
+                if (selectedIndex == 1 && selectedRutaInt == null) {
+                    var expanded by remember { mutableStateOf(false) }
+                    var showFilterDialog by remember { mutableStateOf(false) }
+                    var showPopup by remember { mutableStateOf(false) }
+                    var selectedTabIndex by remember { mutableStateOf(0) }
 
-                IconButton(
-                    onClick = { showFilterDialog = true },
-                    modifier = Modifier
-                        .padding(bottom = 8.dp, end = 8.dp)
-                        .size(56.dp)
-                        .background(MaterialTheme.colorScheme.secondary, shape = RoundedCornerShape(28.dp))
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Filter",
-                        tint = MaterialTheme.colorScheme.onSecondary
-                    )
-                }
+                    val customColors = LocalCustomColors.current
 
-                if (showFilterDialog) {
-                    FilterDialog(onDismiss = {
-                        reloadMap = !reloadMap
-                        showFilterDialog = false
-                    })
+                    val isTracking by remember { derivedStateOf { mapViewModel.isTracking } }
+                    val totalDistance by remember { derivedStateOf { mapViewModel.totalDistance } }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(start = 32.dp),
+                        contentAlignment = Alignment.BottomStart
+                    ) {
+                        if (isTracking) {
+                            Column(
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            ) {
+                                val elapsedMillis = mapViewModel.elapsedTime
+
+                                val elapsedFormatted = remember(elapsedMillis) {
+                                    val totalSeconds = elapsedMillis / 1000
+                                    val minutes = totalSeconds / 60
+                                    val seconds = totalSeconds % 60
+                                    String.format("%02d:%02d", minutes, seconds)
+                                }
+                                Row (
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
+                                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                                    ) {
+                                        Text(
+                                            text = elapsedFormatted,
+                                            fontSize = 16.sp,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Button(
+                                        onClick = {
+                                            mapViewModel.stopTracking(context)
+                                            mapViewModel.nomRutaRecorreguda = ""
+                                            mapViewModel.totalDistance = 0f
+                                            mapViewModel.targetDistance = 0f
+                                        },
+                                        modifier = Modifier
+                                            .wrapContentWidth()
+                                            .padding(end = 8.dp)
+                                    ) {
+                                        Text("Detener")
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
+                                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                                ) {
+                                    val targetDistance = mapViewModel.targetDistance
+                                    val rutaFinalitzada = mapViewModel.rutaFinalitzada
+
+                                    Text(
+                                        text = if (rutaFinalitzada) {
+                                            "¡Ruta finalizada!"
+                                        } else {
+                                            "Ruta: ${String.format("%.2f", totalDistance / 1000)} km / " +
+                                                    "${String.format("%.2f", targetDistance / 1000)} km"
+                                        },
+                                        fontSize = 16.sp,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Box(
+                        contentAlignment = Alignment.BottomEnd,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+
+                        Column(
+                            horizontalAlignment = Alignment.End,
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier
+                                .padding(end = 8.dp, bottom = 8.dp)
+                        ) {
+                            AnimatedVisibility(
+                                visible = expanded,
+                                enter = fadeIn() + scaleIn(),
+                                exit = fadeOut() + scaleOut()
+                            ) {
+                                FloatingActionButton(
+                                    onClick = {
+                                        showFilterDialog = true
+                                        expanded = false
+                                    },
+                                    containerColor = customColors.selectedItem
+                                ) {
+                                    Icon(Icons.Default.Edit, contentDescription = "Filtro", tint = Color.White)
+                                }
+                            }
+
+                            AnimatedVisibility(
+                                visible = expanded,
+                                enter = fadeIn() + scaleIn(),
+                                exit = fadeOut() + scaleOut()
+                            ) {
+                                FloatingActionButton(
+                                    onClick = {
+                                        showPopup = true
+                                        expanded = false
+                                    },
+                                    containerColor = customColors.selectedItem
+                                ) {
+                                    Icon(Icons.Default.List, contentDescription = "Lista", tint = Color.White)
+                                }
+                            }
+
+                            FloatingActionButton(
+                                onClick = { expanded = !expanded },
+                                containerColor = MaterialTheme.colorScheme.surface
+                            ) {
+                                Icon(
+                                    imageVector = if (expanded) Icons.Default.Close else Icons.Default.MoreVert,
+                                    contentDescription = "Expandir menú",
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+
+                        // Dialogo filtro
+                        if (showFilterDialog) {
+                            FilterDialog(onDismiss = {
+                                reloadMap = !reloadMap
+                                showFilterDialog = false
+                            })
+                        }
+
+                        // Dialogo rutas/estaciones
+                        if (showPopup) {
+                            AlertDialog(
+                                onDismissRequest = { showPopup = false },
+                                confirmButton = {},
+                                dismissButton = {},
+                                text = {
+                                    Column(modifier = Modifier.padding(8.dp)) {
+
+                                        val tabTitles = listOf((getString(context, R.string.routes, selectedLanguage)),(getString(context, R.string.estaciones, selectedLanguage)))
+
+                                        TabRow(
+                                            selectedTabIndex = selectedTabIndex,
+                                            containerColor = Color.Transparent,
+                                            contentColor = MaterialTheme.colorScheme.primary,
+                                            indicator = {},
+                                            divider = {}
+                                        ) {
+                                            tabTitles.forEachIndexed { index, title ->
+                                                Tab(
+                                                    selected = selectedTabIndex == index,
+                                                    onClick = { selectedTabIndex = index },
+                                                    selectedContentColor = Color.White,
+                                                    unselectedContentColor = Color.Black
+                                                ) {
+                                                    Surface(
+                                                        shape = RoundedCornerShape(50),
+                                                        color = if (selectedTabIndex == index)
+                                                            MaterialTheme.colorScheme.primary
+                                                        else
+                                                            Color.LightGray,
+                                                        shadowElevation = 2.dp
+                                                    ) {
+                                                        Box(
+                                                            contentAlignment = Alignment.Center,
+                                                            modifier = Modifier
+                                                                .padding(horizontal = 4.dp, vertical = 4.dp)
+                                                                .widthIn(min = 100.dp) // 💡 Aumenta el ancho mínimo del botón
+                                                                .padding(horizontal = 16.dp, vertical = 10.dp)
+                                                        ) {
+                                                            Text(
+                                                                text = title,
+                                                                style = MaterialTheme.typography.labelLarge,
+                                                                maxLines = 1
+                                                            )
+                                                        }
+                                                    }
+                                                }
+
+                                            }
+                                        }
+
+                                        Spacer(modifier = Modifier.height(8.dp))
+
+                                        if (selectedTabIndex == 0) {
+                                            LazyColumn(
+                                                modifier = Modifier
+                                                    .height(300.dp)
+                                                    .fillMaxWidth(),
+                                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                                            ) {
+                                                items(rutesAmbPunt) { rutaAmbPunt ->
+                                                    Text(
+                                                        text = rutaAmbPunt.ruta.nom,
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .clickable {
+                                                                SelectorIndex.selectedRuta = rutaAmbPunt
+                                                                SelectorIndex.selectedEstacio = null
+                                                                showPopup = false
+                                                            }
+                                                            .padding(16.dp),
+                                                        style = MaterialTheme.typography.bodyLarge
+                                                    )
+                                                }
+                                            }
+                                        } else {
+                                            LazyColumn(
+                                                modifier = Modifier
+                                                    .height(300.dp)
+                                                    .fillMaxWidth(),
+                                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                                            ) {
+                                                items(estacions) { estacio ->
+                                                    Text(
+                                                        text = estacio.nom_estacio,
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .clickable {
+                                                                SelectorIndex.selectedEstacio = estacio
+                                                                SelectorIndex.selectedRuta = null
+                                                                showPopup = false
+                                                            }
+                                                            .padding(16.dp),
+                                                        style = MaterialTheme.typography.bodyLarge
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
-            },
+            }
+
+            ,
 
             bottomBar = {
                 if (!hideBars) {
-                    NavigationBar {
+                    val customColors = LocalCustomColors.current
+                    NavigationBar (
+                        containerColor = customColors.bottomBar,
+
+                    ) {
                         val navItemsToShow = when (selectedIndex) {
                             1 -> navItemListMap
                             4, 6 -> navItemListAmistat
@@ -387,7 +743,6 @@ fun MainScreen(
                                 else -> selectedIndex == actualIndex
                             }
 
-                            // 🔧 Esta parte está fuera del NavigationBarItem (¡clave!)
                             val iconContent: @Composable () -> Unit = {
                                 Icon(
                                     imageVector = navItem.icon,
@@ -413,7 +768,14 @@ fun MainScreen(
                                     }
                                 },
                                 icon = iconContent,
-                                label = labelContent
+                                label = labelContent,
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                                    unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                                    unselectedTextColor = MaterialTheme.colorScheme.onSurface,
+                                    indicatorColor = LocalCustomColors.current.selectedItem
+                                )
                             )
                         }
                     }
@@ -429,7 +791,10 @@ fun MainScreen(
                 onNavigateToChat = onNavigateToChat,
                 onNavigateToGroupDetail = onNavigateToGroupDetail,
                 reloadMap = reloadMap,
-                onChangeIndex = { selectedIndex = it }
+                onChangeIndex = { selectedIndex = it },
+                selectedRutaInt = selectedRutaInt,
+                onRutaSelected = { selectedRutaInt = it },
+                onRutaBack = { selectedRutaInt = null }
             )
         }
     }
@@ -447,10 +812,13 @@ fun FilterDialog(onDismiss: () -> Unit) {
             contaminantes.map { it in SelectedContaminants.selected }
         )
     }
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+    val context = LocalContext.current
 
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Filtrar por contaminantes", fontWeight = FontWeight.Bold) },
+        title = { Text(text =(getString(context, R.string.f_p_cont, selectedLanguage)), fontWeight = FontWeight.Bold) },
         text = {
             Column (
                 verticalArrangement = Arrangement.spacedBy((-5).dp)
@@ -497,7 +865,7 @@ fun FilterDialog(onDismiss: () -> Unit) {
                     ),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Quitar filtros")
+                    Text(text = (getString(context, R.string.qfilt, selectedLanguage)))
                 }
 
                 // Botón "Cerrar" a la derecha
@@ -509,7 +877,7 @@ fun FilterDialog(onDismiss: () -> Unit) {
                     ),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Cerrar")
+                    Text(text = (getString(context, R.string.cerrar, selectedLanguage)))
                 }
             }
         }

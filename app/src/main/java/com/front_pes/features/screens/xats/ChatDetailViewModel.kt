@@ -1,11 +1,16 @@
 package com.front_pes.features.screens.xats
 
 import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
 import com.front_pes.network.RetrofitClient
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.WebSocket
+import okhttp3.WebSocketListener
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -37,7 +42,7 @@ class ChatDetailViewModel : ViewModel() {
             override fun onResponse(call: Call<ChatDetailResponse>, response: Response<ChatDetailResponse>) {
                 if (response.isSuccessful) {
                     response.body()?.let { resposta ->
-                        Log.d("DEBUG", "Missatges: ${response.body()}")
+                        Log.d("WebSocket", "Missatges: ${response.body()}")
                         missatges = resposta.missatges.map { msg ->
                             Missatge(
                                 id = msg.id,
@@ -159,6 +164,44 @@ class ChatDetailViewModel : ViewModel() {
         })
     }
 
+    private var webSocket: WebSocket? = null
 
+    fun iniciarWebSocket(chatId: Int) {
+        val client = OkHttpClient()
+        val request = Request.Builder().url("wss://airelliure-backend.onrender.com/ws/modelos/").build() // Asegúrate de usar tu URL real
+        webSocket = client.newWebSocket(request, object : WebSocketListener() {
+            override fun onOpen(webSocket: WebSocket, response: okhttp3.Response) {
+                Log.d("WebSocket", "Conexión abierta")
+            }
+
+            override fun onMessage(webSocket: WebSocket, text: String) {
+                Log.d("WebSocket", "Mensaje recibido: $text")
+
+                try {
+                    val json = JSONObject(text)
+                    val modelo = json.optString("modelo")
+                    if (modelo == "Missatge") {
+                        carregarMissatges(chatId)
+                    }
+                } catch (e: Exception) {
+                    Log.e("WebSocket", "Error procesando mensaje: ${e.message}")
+                }
+            }
+
+            override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+                webSocket.close(1000, null)
+                Log.d("WebSocket", "Conexión cerrándose: $reason")
+            }
+
+            override fun onFailure(webSocket: WebSocket, t: Throwable, response: okhttp3.Response?) {
+                Log.e("WebSocket", "Error: ${t.message}")
+            }
+        })
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        webSocket?.close(1000, null)
+    }
 
 }

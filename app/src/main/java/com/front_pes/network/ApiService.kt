@@ -1,7 +1,9 @@
 package com.front_pes.network
 
-import com.front_pes.features.screens.xamistat.BloqueigRequest
-import com.front_pes.features.screens.xamistat.BloqueigResponse
+import com.front_pes.features.screens.ActivitatsEvents.ActivityPrivRequest
+import com.front_pes.features.screens.ActivitatsEvents.ActivityRequest
+import com.front_pes.features.screens.ActivitatsEvents.ActivityResponse
+import com.front_pes.features.screens.ActivitatsEvents.ApuntarseRequest
 import com.front_pes.features.screens.Ranking.RankingResponse
 import com.front_pes.features.screens.administrador.HabResponse
 import com.front_pes.features.screens.login.LoginRequest
@@ -9,13 +11,15 @@ import com.front_pes.features.screens.login.LoginResponse
 import com.front_pes.features.screens.map.EstacioQualitatAireResponse
 import com.front_pes.features.screens.map.PresenciaResponse
 import com.front_pes.features.screens.map.PuntsResponse
+import com.front_pes.features.screens.map.RutaAfegirValRequest
+import com.front_pes.features.screens.map.RutaWrapperResponse
 import com.front_pes.features.screens.map.RutasResponse
 import com.front_pes.features.screens.register.RegisterRequest
 import com.front_pes.features.screens.register.RegisterResponse
 import com.front_pes.features.screens.user.UpdateProfileRequest
 import com.front_pes.features.screens.user.UpdateProfileResponse
-import com.front_pes.features.screens.xats.LlistaXatRequest
-import com.front_pes.features.screens.xats.LlistaXatResponse
+import com.front_pes.features.screens.xamistat.BloqueigRequest
+import com.front_pes.features.screens.xamistat.BloqueigResponse
 import com.front_pes.features.screens.xamistat.DetallUsuariResponse
 import com.front_pes.features.screens.xamistat.LlistaAmistatResponse
 import com.front_pes.features.screens.xamistat.SolicitarAmistatRequest
@@ -27,11 +31,12 @@ import com.front_pes.features.screens.xats.GroupCreateRequest
 import com.front_pes.features.screens.xats.GroupCreateResponse
 import com.front_pes.features.screens.xats.GroupDetailResponse
 import com.front_pes.features.screens.xats.GroupUpdateRequest
+import com.front_pes.features.screens.xats.LlistaXatRequest
+import com.front_pes.features.screens.xats.LlistaXatResponse
 import com.front_pes.features.screens.xats.SendMessageRequest
 import com.front_pes.features.screens.xats.SendMessageResponse
 import com.front_pes.features.screens.xats.UpdateMessageRequest
 import com.front_pes.features.screens.xats.UpdateMessageResponse
-
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
@@ -202,6 +207,65 @@ interface ApiService {
         @Path("correu_usuari") correuusuari: String
     ): Response<Unit>
 
+    @GET("rutas/{pk}/info/")
+    suspend fun get_info_ruta(
+        @Path("pk") pk:Int
+    ): RutaWrapperResponse
+
+    @POST("valoracions/create/")
+    suspend fun afegir_valoracio(
+        @Body request: RutaAfegirValRequest
+    ): Response<Unit>
+
+    @GET("usuaris/{pk}/")
+    suspend fun get_user_by_id(
+        @Path("pk") pk:String
+    ): Response <LoginResponse>
+
+    @DELETE("eliminar-participacio/{pk_usuari}/{pk_event}/")
+    suspend fun eliminar_participacio(
+        @Path("pk_usuari") pk_usuari:String,
+        @Path("pk_event") pk_event: Int
+    ): Response<Unit>
+
+    @GET("events-pudels-usuari/{pk}/")
+    suspend fun get_on_participo(
+        @Path("pk") pk: String
+    ): List<ActivityResponse>
+
+    @PATCH("events-de-calendari-publics/{pk}/update/")
+    suspend fun editar_event_public(
+        @Path("pk") pk:Int,
+        @Body body: ActivityRequest
+    ): Response<Unit>
+
+    @GET("events-de-calendari-publics/")
+    suspend fun all_events(): List<ActivityResponse>
+
+    @POST("events-de-calendari-publics/create/")
+    suspend fun create_new_event(
+        @Body body: ActivityRequest
+    ): Response<Unit>
+
+    @POST("events-de-calendari-privats/create/")
+    suspend fun create_new_event_privat(
+        @Body body: ActivityPrivRequest
+    ): Response<Unit>
+
+    @POST("apuntats/create/")
+    suspend fun apuntarse(
+        @Body body: ApuntarseRequest
+    ): Response<Unit>
+
+    @DELETE("events-de-calendari-publics/{pk}/delete/")
+    suspend fun eliminar_event_public(
+        @Path("pk") pk:Int
+    ): Response<Unit>
+
+    @GET("events-privats-xat/{pk}/")
+    suspend fun get_activitats_by_xat(
+        @Path("pk") pk: Int
+    ): List<ActivityResponse>
 
 
 

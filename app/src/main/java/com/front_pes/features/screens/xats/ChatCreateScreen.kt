@@ -12,6 +12,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.features.screens.xamistat.LlistaAmistatResponse
 import com.front_pes.CurrentUser
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
+import com.front_pes.R
+import com.front_pes.features.screens.settings.LanguageViewModel
+import com.front_pes.getString
 
 
 @Composable
@@ -23,7 +27,17 @@ fun ChatCreateScreen(
     val amistats = viewModel.amistats
     val error = viewModel.errorMessage
 
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+    val context = LocalContext.current
+
     LaunchedEffect(Unit) {
+        viewModel.carregarAmistats()
+        viewModel.carregarXats()
+        viewModel.iniciarWebSocket()
+    }
+
+    LaunchedEffect(amistats) {
         viewModel.carregarAmistats()
         viewModel.carregarXats()
     }
@@ -33,7 +47,7 @@ fun ChatCreateScreen(
         .fillMaxSize()
         .padding(16.dp)) {
 
-        Text("Crear Conversació", style = MaterialTheme.typography.headlineSmall)
+        Text(text = (getString(context, R.string.creaconv, selectedLanguage)), style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(12.dp))
 
         if (error != null) {
@@ -70,7 +84,7 @@ fun ChatCreateScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = onBack, modifier = Modifier.align(Alignment.End)) {
-            Text("Tornar")
+            Text(text = (getString(context, R.string.volver, selectedLanguage)))
         }
     }
 }

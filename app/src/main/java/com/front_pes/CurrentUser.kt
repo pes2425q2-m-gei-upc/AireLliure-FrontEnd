@@ -8,4 +8,5 @@ object CurrentUser {
     var estat: String = ""
     var punts: Int = 0
     var administrador: Boolean = false
+    var imatge: String = ""
 }

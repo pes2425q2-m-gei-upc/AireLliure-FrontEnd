@@ -1,26 +1,25 @@
 package com.front_pes.features.screens.xamistat
 
 import android.util.Log
-import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import com.front_pes.CurrentUser
-import com.front_pes.features.screens.login.LoginRequest
-import com.front_pes.features.screens.login.LoginResponse
-import com.front_pes.features.screens.xamistat.LlistaAmistatResponse
 import com.front_pes.network.RetrofitClient
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.WebSocket
+import okhttp3.WebSocketListener
+import org.json.JSONObject
 
 class LlistatAmistatViewModel: ViewModel() {
 
-    data class AmistatLine(val idAmistat: Int, val id: String, val nom: String, val correu: String)
-    data class UsuariLine(val id: String?=null, val nom: String?=null, val correu: String)
+    data class AmistatLine(val idAmistat: Int, val id: String, val nom: String, val correu: String, val imatge:String?=null)
+    data class UsuariLine(val id: String?=null, val nom: String?=null, val correu: String, val imatge: String?=null)
     /* VAR DEL LLISTAT DE AMICS */
     var llista_amics by mutableStateOf <List<AmistatLine>>(emptyList())
     /* VAR DE TOTS ELS USUARIS PER AL SELECTOR   */
@@ -47,7 +46,8 @@ class LlistatAmistatViewModel: ViewModel() {
                     idAmistat = item.idAmistat,
                     id = item.correu,
                     nom = item.nom,
-                    correu = item.correu
+                    correu = item.correu,
+                    imatge = item.imatge
                 )
             }
         } catch (e: Exception) {
@@ -64,7 +64,8 @@ class LlistatAmistatViewModel: ViewModel() {
                 UsuariLine(
                     id = item.correu,
                     nom = item.nom,
-                    correu = item.correu
+                    correu = item.correu,
+                    imatge = item.imatge
                 )
             }
         } catch (e: Exception) {
@@ -82,7 +83,8 @@ class LlistatAmistatViewModel: ViewModel() {
                     idAmistat = item.id,
                     id = item.solicita,
                     nom = item.nom,
-                    correu = item.solicita
+                    correu = item.solicita,
+                    imatge = item.imatge
                 )
             }
         } catch (e: Exception) {
@@ -100,7 +102,8 @@ class LlistatAmistatViewModel: ViewModel() {
                     idAmistat = item.id,
                     id = item.solicita,
                     nom = item.nom,
-                    correu = item.accepta ?: ""
+                    correu = item.accepta ?: "",
+                    imatge = item.imatge
                 )
             }
         } catch (e: Exception) {
@@ -181,5 +184,42 @@ class LlistatAmistatViewModel: ViewModel() {
         } catch(e:Exception){
             println("Error al eliminar la amistad: ${e.message}")
         }
+    }
+
+    private var webSocket: WebSocket? = null
+
+    fun iniciarWebSocket() {
+        val client = OkHttpClient()
+        val request = Request.Builder().url("wss://airelliure-backend.onrender.com/ws/modelos/").build() // Asegúrate de usar tu URL real
+        webSocket = client.newWebSocket(request, object : WebSocketListener() {
+            override fun onOpen(webSocket: WebSocket, response: Response) {
+                Log.d("WebSocket", "Conexión abierta")
+            }
+
+            override fun onMessage(webSocket: WebSocket, text: String) {
+                Log.d("WebSocket", "Mensaje recibido: $text")
+
+                try {
+                    val json = JSONObject(text)
+                    val modelo = json.optString("modelo")
+                    if (modelo == "Amistat" || modelo == "Usuario") {
+                        get_usuaris();
+                        get_rebudes();
+                        get_enviades();
+                    }
+                } catch (e: Exception) {
+                    Log.e("WebSocket", "Error procesando mensaje: ${e.message}")
+                }
+            }
+
+            override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+                webSocket.close(1000, null)
+                Log.d("WebSocket", "Conexión cerrándose: $reason")
+            }
+
+            override fun onFailure(webSocket: WebSocket, t: Throwable, response: okhttp3.Response?) {
+                Log.e("WebSocket", "Error: ${t.message}")
+            }
+        })
     }
 }

@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.security.MessageDigest
 
 class LoginViewModel : ViewModel() {
     private val auth: FirebaseAuth = Firebase.auth
@@ -62,17 +63,23 @@ class LoginViewModel : ViewModel() {
 
     var errorMessage by mutableStateOf<String?>(null)
 
+    fun hashPassword(password: String): String {
+        val bytes = MessageDigest.getInstance("SHA-256").digest(password.toByteArray())
+        return bytes.joinToString("") { "%02x".format(it) }
+    }
+
     fun login(onSuccess: () -> Unit) {
         _isLoading.value = true
+        val hashedPassword = hashPassword(password)
+        Log.d("hash", hashedPassword)
         viewModelScope.launch {
-            val call = RetrofitClient.apiService.login(LoginRequest(correu = email, password = password))
+            val call = RetrofitClient.apiService.login(LoginRequest(correu = email, password = hashedPassword))
             call.enqueue(object : Callback<LoginResponse> {
                 override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                     _isLoading.value = false
                     if (response.code() == 200) {
                         response.body()?.let { userData ->
                             CurrentUser.correu = userData.correu
-                            CurrentUser.password = userData.password
                             CurrentUser.nom = userData.nom
                             if (userData.about != null)CurrentUser.about = userData.about
                             else CurrentUser.about = ""

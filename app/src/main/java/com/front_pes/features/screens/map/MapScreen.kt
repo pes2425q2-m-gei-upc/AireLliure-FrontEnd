@@ -4,27 +4,25 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.location.Location
+import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.R
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.getString
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.front_pes.utils.SelectorIndex
 import com.front_pes.utils.SelectorIndex.selectedFiltre
 import androidx.core.graphics.drawable.toBitmap
@@ -32,7 +30,11 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.gms.maps.model.TileOverlayOptions
 import androidx.core.graphics.scale
-
+import com.google.android.gms.location.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.*
 
 const val MapScreenDestination = "Map"
 
@@ -79,9 +81,50 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
     var selectedRuta by remember { mutableStateOf<RutaAmbPunt?>(null) }
     var isBottomSheetVisible by remember { mutableStateOf(false) }
 
-
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+
+    var isTracking = viewModel.isTracking
+    var totalDistance = viewModel.totalDistance;
+    var previousLocation by remember { mutableStateOf<Location?>(null) }
+
+    val locationRequest = remember {
+        LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000L)
+            .setMinUpdateDistanceMeters(1f)
+            .build()
+    }
+    val locationCallback = remember {
+        object : LocationCallback() {
+            override fun onLocationResult(result: LocationResult) {
+                val loc = result.lastLocation ?: return
+                if (previousLocation != null) {
+                    val dist = previousLocation!!.distanceTo(loc)
+                    viewModel.totalDistance += dist
+                }
+                previousLocation = loc
+            }
+        }
+    }
+
+    LaunchedEffect(isTracking) {
+        if (isTracking) {
+            totalDistance = 0f
+            previousLocation = null
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                fusedLocationClient.requestLocationUpdates(
+                    locationRequest,
+                    locationCallback,
+                    Looper.getMainLooper()
+                )
+            }
+        } else {
+            fusedLocationClient.removeLocationUpdates(locationCallback)
+        }
+    }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -285,17 +328,21 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                             .map { it.trim() }
                             .filter { it.isNotEmpty() }
 
+                        val distIndex = lines.indexOfFirst { line ->
+                            line.startsWith("Distància:")
+                        }
+
+                        val displayLines = if (distIndex >= 0) {
+                            lines.subList(0, distIndex + 1)
+                        } else {
+                            lines
+                        }
+
                         Column {
                             Text(it.ruta.nom, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                             Spacer(Modifier.height(8.dp))
-//                            // Distancia
-//                            Text(
-//                                text = getString(context, R.string.dist, selectedLanguage) + ": ${it.ruta.dist_km} km",
-//                                style = MaterialTheme.typography.bodyLarge
-//                            )
-                            Spacer(Modifier.height(8.dp))
                             // Descripción dividida
-                            lines.forEach { line ->
+                            displayLines.forEach { line ->
                                 Text(
                                     text = line,
                                     fontSize = 20.sp,
@@ -304,19 +351,48 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
                         }
-                    }
+                        Button(
+                            onClick = {
+                                println(it.ruta.id)
+                                onRutaClick(it.ruta.id)
+                            },
+                            modifier = Modifier.padding(top = 8.dp)
+                        ) {
+                            Text(text = getString(context, R.string.vermas, selectedLanguage))
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.TopCenter
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                if (!isTracking) {
+                                    Button(
+                                        onClick = {
+                                            viewModel.startTracking()
+                                            viewModel.targetDistance = lines
+                                                .firstOrNull { it.contains("Distància:") }
+                                                ?.substringAfter("Distància:")
+                                                ?.filter { it.isDigit() || it == '.' }
+                                                ?.replace(".", "")
+                                                ?.toFloatOrNull() ?: 0f
+                                            viewModel.nomRutaRecorreguda = selectedRuta!!.ruta.id.toString()
+                                            isBottomSheetVisible = false
+                                        }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        onClick = { isBottomSheetVisible = false },
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    ) {
-                        Text(text = getString(context, R.string.cerrar, selectedLanguage))
+                                    ) {
+                                        Text(text = if (isTracking) "Detener y resetear" else "Recorrer ruta")
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
-
+    }
         // Mapa
         Box(modifier = Modifier.fillMaxSize()) {
             GoogleMap(
@@ -412,5 +488,4 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigge
                 }
             )
         }
-    }
 }

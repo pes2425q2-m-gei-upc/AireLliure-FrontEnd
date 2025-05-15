@@ -187,4 +187,41 @@ class LlistatAmistatViewModel: ViewModel() {
             println("Error al eliminar la amistad: ${e.message}")
         }
     }
+
+    private var webSocket: WebSocket? = null
+
+    fun iniciarWebSocket() {
+        val client = OkHttpClient()
+        val request = Request.Builder().url("wss://airelliure-backend.onrender.com/ws/modelos/").build() // Asegúrate de usar tu URL real
+        webSocket = client.newWebSocket(request, object : WebSocketListener() {
+            override fun onOpen(webSocket: WebSocket, response: okhttp3.Response?) {
+                Log.d("WebSocket", "Conexión abierta")
+            }
+
+            override fun onMessage(webSocket: WebSocket, text: String) {
+                Log.d("WebSocket", "Mensaje recibido: $text")
+
+                try {
+                    val json = JSONObject(text)
+                    val modelo = json.optString("modelo")
+                    if (modelo == "Amistat" || modelo == "Usuario") {
+                        get_usuaris();
+                        get_rebudes();
+                        get_enviades();
+                    }
+                } catch (e: Exception) {
+                    Log.e("WebSocket", "Error procesando mensaje: ${e.message}")
+                }
+            }
+
+            override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+                webSocket.close(1000, null)
+                Log.d("WebSocket", "Conexión cerrándose: $reason")
+            }
+
+            override fun onFailure(webSocket: WebSocket, t: Throwable, response: okhttp3.Response?) {
+                Log.e("WebSocket", "Error: ${t.message}")
+            }
+        })
+    }
 }

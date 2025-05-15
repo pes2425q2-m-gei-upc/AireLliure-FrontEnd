@@ -106,8 +106,6 @@ private fun AppNavigation(currentLocale: String) {
         }
         composable(MapScreenDestination){
             MapScreen(
-                onRutaClick = {
-                },
                 title = getString(context, R.string.map, currentLocale)
             )
         }

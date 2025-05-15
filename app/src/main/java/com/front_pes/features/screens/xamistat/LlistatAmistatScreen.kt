@@ -1,6 +1,10 @@
 package com.front_pes.features.screens.xamistat
 
-
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -41,15 +45,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.front_pes.R
-import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.features.screens.xats.XatViewModel
-import com.front_pes.getString
-import okhttp3.WebSocket
 
 const val LlistatAmistatScreen = "AmistatListScreen"
 enum class Selector{
@@ -59,9 +60,22 @@ enum class Selector{
     ENVIADES
 }
 
-enum class BottomNavItem(){
-    Relacions,
-    Bloqueigs
+enum class BottomNavItem(val label: String){
+    Relacions("Relacions"),
+    Bloqueigs("Bloqueigs")
+}
+
+@Composable
+fun FotoUsuari(url: String) {
+    AsyncImage(
+        model = url,
+        contentDescription = "user picture",
+        modifier = Modifier
+            .size(40.dp)
+            .clip(CircleShape),
+        placeholder = painterResource(R.drawable.ic_user), // opcional
+        error = painterResource(R.drawable.ic_user)         // opcional
+    )
 }
 
 
@@ -72,23 +86,13 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, onNavigateToBlocks: (
     val scrollState = rememberLazyListState()
     var searchText by remember { mutableStateOf("") }
     var selected_nav by remember { mutableStateOf(BottomNavItem.Relacions) }
-    val languageViewModel: LanguageViewModel = viewModel()
-    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
-    val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        viewModel.getXatsAmics();
-        viewModel.iniciarWebSocket();
-    }
+    LaunchedEffect(Unit) { viewModel.getXatsAmics()}
     LaunchedEffect(Unit) { viewModel.get_usuaris() }
-
     val amistatList = viewModel.llista_amics
     val usuarisList = viewModel.all_users
     val all_rebudes = viewModel.all_rebudes
     val all_enviades = viewModel.all_enviades
-    val labelRelacions = getString(context, R.string.Relacions, selectedLanguage)
-    val labelBloqueigs = getString(context, R.string.bloqueo, selectedLanguage)
-
     Column(
         modifier = Modifier.fillMaxSize().padding(top = 90.dp, start = 10.dp, end = 24.dp),
     ) {
@@ -103,7 +107,7 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, onNavigateToBlocks: (
         )
         {
             Text(
-                text = (getString(context, R.string.amigos, selectedLanguage)),
+                text = "Amistats",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (currentMode == Selector.AMISTATS) MaterialTheme.colorScheme.primary else Color.Gray,
@@ -112,7 +116,7 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, onNavigateToBlocks: (
             )
 
             Text(
-                text = (getString(context, R.string.usuarios, selectedLanguage)),
+                text = "Usuaris",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (currentMode == Selector.USUARIS) MaterialTheme.colorScheme.primary else Color.Gray,
@@ -120,7 +124,7 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, onNavigateToBlocks: (
                     .padding(10.dp)
             )
             Text(
-                text = (getString(context, R.string.pend, selectedLanguage)),
+                text = "Pendents",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (currentMode == Selector.REBUDES) MaterialTheme.colorScheme.primary else Color.Gray,
@@ -128,7 +132,7 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, onNavigateToBlocks: (
                     .padding(10.dp)
             )
             Text(
-                text = (getString(context, R.string.enviado, selectedLanguage)),
+                text = "Enviades",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (currentMode == Selector.ENVIADES) MaterialTheme.colorScheme.primary else Color.Gray,
@@ -140,7 +144,7 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, onNavigateToBlocks: (
         TextField(
             value = searchText,
             onValueChange = { searchText = it },
-            placeholder = { Text(text = (getString(context, R.string.buscusu, selectedLanguage))) },
+            placeholder = { Text("Cerca usuaris...") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
@@ -153,19 +157,19 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, onNavigateToBlocks: (
         ) {
             if(currentMode == Selector.AMISTATS){
                 items(amistatList.filter { it.nom.contains(searchText, ignoreCase = true) }) {item ->
-                    AmistatListItem(name = item.nom, onClick = {onAmistatClick(item.id)}, onDelete ={viewModel.delete_amistad(item.idAmistat)})
+                    AmistatListItem(name = item.nom, imatge=item.imatge ,onClick = {onAmistatClick(item.id)}, onDelete ={viewModel.delete_amistad(item.idAmistat)})
                 }
             } else if (currentMode == Selector.USUARIS) {
                 items(usuarisList.filter {  it.nom?.contains(searchText, ignoreCase = true) ?: false}){
-                    user -> UsuariListItem(name = user.nom, onSeguirClick = {viewModel.seguir_usuari(accepta = user.correu)})
+                    user -> UsuariListItem(name = user.nom,imatge=user.imatge ,onSeguirClick = {viewModel.seguir_usuari(accepta = user.correu)})
                 }
             } else if (currentMode == Selector.ENVIADES){
                 items(all_enviades){
-                        user -> EnviadesListItem(name = user.nom, onCancelar = {viewModel.cancelar_solicitud_enviada(user.idAmistat)})
+                        user -> EnviadesListItem(name = user.nom, imatge= user.imatge,onCancelar = {viewModel.cancelar_solicitud_enviada(user.idAmistat)})
                 }
             } else {
                 items(all_rebudes){
-                        user -> RebudesListItem(name = user.nom, onCancelar = {viewModel.cancelar_solicitud_rebuda(user.idAmistat)}, onAcceptar = {viewModel.aceptar_solicitud_rebuda(user.idAmistat)})
+                        user -> RebudesListItem(name = user.nom, imatge=user.imatge ,onCancelar = {viewModel.cancelar_solicitud_rebuda(user.idAmistat)}, onAcceptar = {viewModel.aceptar_solicitud_rebuda(user.idAmistat)})
                 }
             }
         }
@@ -174,13 +178,13 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, onNavigateToBlocks: (
         NavigationBar {
             NavigationBarItem(
                 icon = { Icon(Icons.Default.Share, contentDescription = null) },
-                label = { Text(labelRelacions) },
+                label = { Text(BottomNavItem.Relacions.label) },
                 selected = selected_nav == BottomNavItem.Relacions,
                 onClick = { selected_nav = BottomNavItem.Relacions }
             )
             NavigationBarItem(
                 icon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                label = { Text(labelBloqueigs) },
+                label = { Text(BottomNavItem.Bloqueigs.label) },
                 selected = selected_nav == BottomNavItem.Bloqueigs,
                 onClick = { onNavigateToBlocks() }
             )
@@ -189,7 +193,7 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, onNavigateToBlocks: (
 }
 
 @Composable
-fun AmistatListItem(name: String, onClick: () -> Unit, onDelete: () -> Unit) {
+fun AmistatListItem(name: String, imatge:String?, onClick: () -> Unit, onDelete: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -201,32 +205,36 @@ fun AmistatListItem(name: String, onClick: () -> Unit, onDelete: () -> Unit) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = "User Icon",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .size(40.dp)
-                    .padding(end = 16.dp)
-            )
+            if (imatge != null) {
+                FotoUsuari(url = imatge)
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "User Icon",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(40.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
 
             Text(
                 text = name,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium
             )
-            Row {
-                IconButton(onClick = onDelete,
-                    modifier = Modifier.padding(start = 180.dp)) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Eliminar Amistad",
-                        tint = Color.Red
-                    )
-                }
+
+            Spacer(modifier = Modifier.weight(1f)) // 👈 Esto empuja el botón a la derecha
+
+            IconButton(onClick = onDelete) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Eliminar Amistad",
+                    tint = Color.Red
+                )
             }
         }
     }
@@ -235,6 +243,7 @@ fun AmistatListItem(name: String, onClick: () -> Unit, onDelete: () -> Unit) {
 @Composable
 fun UsuariListItem(
     name: String?,
+    imatge:String?,
     onSeguirClick: () -> Unit
 ) {
     Card(
@@ -251,6 +260,19 @@ fun UsuariListItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+
+            if (imatge != null) {
+                FotoUsuari(url = imatge)
+            } else{
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "User Icon",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(end = 16.dp)
+                )
+            }
             Text(
                 text = name ?: "",
                 style = MaterialTheme.typography.bodyLarge,
@@ -274,6 +296,7 @@ fun UsuariListItem(
 @Composable
 fun RebudesListItem(
     name: String?,
+    imatge:String?,
     onCancelar: () -> Unit,
     onAcceptar: () -> Unit
 ) {
@@ -291,6 +314,19 @@ fun RebudesListItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+
+            if (imatge != null) {
+                FotoUsuari(url = imatge)
+            } else{
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "User Icon",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(end = 16.dp)
+                )
+            }
             Text(
                 text = name ?: "",
                 style = MaterialTheme.typography.bodyLarge,
@@ -321,6 +357,7 @@ fun RebudesListItem(
 @Composable
 fun EnviadesListItem(
     name: String?,
+    imatge:String?,
     onCancelar: () -> Unit
 ) {
     Card(
@@ -337,6 +374,19 @@ fun EnviadesListItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+
+            if (imatge != null) {
+                FotoUsuari(url = imatge)
+            } else{
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "User Icon",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(end = 16.dp)
+                )
+            }
             Text(
                 text = name ?: "",
                 style = MaterialTheme.typography.bodyLarge,

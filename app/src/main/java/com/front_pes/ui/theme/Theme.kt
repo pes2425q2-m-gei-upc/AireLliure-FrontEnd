@@ -21,7 +21,7 @@ val LightSelectedGray = Color(0xFFB0B0B0)
 val DarkSelectedGray = Color(0xFF5D5D5D)
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF6DFFCD),
+    primary = Color(0xBA22A908),
     secondary = Color.Black,
     tertiary = Color.Black,
     surface = Color(0xFF0C0C0C),
@@ -31,7 +31,7 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF6DFFCD),
+    primary = Color(0xBA22A908),
     secondary = Color.Black,
     tertiary = Color.Black,
     surface = Color.White,

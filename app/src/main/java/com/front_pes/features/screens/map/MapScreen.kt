@@ -2,6 +2,7 @@ package com.front_pes.features.screens.map
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.location.Location
 import android.os.Looper
 import android.util.Log
@@ -24,6 +25,11 @@ import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.getString
 import com.front_pes.utils.SelectorIndex
 import com.front_pes.utils.SelectorIndex.selectedFiltre
+import androidx.core.graphics.drawable.toBitmap
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.compose.ui.platform.LocalContext
+import com.google.android.gms.maps.model.TileOverlayOptions
+import androidx.core.graphics.scale
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -54,11 +60,11 @@ val idToContaminantName = mapOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit, title: String, reloadTrigger: Boolean = false) {
+fun MapScreen(viewModel: MapViewModel = viewModel(), title: String, reloadTrigger: Boolean = false) {
 
     val selectedIndex by remember { derivedStateOf { SelectorIndex.selectedIndex } }
 
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val context = LocalContext.current
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
     var userLocation by remember { mutableStateOf<LatLng?>(null) }
@@ -276,7 +282,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
 
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = (getString(context, R.string.contmed, selectedLanguage)),
+                            text = "Contaminantes medidos:",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -286,7 +292,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                         val presencias = viewModel.valuesMap[it.id] ?: emptyMap()
                         if (presencias.isEmpty()) {
                             Text(
-                                text = (getString(context, R.string.nodatos, selectedLanguage)),
+                                text = "No hay datos disponibles.",
                                 style = MaterialTheme.typography.bodySmall
                             )
                         } else {
@@ -408,11 +414,15 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                         )
                     }
                 } else if (selectedFiltre == 1) {
+                    val drawable = AppCompatResources.getDrawable(context, R.drawable.img_6)
+                    val original = drawable?.toBitmap()
+                    val scaled = original?.scale(84, 84)
+                    val iconSized = scaled?.let { BitmapDescriptorFactory.fromBitmap(it) }
                     rutesAmbPunt.forEach { (ruta, punt) ->
                         Marker(
                             state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
                             title = ruta.nom,
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE),
+                            icon = iconSized,
                             onClick = {
                                 selectedRuta = RutaAmbPunt(ruta, punt)
                                 isBottomSheetVisible = true
@@ -433,11 +443,15 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                             }
                         )
                     }
+                    val drawable = AppCompatResources.getDrawable(context, R.drawable.img_6)
+                    val original = drawable?.toBitmap()
+                    val scaled = original?.scale(84, 84)
+                    val iconSized = scaled?.let { BitmapDescriptorFactory.fromBitmap(it) }
                     rutesAmbPunt.forEach { (ruta, punt) ->
                         Marker(
                             state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
                             title = ruta.nom,
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE),
+                            icon = iconSized,
                             onClick = {
                                 selectedRuta = RutaAmbPunt(ruta, punt)
                                 isBottomSheetVisible = true
@@ -452,7 +466,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                         Log.d("Testing", "averageMap desde fuera: ${viewModel.averageMap}")
                         val tileProvider = CustomHeatmapTileProvider(stations = estacions, averages = viewModel.averageMap)
                         googleMap.addTileOverlay(
-                            com.google.android.gms.maps.model.TileOverlayOptions()
+                            TileOverlayOptions()
                                 .tileProvider(tileProvider)
                                 .zIndex(1f)
                         )

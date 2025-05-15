@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,6 +44,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
+import com.front_pes.CurrentUser
 import com.front_pes.R
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.features.screens.user.EditProfileDialog
@@ -54,6 +55,22 @@ import java.util.Locale
 
 
 const val DetallAmistatScreen = "DetallAmistatListScreen"
+
+@Composable
+fun FotoUsuari(url: String?) {
+    AsyncImage(
+        model = url ?: "", // por si es null
+        contentDescription = "user picture",
+        modifier = Modifier
+            .size(100.dp)
+            .padding(bottom = 8.dp)
+            .clip(CircleShape),
+        placeholder = painterResource(R.drawable.ic_user), // imagen por defecto mientras carga
+        error = painterResource(R.drawable.ic_user)         // imagen por defecto si falla
+    )
+}
+
+
 @Composable
 fun DetallAmistatScreen(userId: String, onBack: () -> Unit, viewModel: DetallAmistatViewModel = viewModel()) {
 
@@ -74,14 +91,18 @@ fun DetallAmistatScreen(userId: String, onBack: () -> Unit, viewModel: DetallAmi
             verticalArrangement = Arrangement.Top
         ) {
 
-            Image(
-                painter = painterResource(id = R.drawable.ic_user), //para que ésto os funcione, poned el nombre de una foto que metáis en res/drawable, una vez conectemos back y front convertiré éste composable para que use API para obtener los valores
-                contentDescription = "user picture",
-                modifier = Modifier
-                    .size(175.dp)
-                    .clip(CircleShape)
-            )
-
+            if(user?.imatge != null){
+                com.front_pes.features.screens.FotoUsuari(url = user.imatge)
+            }
+            else {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_user), //para que ésto os funcione, poned el nombre de una foto que metáis en res/drawable, una vez conectemos back y front convertiré éste composable para que use API para obtener los valores
+                    contentDescription = "user picture",
+                    modifier = Modifier
+                        .size(175.dp)
+                        .clip(CircleShape)
+                )
+            }
             Text(text = user?.nom ?: "", fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
             Text(text = user?.correu ?: "", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
 
@@ -119,7 +140,7 @@ fun DetallAmistatScreen(userId: String, onBack: () -> Unit, viewModel: DetallAmi
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text(
-                    text = (getString(context, R.string.goback, selectedLanguage)),
+                    text = "Tornar enrere",
                     color = Color.White,
                     fontSize = 14.sp
                 )
@@ -135,7 +156,7 @@ fun DetallAmistatScreen(userId: String, onBack: () -> Unit, viewModel: DetallAmi
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
             ) {
                 Text(
-                    text = (getString(context, R.string.bloquear, selectedLanguage)),
+                    text = "Block",
                     color = Color.Black,
                     fontSize = 14.sp
                 )

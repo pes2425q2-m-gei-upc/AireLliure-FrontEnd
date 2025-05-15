@@ -15,13 +15,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.CurrentUser
-import com.front_pes.R
-import com.front_pes.features.screens.settings.LanguageViewModel
-import com.front_pes.getString
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -35,10 +31,6 @@ fun ChatScreen(chatId: Int, userName: String, onBack: () -> Unit, viewModel: Cha
     val autor = CurrentUser.correu
     val listState = rememberLazyListState()
 
-    val languageViewModel: LanguageViewModel = viewModel()
-    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
-    val context = LocalContext.current
-
     var showEditDialog by remember { mutableStateOf(false) }
     var mensajeSeleccionado by remember { mutableStateOf<ChatDetailViewModel.Missatge?>(null) }
     var nuevoTexto by remember { mutableStateOf("") }
@@ -48,7 +40,7 @@ fun ChatScreen(chatId: Int, userName: String, onBack: () -> Unit, viewModel: Cha
     LaunchedEffect(chatId) {
         viewModel.carregarMissatges(chatId)
         viewModel.detectarSiEsGrup(chatId)
-        viewModel.iniciarWebSocket(chatId)
+
     }
 
     LaunchedEffect(missatges.size) {
@@ -154,14 +146,14 @@ fun ChatScreen(chatId: Int, userName: String, onBack: () -> Unit, viewModel: Cha
                             onDismissRequest = { showMenuForMessageId = null }
                         ) {
                             DropdownMenuItem(
-                                text = { Text(text = (getString(context, R.string.edit, selectedLanguage))) },
+                                text = { Text("Editar") },
                                 onClick = {
                                     showEditDialog = true
                                     showMenuForMessageId = null
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text(text = (getString(context, R.string.elim, selectedLanguage))) },
+                                text = { Text("Eliminar") },
                                 onClick = {
                                     mensajeSeleccionado?.let { m ->
                                         viewModel.esborrarMissatge(
@@ -187,12 +179,12 @@ fun ChatScreen(chatId: Int, userName: String, onBack: () -> Unit, viewModel: Cha
         if (showEditDialog && mensajeSeleccionado != null) {
             AlertDialog(
                 onDismissRequest = { showEditDialog = false },
-                title = { Text(text = (getString(context, R.string.editM, selectedLanguage))) },
+                title = { Text("Editar missatge") },
                 text = {
                     TextField(
                         value = nuevoTexto,
                         onValueChange = { nuevoTexto = it },
-                        label = { Text(text = (getString(context, R.string.mens, selectedLanguage))) }
+                        label = { Text("Missatge") }
                     )
                 },
                 confirmButton = {
@@ -210,12 +202,12 @@ fun ChatScreen(chatId: Int, userName: String, onBack: () -> Unit, viewModel: Cha
                             }
                         )
                     }) {
-                        Text(text = (getString(context, R.string.guard, selectedLanguage)))
+                        Text("Guardar")
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showEditDialog = false }) {
-                        Text(text = (getString(context, R.string.cancel, selectedLanguage)))
+                        Text("Cancelar")
                     }
                 }
             )
@@ -230,7 +222,7 @@ fun ChatScreen(chatId: Int, userName: String, onBack: () -> Unit, viewModel: Cha
                 value = newMessage,
                 onValueChange = { newMessage = it },
                 modifier = Modifier.weight(1f),
-                placeholder = { Text(text = (getString(context, R.string.escrmssg, selectedLanguage))) }
+                placeholder = { Text("Escriu un missatge") }
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -255,7 +247,7 @@ fun ChatScreen(chatId: Int, userName: String, onBack: () -> Unit, viewModel: Cha
                     )
                 }
             }) {
-                Text(text = (getString(context, R.string.env, selectedLanguage)))
+                Text("Enviar")
             }
         }
     }

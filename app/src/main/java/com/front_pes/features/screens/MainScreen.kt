@@ -104,10 +104,12 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.Image
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.NavigationBarItemDefaults
 
 
@@ -117,14 +119,33 @@ import java.util.Locale
 
 import com.front_pes.utils.SelectorIndex
 import com.front_pes.SelectedContaminants
-
-import com.front_pes.features.screens.map.RutasDetailScreen
+import com.front_pes.features.screens.ActivitatsEvents.EventScreen
+import com.front_pes.features.screens.ActivitatsEvents.eventScreen
 import com.front_pes.features.screens.map.EstacioQualitatAireResponse
 import com.front_pes.features.screens.map.MapViewModel
 import com.front_pes.features.screens.map.RutaAmbPunt
 import com.front_pes.ui.theme.LocalCustomColors
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import coil.compose.AsyncImage
+
 
 const val MainScreenDestination = "Main"
+
+@Composable
+fun FotoUsuari(url: String?) {
+    AsyncImage(
+        model = url ?: "", // por si es null
+        contentDescription = "user picture",
+        modifier = Modifier
+            .size(100.dp)
+            .padding(bottom = 8.dp)
+            .clip(CircleShape),
+        placeholder = painterResource(R.drawable.ic_user), // imagen por defecto mientras carga
+        error = painterResource(R.drawable.ic_user)         // imagen por defecto si falla
+    )
+}
 
 @Composable
 fun ContentScreen(
@@ -136,10 +157,7 @@ fun ContentScreen(
     onNavigateToCreateGroup: () -> Unit,
     onNavigateToChat: (Int, String) -> Unit,
     onNavigateToGroupDetail: (Int) -> Unit,
-    onChangeIndex: (Int) -> Unit,
-    selectedRutaInt: Int?,
-    onRutaSelected: (Int) -> Unit,
-    onRutaBack: () -> Unit
+    onChangeIndex: (Int) -> Unit
 )
 
  {
@@ -153,25 +171,7 @@ fun ContentScreen(
     }
     when (selectedIndex) {
         0 -> UserPageScreen(title = getString(context, R.string.username, currentLocale), onNavigateToLogin = onNavigateToLogin)
-        1 -> {
-            if(selectedRutaInt == null) {
-                MapScreen(
-                    title = getString(context, R.string.map, currentLocale),
-                    reloadTrigger = reloadMap,
-                            onRutaClick = { rutaID ->
-                                onRutaSelected(rutaID)
-                    },
-                )
-            }
-            else {
-                selectedRutaInt?.let { rutaId ->
-                    RutasDetailScreen(
-                        onBack = { onRutaBack() },
-                        ruta_id = rutaId
-                    )
-                }
-                }
-        }
+        1 -> MapScreen(title = getString(context, R.string.map, currentLocale), reloadTrigger = reloadMap)
         2 -> SettingsScreen(onNavigateToLogin = onNavigateToLogin)
         3 -> ChatListScreen(
             onChatClick = { chatId, userName ->
@@ -201,6 +201,7 @@ fun ContentScreen(
         6-> BloqueigScreen(
             onNavigateToRelations={onChangeIndex(4)})
         7-> HabilitacionsScreen()
+        8 -> EventScreen()
     }
 }
 
@@ -216,13 +217,13 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
         2 to (getString(context, R.string.settings, selectedLanguage) to Icons.Default.Settings),
         3 to (getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email),
         4 to (getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face),
-        5 to (getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info)
+        5 to (getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info),
+        8 to (getString(context, R.string.event_identif, selectedLanguage) to Icons.Default.ThumbUp)
     )
 
     val adminDrawerItems = if (CurrentUser.administrador) {
         listOf(7 to (getString(context, R.string.admin, selectedLanguage) to Icons.Default.Warning))
     } else {
-
         emptyList()
     }
 
@@ -238,14 +239,16 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
 
     ) {
         Spacer(modifier = Modifier.height(25.dp))
-        Icon(
-            painter = painterResource(id = R.drawable.ic_user), // Usa una imagen aquí
-            contentDescription = "User Image",
-            modifier = Modifier
-                .size(100.dp) // Tamaño más grande
-                .padding(bottom = 8.dp),
-            tint = Color.Unspecified
-        )
+        if(CurrentUser.imatge != null)FotoUsuari(url = CurrentUser.imatge)
+        else{
+            Image(
+                painter = painterResource(id = R.drawable.ic_user), //para que ésto os funcione, poned el nombre de una foto que metáis en res/drawable, una vez conectemos back y front convertiré éste composable para que use API para obtener los valores
+                contentDescription = "user picture",
+                modifier = Modifier
+                    .size(175.dp)
+                    .clip(CircleShape)
+            )
+        }
         Text(CurrentUser.nom, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
         Text(CurrentUser.correu, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
 
@@ -285,9 +288,7 @@ fun DrawerItem(text: String, icon: ImageVector, selected: Boolean, onClick: () -
 @Composable
 fun SearchBar(modifier: Modifier = Modifier) {
     var textSearch by remember { mutableStateOf("") }
-    val context = LocalContext.current
-    val languageViewModel: LanguageViewModel = viewModel()
-    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -309,7 +310,7 @@ fun SearchBar(modifier: Modifier = Modifier) {
         TextField(
             value = textSearch,
             onValueChange = { textSearch = it },
-            placeholder = { Text(text = (getString(context, R.string.buscar, selectedLanguage)), color = Color.Gray) },
+            placeholder = { Text("Buscar", color = Color.Gray) },
             singleLine = true,
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
@@ -358,12 +359,11 @@ fun MainScreen(
 
     var reloadMap by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableIntStateOf(selectedIndex) }
-    var selectedRutaInt by remember { mutableStateOf<Int?>(null) }
     var mapFilterIndex by remember { mutableIntStateOf(0) } // 0: Calidad aire, 1: Rutas
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val hideBars = selectedIndex == 0 || selectedIndex == 2 || selectedRutaInt != null
+    val hideBars = selectedIndex == 0 || selectedIndex == 2
 
     // Load estacions and rutas
     LaunchedEffect(Unit) {
@@ -413,31 +413,26 @@ fun MainScreen(
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                if (selectedRutaInt == null) {
-                    Box(
-                        modifier = Modifier
-                            .padding(start = 16.dp, top = 32.dp)
-                            .background(
-                                MaterialTheme.colorScheme.surface,
-                                shape = RoundedCornerShape(16.dp)
-                            )
-                            .padding(8.dp)
-                            .size(40.dp)
-                    ) {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(
-                                imageVector = Icons.Filled.Menu,
-                                contentDescription = "User Profile",
-                                modifier = Modifier.size(26.dp),
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
+                Box(
+                    modifier = Modifier
+                        .padding(start = 16.dp, top = 32.dp)
+                        .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp))
+                        .padding(8.dp)
+                        .size(40.dp)
+                ) {
+                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                        Icon(
+                            imageVector = Icons.Filled.Menu,
+                            contentDescription = "User Profile",
+                            modifier = Modifier.size(26.dp),
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 }
             },
 
             floatingActionButton = {
-                if (selectedIndex == 1 && selectedRutaInt == null) {
+                if (selectedIndex == 1) {
                     var expanded by remember { mutableStateOf(false) }
                     var showFilterDialog by remember { mutableStateOf(false) }
                     var showPopup by remember { mutableStateOf(false) }
@@ -591,7 +586,7 @@ fun MainScreen(
                                 text = {
                                     Column(modifier = Modifier.padding(8.dp)) {
 
-                                        val tabTitles = listOf((getString(context, R.string.routes, selectedLanguage)),(getString(context, R.string.estaciones, selectedLanguage)))
+                                        val tabTitles = listOf("Rutas", "Estaciones")
 
                                         TabRow(
                                             selectedTabIndex = selectedTabIndex,
@@ -764,10 +759,7 @@ fun MainScreen(
                 onNavigateToChat = onNavigateToChat,
                 onNavigateToGroupDetail = onNavigateToGroupDetail,
                 reloadMap = reloadMap,
-                onChangeIndex = { selectedIndex = it },
-                selectedRutaInt = selectedRutaInt,
-                onRutaSelected = { selectedRutaInt = it },
-                onRutaBack = { selectedRutaInt = null }
+                onChangeIndex = { selectedIndex = it }
             )
         }
     }
@@ -785,13 +777,10 @@ fun FilterDialog(onDismiss: () -> Unit) {
             contaminantes.map { it in SelectedContaminants.selected }
         )
     }
-    val languageViewModel: LanguageViewModel = viewModel()
-    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
-    val context = LocalContext.current
 
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text =(getString(context, R.string.f_p_cont, selectedLanguage)), fontWeight = FontWeight.Bold) },
+        title = { Text("Filtrar por contaminantes", fontWeight = FontWeight.Bold) },
         text = {
             Column (
                 verticalArrangement = Arrangement.spacedBy((-5).dp)
@@ -838,7 +827,7 @@ fun FilterDialog(onDismiss: () -> Unit) {
                     ),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text(text = (getString(context, R.string.qfilt, selectedLanguage)))
+                    Text("Quitar filtros")
                 }
 
                 // Botón "Cerrar" a la derecha
@@ -850,7 +839,7 @@ fun FilterDialog(onDismiss: () -> Unit) {
                     ),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text(text = (getString(context, R.string.cerrar, selectedLanguage)))
+                    Text("Cerrar")
                 }
             }
         }

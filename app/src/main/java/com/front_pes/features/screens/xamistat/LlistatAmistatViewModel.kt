@@ -1,24 +1,26 @@
 package com.front_pes.features.screens.xamistat
 
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.currentComposer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import com.front_pes.CurrentUser
+import com.front_pes.features.screens.login.LoginRequest
+import com.front_pes.features.screens.login.LoginResponse
+import com.front_pes.features.screens.xamistat.LlistaAmistatResponse
 import com.front_pes.network.RetrofitClient
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.WebSocket
-import okhttp3.WebSocketListener
-import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class LlistatAmistatViewModel: ViewModel() {
 
-    data class AmistatLine(val idAmistat: Int, val id: String, val nom: String, val correu: String)
-    data class UsuariLine(val id: String?=null, val nom: String?=null, val correu: String)
+    data class AmistatLine(val idAmistat: Int, val id: String, val nom: String, val correu: String, val imatge:String?=null)
+    data class UsuariLine(val id: String?=null, val nom: String?=null, val correu: String, val imatge: String?=null)
     /* VAR DEL LLISTAT DE AMICS */
     var llista_amics by mutableStateOf <List<AmistatLine>>(emptyList())
     /* VAR DE TOTS ELS USUARIS PER AL SELECTOR   */
@@ -45,7 +47,8 @@ class LlistatAmistatViewModel: ViewModel() {
                     idAmistat = item.idAmistat,
                     id = item.correu,
                     nom = item.nom,
-                    correu = item.correu
+                    correu = item.correu,
+                    imatge = item.imatge
                 )
             }
         } catch (e: Exception) {
@@ -62,7 +65,8 @@ class LlistatAmistatViewModel: ViewModel() {
                 UsuariLine(
                     id = item.correu,
                     nom = item.nom,
-                    correu = item.correu
+                    correu = item.correu,
+                    imatge = item.imatge
                 )
             }
         } catch (e: Exception) {
@@ -80,7 +84,8 @@ class LlistatAmistatViewModel: ViewModel() {
                     idAmistat = item.id,
                     id = item.solicita,
                     nom = item.nom,
-                    correu = item.solicita
+                    correu = item.solicita,
+                    imatge = item.imatge
                 )
             }
         } catch (e: Exception) {
@@ -98,7 +103,9 @@ class LlistatAmistatViewModel: ViewModel() {
                     idAmistat = item.id,
                     id = item.solicita,
                     nom = item.nom,
-                    correu = item.accepta ?: ""
+                    correu = item.accepta ?: "",
+                    imatge = item.imatge
+
                 )
             }
         } catch (e: Exception) {

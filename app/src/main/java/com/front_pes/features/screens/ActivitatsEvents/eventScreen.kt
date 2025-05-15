@@ -1,6 +1,7 @@
 package com.front_pes.features.screens.ActivitatsEvents
 
 import android.app.DatePickerDialog
+import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -34,8 +35,16 @@ import com.front_pes.CurrentUser
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
+import android.content.Intent
+import android.provider.CalendarContract
+import java.util.Locale
+
+
+
 
 const val eventScreen = "eventScreen"
+
+
 
 enum class Selector {
     ALL,
@@ -72,6 +81,10 @@ fun EventScreen(viewModel: eventViewModel = viewModel()) {
     var searchText by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
     var selectedEvent by remember { mutableStateOf<ActivityResponse?>(null) }
+
+    var showAddToCalendarDialog by remember { mutableStateOf(false) }
+    var showRemoveFromCalendarDialog by remember { mutableStateOf(false) }
+
 
     val context = LocalContext.current
 
@@ -165,20 +178,86 @@ fun EventScreen(viewModel: eventViewModel = viewModel()) {
                 onDismiss = { selectedEvent = null },
                 onApuntar = {
                     viewModel.apuntarse_activitat(event.id) {
-                        selectedEvent = null
+                        //selectedEvent = null
+                        showAddToCalendarDialog = true
                     }
                 },
+
                 onAbandonar = {
                     viewModel.abandonar(event.id) {
-                        selectedEvent = null
+                        //selectedEvent = null
+                        showRemoveFromCalendarDialog = true
                     }
                 },
+
                 onUpdate = { nom, desc, inici, fi, limit ->
                     viewModel.editar_event(event.id, nom, desc, inici, fi, limit)
                 },
                 participacions = participacions
             )
         }
+        if (showAddToCalendarDialog && selectedEvent != null) {
+            AlertDialog(
+                onDismissRequest = { showAddToCalendarDialog = false },
+                title = { Text("Afegir al calendari") },
+                text = { Text("Vols afegir aquesta activitat al teu calendari?") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showAddToCalendarDialog = false
+                        val intent = Intent(Intent.ACTION_INSERT).apply {
+                            data = CalendarContract.Events.CONTENT_URI
+                            putExtra(CalendarContract.Events.TITLE, selectedEvent!!.nom)
+                            putExtra(CalendarContract.Events.DESCRIPTION, selectedEvent!!.descripcio)
+
+                            val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
+                            val startMillis = inputFormat.parse(selectedEvent!!.data_inici)?.time ?: System.currentTimeMillis()
+                            val endMillis = inputFormat.parse(selectedEvent!!.data_fi)?.time ?: (startMillis + 2 * 60 * 60 * 1000)
+
+                            putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, startMillis)
+                            putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endMillis)
+                        }
+                        context.startActivity(intent)
+                        selectedEvent = null
+                    }) {
+                        Text("Sí")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showAddToCalendarDialog = false
+                        selectedEvent = null}) {
+                        Text("No")
+                    }
+                }
+            )
+        }
+
+        if (showRemoveFromCalendarDialog && selectedEvent != null) {
+            AlertDialog(
+                onDismissRequest = { showRemoveFromCalendarDialog = false },
+                title = { Text("Obrir calendari") },
+                text = { Text("Vols obrir el calendari per eliminar l'activitat?") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showRemoveFromCalendarDialog = false
+                        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
+                        val startMillis = inputFormat.parse(selectedEvent!!.data_inici)?.time ?: System.currentTimeMillis()
+                        val intent = Intent(Intent.ACTION_VIEW).apply {
+                            data = Uri.parse("content://com.android.calendar/time/$startMillis")
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                        context.startActivity(intent)
+                    }) {
+                        Text("Sí")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showRemoveFromCalendarDialog = false }) {
+                        Text("No")
+                    }
+                }
+            )
+        }
+
 
     }
 }
@@ -342,7 +421,7 @@ fun EventDetailsDialog(
     event: ActivityResponse,
     participacions: List<ActivityResponse>,
     onDismiss: () -> Unit,
-    onApuntar: () -> Unit,
+    onApuntar: (Context) -> Unit,
     onAbandonar: () -> Unit,
     onUpdate: (String, String, String, String, Int) -> Unit
 ) {
@@ -408,8 +487,9 @@ fun EventDetailsDialog(
                             Text("Actualitzar")
                         }
                     } else {
+                        val context = LocalContext.current
                         Button(onClick = {
-                            if (isParticipant) onAbandonar() else onApuntar()
+                            if (isParticipant) onAbandonar() else onApuntar(context)
                         }) {
                             Text(if (isParticipant) "Abandonar" else "Apuntar-se")
                         }

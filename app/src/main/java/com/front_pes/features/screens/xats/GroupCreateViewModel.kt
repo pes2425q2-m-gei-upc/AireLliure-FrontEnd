@@ -72,7 +72,7 @@ class GroupCreateViewModel : ViewModel() {
         val client = OkHttpClient()
         val request = Request.Builder().url("wss://airelliure-backend.onrender.com/ws/modelos/").build() // Asegúrate de usar tu URL real
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
-            override fun onOpen(webSocket: WebSocket, response: okhttp3.Response?) {
+            override fun onOpen(webSocket: WebSocket, response: okhttp3.Response) {
                 Log.d("WebSocket", "Conexión abierta")
             }
 

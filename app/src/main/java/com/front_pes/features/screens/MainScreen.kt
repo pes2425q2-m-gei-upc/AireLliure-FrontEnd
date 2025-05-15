@@ -10,6 +10,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import coil.compose.AsyncImage
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +31,10 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MailOutline
+import androidx.compose.material.icons.filled.ThumbUp
+
+import com.front_pes.features.screens.ActivitatsEvents.EventScreen
+import com.front_pes.features.screens.ActivitatsEvents.eventScreen
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -127,6 +136,20 @@ import com.front_pes.ui.theme.LocalCustomColors
 const val MainScreenDestination = "Main"
 
 @Composable
+fun FotoUsuari(url: String?) {
+    AsyncImage(
+        model = url ?: "", // por si es null
+        contentDescription = "user picture",
+        modifier = Modifier
+            .size(100.dp)
+            .padding(bottom = 8.dp)
+            .clip(CircleShape),
+        placeholder = painterResource(R.drawable.ic_user), // imagen por defecto mientras carga
+        error = painterResource(R.drawable.ic_user)         // imagen por defecto si falla
+    )
+}
+
+@Composable
 fun ContentScreen(
     modifier: Modifier,
     selectedIndex: Int = 1,
@@ -201,6 +224,7 @@ fun ContentScreen(
         6-> BloqueigScreen(
             onNavigateToRelations={onChangeIndex(4)})
         7-> HabilitacionsScreen()
+        8 -> EventScreen()
     }
 }
 
@@ -216,7 +240,8 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
         2 to (getString(context, R.string.settings, selectedLanguage) to Icons.Default.Settings),
         3 to (getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email),
         4 to (getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face),
-        5 to (getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info)
+        5 to (getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info),
+        8 to (getString(context, R.string.event_identif, selectedLanguage) to Icons.Default.ThumbUp)
     )
 
     val adminDrawerItems = if (CurrentUser.administrador) {
@@ -238,14 +263,16 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
 
     ) {
         Spacer(modifier = Modifier.height(25.dp))
-        Icon(
-            painter = painterResource(id = R.drawable.ic_user), // Usa una imagen aquí
-            contentDescription = "User Image",
-            modifier = Modifier
-                .size(100.dp) // Tamaño más grande
-                .padding(bottom = 8.dp),
-            tint = Color.Unspecified
-        )
+        if(CurrentUser.imatge != null)FotoUsuari(url = CurrentUser.imatge)
+        else{
+            Image(
+                painter = painterResource(id = R.drawable.ic_user), //para que ésto os funcione, poned el nombre de una foto que metáis en res/drawable, una vez conectemos back y front convertiré éste composable para que use API para obtener los valores
+                contentDescription = "user picture",
+                modifier = Modifier
+                    .size(175.dp)
+                    .clip(CircleShape)
+            )
+        }
         Text(CurrentUser.nom, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
         Text(CurrentUser.correu, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
 

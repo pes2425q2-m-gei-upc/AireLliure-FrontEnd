@@ -8,6 +8,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,6 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.graphics.scale
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.R
 import com.front_pes.features.screens.settings.LanguageViewModel
@@ -408,11 +411,15 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                         )
                     }
                 } else if (selectedFiltre == 1) {
+                    val drawable = AppCompatResources.getDrawable(context, R.drawable.img_6)
+                    val original = drawable?.toBitmap()
+                    val scaled = original?.scale(84, 84)
+                    val iconSized = scaled?.let { BitmapDescriptorFactory.fromBitmap(it) }
                     rutesAmbPunt.forEach { (ruta, punt) ->
                         Marker(
                             state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
                             title = ruta.nom,
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE),
+                            icon = iconSized,
                             onClick = {
                                 selectedRuta = RutaAmbPunt(ruta, punt)
                                 isBottomSheetVisible = true
@@ -433,11 +440,15 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                             }
                         )
                     }
+                    val drawable = AppCompatResources.getDrawable(context, R.drawable.img_6)
+                    val original = drawable?.toBitmap()
+                    val scaled = original?.scale(84, 84)
+                    val iconSized = scaled?.let { BitmapDescriptorFactory.fromBitmap(it) }
                     rutesAmbPunt.forEach { (ruta, punt) ->
                         Marker(
                             state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
                             title = ruta.nom,
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE),
+                            icon = iconSized,
                             onClick = {
                                 selectedRuta = RutaAmbPunt(ruta, punt)
                                 isBottomSheetVisible = true

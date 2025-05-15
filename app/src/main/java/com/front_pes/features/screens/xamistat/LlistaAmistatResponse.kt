@@ -5,5 +5,6 @@ data class LlistaAmistatResponse(
     val correu: String,
     val nom: String,
     val about: String,
-    val punts: Int
+    val punts: Int,
+    val imatge: String?=null
 )

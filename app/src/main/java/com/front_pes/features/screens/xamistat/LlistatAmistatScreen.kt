@@ -49,6 +49,7 @@ import com.front_pes.R
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.features.screens.xats.XatViewModel
 import com.front_pes.getString
+import okhttp3.WebSocket
 
 const val LlistatAmistatScreen = "AmistatListScreen"
 enum class Selector{
@@ -75,14 +76,19 @@ fun LlistatAmistatScreen(onAmistatClick: (String) -> Unit, onNavigateToBlocks: (
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) { viewModel.getXatsAmics()}
+    LaunchedEffect(Unit) {
+        viewModel.getXatsAmics();
+        viewModel.iniciarWebSocket();
+    }
     LaunchedEffect(Unit) { viewModel.get_usuaris() }
+
     val amistatList = viewModel.llista_amics
     val usuarisList = viewModel.all_users
     val all_rebudes = viewModel.all_rebudes
     val all_enviades = viewModel.all_enviades
     val labelRelacions = getString(context, R.string.Relacions, selectedLanguage)
     val labelBloqueigs = getString(context, R.string.bloqueo, selectedLanguage)
+
     Column(
         modifier = Modifier.fillMaxSize().padding(top = 90.dp, start = 10.dp, end = 24.dp),
     ) {

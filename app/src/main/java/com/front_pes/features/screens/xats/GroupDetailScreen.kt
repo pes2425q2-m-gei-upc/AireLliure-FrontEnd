@@ -35,6 +35,12 @@ fun GroupDetailScreen(
     LaunchedEffect(Unit) {
         viewModel.carregarGrup(groupId)
         viewModel.carregarAmistats()
+        viewModel.iniciarWebSocket(groupId)
+    }
+
+    LaunchedEffect(viewModel.membres) {
+        viewModel.carregarGrup(groupId)
+        viewModel.carregarAmistats()
     }
 
     Column(modifier = Modifier

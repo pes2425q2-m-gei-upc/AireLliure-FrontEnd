@@ -30,6 +30,11 @@ fun GroupCreateScreen(
 
     LaunchedEffect(Unit) {
         viewModel.carregarAmistats()
+        viewModel.iniciarWebSocket()
+    }
+
+    LaunchedEffect(viewModel.amistats) {
+        viewModel.carregarAmistats()
     }
 
     Column(modifier = Modifier

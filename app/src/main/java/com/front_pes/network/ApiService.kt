@@ -8,12 +8,18 @@ import com.front_pes.features.screens.Ranking.RankingResponse
 import com.front_pes.features.screens.administrador.HabResponse
 import com.front_pes.features.screens.login.LoginRequest
 import com.front_pes.features.screens.login.LoginResponse
+import com.front_pes.features.screens.map.AccessibilitatResponse
+import com.front_pes.features.screens.map.AssignacioAccessibilitatRequest
+import com.front_pes.features.screens.map.AssignacioDificultatRequest
+import com.front_pes.features.screens.map.DificultatResponse
 import com.front_pes.features.screens.map.EstacioQualitatAireResponse
 import com.front_pes.features.screens.map.PresenciaResponse
 import com.front_pes.features.screens.map.PuntsResponse
 import com.front_pes.features.screens.map.RutaAfegirValRequest
 import com.front_pes.features.screens.map.RutaWrapperResponse
 import com.front_pes.features.screens.map.RutasResponse
+import com.front_pes.features.screens.map.UpdateValoracioRequest
+import com.front_pes.features.screens.map.UpdateValoracioResponse
 import com.front_pes.features.screens.register.RegisterRequest
 import com.front_pes.features.screens.register.RegisterResponse
 import com.front_pes.features.screens.user.UpdateProfileRequest
@@ -215,6 +221,37 @@ interface ApiService {
     @POST("valoracions/create/")
     suspend fun afegir_valoracio(
         @Body request: RutaAfegirValRequest
+    ): Response<Unit>
+
+    @POST("assignacions-esportiva/create/")
+    suspend fun postAssignacioEsportiva(
+        @Body request: AssignacioDificultatRequest
+    ): Response<Unit>
+
+    @POST("assignacions-accesibilitat-respiratoria/create/")
+    suspend fun postAssignacioAccessibilitat(
+        @Body request: AssignacioAccessibilitatRequest
+    ): Response<Unit>
+
+    @GET("assig-esportiva/{ruta}/")
+    suspend fun getAssignacioEsportiva(
+        @Path("ruta") rutaId: Int
+    ): List<DificultatResponse>
+
+    @GET("assig-acc-resp/{ruta}/")
+    suspend fun getAssignacioAccessibilitat(
+        @Path("ruta") rutaId: Int
+    ): List<AccessibilitatResponse>
+
+    @PATCH("valoracions/{id}/update/")
+    suspend fun updateValoracio(
+        @Path("id") id: Int,
+        @Body request: UpdateValoracioRequest
+    ): Response<UpdateValoracioResponse>
+
+    @DELETE("valoracions/{id}/delete/")
+    suspend fun deleteValoracio(
+        @Path("id") id: Int
     ): Response<Unit>
 
     @GET("usuaris/{pk}/")

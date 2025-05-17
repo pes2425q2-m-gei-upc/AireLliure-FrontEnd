@@ -1,6 +1,10 @@
 package com.front_pes.features.screens.user
 
+import android.content.Context
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -51,6 +55,9 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.util.Locale
 import coil.compose.AsyncImage
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 const val UserPageScreenDestination = "UserPage"
 
@@ -68,13 +75,20 @@ fun FotoUsuari(url: String?) {
 }
 
 @Composable
-fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
+fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit, onUploadImage: (Uri) -> Unit) {
     var newName by remember { mutableStateOf(CurrentUser.nom) }
     var newAbout by remember { mutableStateOf(CurrentUser.about) }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
 
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        selectedImageUri = uri
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -83,8 +97,20 @@ fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
             Column {
                 OutlinedTextField(value = newName, onValueChange = { newName = it }, label = { Text(text = getString(context, R.string.username, selectedLanguage)) })
                 OutlinedTextField(value = newAbout, onValueChange = { newAbout = it }, label = { Text(text = getString(context, R.string.about, selectedLanguage)) })
+                Button(onClick = { imagePickerLauncher.launch("image/*") }) {
+                    Text("Seleccionar imatge")
+                }
+
+                selectedImageUri?.let {
+                    Text("Imatge seleccionada: ${it.lastPathSegment}")
+                    Spacer(Modifier.height(8.dp))
+                    Button(onClick = { onUploadImage(it) }) {
+                        Text("Pujar imatge")
+                    }
+                }
             }
         },
+
         confirmButton = {
             Button(onClick = { onSave(newName, newAbout) }) {
                 Text("Save")
@@ -129,6 +155,49 @@ fun updateUserProfile(
     })
 }
 
+fun uploadProfileImage(
+    context: Context,
+    imageUri: Uri,
+    onSuccess: (UpdateProfileResponse) -> Unit,
+    onFailure: () -> Unit
+) {
+    val contentResolver = context.contentResolver
+    val inputStream = contentResolver.openInputStream(imageUri)
+    val requestBody = inputStream?.readBytes()?.toRequestBody("image/*".toMediaTypeOrNull())
+    inputStream?.close()
+
+    if (requestBody != null) {
+        val imagePart = MultipartBody.Part.createFormData(
+            name = "imatge",
+            filename = "profile.jpg",
+            body = requestBody
+        )
+
+        RetrofitClient.apiService.updateProfileImage(CurrentUser.correu, imagePart)
+            .enqueue(object : Callback<UpdateProfileResponse> {
+                override fun onResponse(call: Call<UpdateProfileResponse>, response: Response<UpdateProfileResponse>) {
+                    if (response.isSuccessful && response.body() != null) {
+                        val updatedUser = response.body()!!
+                        CurrentUser.imatge = updatedUser.imatge
+                        onSuccess(updatedUser)
+                        Toast.makeText(context, "Image updated successfully!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "Image upload failed", Toast.LENGTH_SHORT).show()
+                        onFailure()
+                    }
+                }
+
+                override fun onFailure(call: Call<UpdateProfileResponse>, t: Throwable) {
+                    Toast.makeText(context, "Image upload error", Toast.LENGTH_SHORT).show()
+                    onFailure()
+                }
+            })
+    } else {
+        Toast.makeText(context, "Could not read image file", Toast.LENGTH_SHORT).show()
+        onFailure()
+    }
+}
+
 @Composable
 fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
 
@@ -139,6 +208,7 @@ fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
 
     var nom by remember { mutableStateOf(CurrentUser.nom) }
     var about by remember { mutableStateOf(CurrentUser.about) }
+    var image by remember { mutableStateOf(CurrentUser.imatge)}
 
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
@@ -215,13 +285,23 @@ fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
             if (showDialog) {
                 EditProfileDialog(
                     onDismiss = { showDialog = false },
-                    onSave = { newName, newAbout ->
+                    onSave = { newName, newAbout, ->
                         updateUserProfile(context, newName, newAbout) { updatedUser ->
                             nom = updatedUser.nom
                             about = updatedUser.about
                             showDialog = false
                         }
                         showDialog = false
+                    },
+                    onUploadImage = { uri ->
+                        uploadProfileImage(
+                            context = context,
+                            imageUri = uri,
+                            onSuccess = { updatedUser ->
+                                image = updatedUser.imatge
+                            },
+                            onFailure = {}
+                        )
                     }
                 )
             }

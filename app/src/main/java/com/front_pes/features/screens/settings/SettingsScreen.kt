@@ -164,7 +164,7 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF05C7F2)),
                         enabled = selectedLanguage != "es"
                     ) {
-                        Text("Español")
+                        Text("ESP")
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -178,7 +178,7 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF05C7F2)),
                         enabled = selectedLanguage != "ca"
                     ) {
-                        Text("Català")
+                        Text("CAT")
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -192,7 +192,7 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF05C7F2)),
                         enabled = selectedLanguage != "en"
                     ) {
-                        Text("English")
+                        Text("ENG")
                     }
                 }
 

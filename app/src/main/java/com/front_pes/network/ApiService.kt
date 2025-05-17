@@ -43,13 +43,16 @@ import com.front_pes.features.screens.xats.SendMessageRequest
 import com.front_pes.features.screens.xats.SendMessageResponse
 import com.front_pes.features.screens.xats.UpdateMessageRequest
 import com.front_pes.features.screens.xats.UpdateMessageResponse
+import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.QueryMap
 
@@ -61,6 +64,13 @@ interface ApiService {
     fun updateProfile(
         @Path("pk") userId: String,
         @Body request: UpdateProfileRequest
+    ): Call<UpdateProfileResponse>
+
+    @Multipart
+    @PATCH("usuaris/{pk}/update/")
+    fun updateProfileImage(
+        @Path("pk") userId: String,
+        @Part imatge: MultipartBody.Part
     ): Call<UpdateProfileResponse>
 
     @GET("estacions-qualitat-aire/")

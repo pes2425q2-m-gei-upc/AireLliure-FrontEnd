@@ -103,4 +103,7 @@
     <string name="vermas">Ver Más</string>
     <string name="clasr">Clasificar Ruta</string>
     <string name="event_identif">Evento</string>
+    <string name="calendar">Calendario</string>
+    <string name="dificultat">Dificultad deportiva</string>
+    <string name="accesresp">Accesibilidad respiratoria</string>
 </resources>

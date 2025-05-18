@@ -391,11 +391,15 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
         }
     }
         // Mapa
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(WindowInsets.statusBars.asPaddingValues())
+        ) {
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState,
-                properties = MapProperties(isMyLocationEnabled = locationPermissionGranted)
+                properties = MapProperties(isMyLocationEnabled = locationPermissionGranted),
+                contentPadding = PaddingValues(top = 8.dp)
             ) {
                 if (selectedFiltre == 0) {
                     estacions.forEach { estacio ->

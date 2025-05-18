@@ -119,6 +119,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.NavigationBarItemDefaults
 
 
@@ -455,7 +456,7 @@ fun MainScreen(
                 if (selectedRutaInt == null) {
                     Box(
                         modifier = Modifier
-                            .padding(start = 16.dp, top = 32.dp)
+                            .padding(start = 16.dp, top = 40.dp)
                             .background(
                                 MaterialTheme.colorScheme.surface,
                                 shape = RoundedCornerShape(16.dp)
@@ -832,12 +833,33 @@ fun FilterDialog(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         title = { Text(text =(getString(context, R.string.f_p_cont, selectedLanguage)), fontWeight = FontWeight.Bold) },
         text = {
-            Column (
-                verticalArrangement = Arrangement.spacedBy((-5).dp)
+            LazyColumn (
+                verticalArrangement = Arrangement.spacedBy((-5).dp),
+                modifier = Modifier
+                    .heightIn(max = 350.dp)
+
             )
             {
-                contaminantes.forEachIndexed { index, contaminante ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                itemsIndexed(contaminantes) { index, contaminante ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                val isChecked = !checkedStates.value[index]
+                                checkedStates.value = checkedStates.value.toMutableList().also {
+                                    it[index] = isChecked
+                                }
+                                if (isChecked) {
+                                    SelectedContaminants.selected.add(contaminante)
+                                    Log.d("FilterDialog", "Added: $contaminante, Selected=${SelectedContaminants.selected}")
+                                } else {
+                                    SelectedContaminants.selected.remove(contaminante)
+                                    Log.d("FilterDialog", "Removed: $contaminante, Selected=${SelectedContaminants.selected}")
+                                }
+                            }
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Checkbox(
                             checked = checkedStates.value[index],
                             onCheckedChange = { isChecked ->

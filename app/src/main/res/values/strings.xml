@@ -107,4 +107,28 @@
     <string name="dificultat">Dificultad deportiva</string>
     <string name="accesresp">Accesibilidad respiratoria</string>
     <string name="image">Imagen</string>
+    <string name="si">Sí</string>
+    <string name="no">No</string>
+    <string name="sidelete">Estás seguro de que quieres eliminar esta cuenta? Esta acción no es reversible.</string>
+    <string name="act">ACTIVIDADES</string>
+    <string name="busact">Busca actividad pública...</string>
+    <string name="creact">Actividad creada!</string>
+    <string name="afact">Quieres añadir esta actividad a tu calendario?</string>
+    <string name="abcalend">Quieres abrir el calendario para eliminar la actividad?</string>
+    <string name="newact">Nueva Actividad</string>
+    <string name="nom">Nombre</string>
+    <string name="dat_ini">Fecha Inicio</string>
+    <string name="dat_fi">Fecha Final</string>
+    <string name="lim_pers">Límite de personas</string>
+    <string name="ob_camp">Todos los campos son obligatorios</string>
+    <string name="crear">Crear</string>
+    <string name="act_det">Detalles de la actividad</string>
+    <string name="limit">Límite</string>
+    <string name="actualizar">Actualizar</string>
+    <string name="abandon">Abandonar</string>
+    <string name="apunt">Apuntarse</string>
+    <string name="selim">Seleccionar imagen</string>
+    <string name="subim">Subir imagen</string>
+    <string name="imsel">Imagen Seleccionada</string>
+
 </resources>

@@ -1,8 +1,10 @@
 package com.front_pes.features.screens.map
 
 import android.annotation.SuppressLint
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -48,8 +50,13 @@ fun ComentariUsuari(nom: String,
 
         var expanded by remember { mutableStateOf(false) }
 
-        Column(modifier = Modifier.padding(16.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(modifier = Modifier
+            .padding(16.dp)
+        ) {
+        Row(
+            modifier = Modifier
+                .horizontalScroll(rememberScrollState()),
+            verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Default.Person, contentDescription = "User")
             Spacer(modifier = Modifier.width(8.dp))
             Text(nom, fontWeight = FontWeight.Bold)
@@ -199,6 +206,10 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
     val context = LocalContext.current
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+
+    BackHandler {
+        onBack()
+    }
 
     var showEditDialog by remember { mutableStateOf(false) }
     var valoracioSeleccionada by remember { mutableStateOf<valoracions?>(null) }
@@ -529,7 +540,8 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
                 onClick = { showRatingDialog = true },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 40.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF07F285))
             ) {
                 Text(text = (getString(context, R.string.auval, selectedLanguage)), color = Color.Black)

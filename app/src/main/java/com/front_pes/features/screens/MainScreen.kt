@@ -119,6 +119,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.NavigationBarItemDefaults
 
 
@@ -243,7 +244,7 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
         3 to (getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email),
         4 to (getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face),
         5 to (getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info),
-        6 to (getString(context, R.string.calendar, selectedLanguage) to Icons.Default.Info),
+        6 to (getString(context, R.string.calendar, selectedLanguage) to Icons.Default.DateRange),
         8 to (getString(context, R.string.event_identif, selectedLanguage) to Icons.Default.ThumbUp)
     )
 

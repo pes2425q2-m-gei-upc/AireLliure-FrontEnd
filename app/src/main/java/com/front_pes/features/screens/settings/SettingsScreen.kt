@@ -86,18 +86,18 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = { Text("Confirm Delete") },
-            text = { Text("Are you sure you want to delete your account? This action is not reversible.") },
+            text = { Text(text = getString(context, R.string.sidelete, currentLocale)) },
             confirmButton = {
                 TextButton (onClick = {
                     showDialog = false
                     deleteUser(context) { onNavigateToLogin() }
                 }) {
-                    Text("Yes")
+                    Text(text = getString(context, R.string.si, currentLocale))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDialog = false }) {
-                    Text("No")
+                    Text(text = getString(context, R.string.no, currentLocale))
                 }
             }
         )

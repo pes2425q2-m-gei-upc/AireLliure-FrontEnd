@@ -37,6 +37,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.content.Intent
 import android.provider.CalendarContract
+import com.front_pes.R
+import com.front_pes.features.screens.settings.LanguageViewModel
+import com.front_pes.getString
 import java.util.Locale
 
 
@@ -82,11 +85,16 @@ fun EventScreen(viewModel: eventViewModel = viewModel()) {
     var showDialog by remember { mutableStateOf(false) }
     var selectedEvent by remember { mutableStateOf<ActivityResponse?>(null) }
 
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+    val context = LocalContext.current
+    var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
+
     var showAddToCalendarDialog by remember { mutableStateOf(false) }
     var showRemoveFromCalendarDialog by remember { mutableStateOf(false) }
 
 
-    val context = LocalContext.current
+
 
     LaunchedEffect(Unit) {
         viewModel.get_all_publiques()
@@ -110,7 +118,7 @@ fun EventScreen(viewModel: eventViewModel = viewModel()) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "ACTIVITATS",
+                text = getString(context, R.string.act, currentLocale),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (currentMode == Selector.ALL) MaterialTheme.colorScheme.primary else Color.Gray,
@@ -138,7 +146,7 @@ fun EventScreen(viewModel: eventViewModel = viewModel()) {
         TextField(
             value = searchText,
             onValueChange = { searchText = it },
-            placeholder = { Text("Cerca activitat pública...") },
+            placeholder = { Text(text = getString(context, R.string.busact, currentLocale)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
@@ -168,7 +176,7 @@ fun EventScreen(viewModel: eventViewModel = viewModel()) {
                     val isoDataInici = convertToISO(dataInici)
                     val isoDataFi = convertToISO(dataFi)
                     viewModel.crear_activitat_event_public(nom,desc,isoDataInici,isoDataFi, limit.toInt())
-                    Toast.makeText(context, "Activitat creada!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getString(context, R.string.creact, currentLocale), Toast.LENGTH_SHORT).show()
                 }
             )
         }
@@ -200,7 +208,7 @@ fun EventScreen(viewModel: eventViewModel = viewModel()) {
             AlertDialog(
                 onDismissRequest = { showAddToCalendarDialog = false },
                 title = { Text("Afegir al calendari") },
-                text = { Text("Vols afegir aquesta activitat al teu calendari?") },
+                text = { Text(text = getString(context, R.string.afact, currentLocale)) },
                 confirmButton = {
                     TextButton(onClick = {
                         showAddToCalendarDialog = false
@@ -219,13 +227,13 @@ fun EventScreen(viewModel: eventViewModel = viewModel()) {
                         context.startActivity(intent)
                         selectedEvent = null
                     }) {
-                        Text("Sí")
+                        Text(text = getString(context, R.string.si, currentLocale))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showAddToCalendarDialog = false
                         selectedEvent = null}) {
-                        Text("No")
+                        Text(text = getString(context, R.string.no, currentLocale))
                     }
                 }
             )
@@ -235,7 +243,7 @@ fun EventScreen(viewModel: eventViewModel = viewModel()) {
             AlertDialog(
                 onDismissRequest = { showRemoveFromCalendarDialog = false },
                 title = { Text("Obrir calendari") },
-                text = { Text("Vols obrir el calendari per eliminar l'activitat?") },
+                text = { Text(text = getString(context, R.string.abcalend, currentLocale)) },
                 confirmButton = {
                     TextButton(onClick = {
                         showRemoveFromCalendarDialog = false
@@ -247,12 +255,12 @@ fun EventScreen(viewModel: eventViewModel = viewModel()) {
                         }
                         context.startActivity(intent)
                     }) {
-                        Text("Sí")
+                        Text(text = getString(context, R.string.si, currentLocale))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showRemoveFromCalendarDialog = false }) {
-                        Text("No")
+                        Text(text = getString(context, R.string.no, currentLocale))
                     }
                 }
             )
@@ -264,6 +272,11 @@ fun EventScreen(viewModel: eventViewModel = viewModel()) {
 
 @Composable
 fun EventListItem(name: String, onDelete: () -> Unit, onClick: () -> Unit) {
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+    val context = LocalContext.current
+    var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -312,12 +325,15 @@ fun AddEventDialog(
     onDismiss: () -> Unit,
     onSubmit: (String, String, String, String, String) -> Unit
 ) {
-    val context = LocalContext.current
     var nom by remember { mutableStateOf("") }
     var descripcio by remember { mutableStateOf("") }
     var dataInici by remember { mutableStateOf("") }
     var dataFi by remember { mutableStateOf("") }
     var limit by remember { mutableStateOf("") }
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+    val context = LocalContext.current
+    var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
 
     val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     val calendar = Calendar.getInstance()
@@ -342,20 +358,20 @@ fun AddEventDialog(
             tonalElevation = 8.dp
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Nova Activitat", style = MaterialTheme.typography.titleLarge)
+                Text(text = getString(context, R.string.newact, currentLocale), style = MaterialTheme.typography.titleLarge)
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
                     value = nom,
                     onValueChange = { nom = it },
-                    label = { Text("Nom") },
+                    label = { Text(text = getString(context, R.string.nom, currentLocale)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = descripcio,
                     onValueChange = { descripcio = it },
-                    label = { Text("Descripció") },
+                    label = { Text(text = getString(context, R.string.desc, currentLocale)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -366,7 +382,7 @@ fun AddEventDialog(
                     OutlinedTextField(
                         value = dataInici,
                         onValueChange = {},
-                        label = { Text("Data Inici") },
+                        label = { Text(text = getString(context, R.string.dat_ini, currentLocale)) },
                         modifier = Modifier
                             .weight(1f)
                             .clickable { showDatePicker { selected -> dataInici = selected } },
@@ -376,7 +392,7 @@ fun AddEventDialog(
                     OutlinedTextField(
                         value = dataFi,
                         onValueChange = {},
-                        label = { Text("Data Fi") },
+                        label = { Text(text = getString(context, R.string.dat_fi, currentLocale)) },
                         modifier = Modifier
                             .weight(1f)
                             .clickable { showDatePicker { selected -> dataFi = selected } },
@@ -387,7 +403,7 @@ fun AddEventDialog(
                 OutlinedTextField(
                     value = limit,
                     onValueChange = { limit = it },
-                    label = { Text("Límit de persones") },
+                    label = { Text(text = getString(context, R.string.lim_pers, currentLocale)) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
                 )
@@ -397,18 +413,18 @@ fun AddEventDialog(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("Cancel·lar")
+                        Text(text = getString(context, R.string.cancel, currentLocale))
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
                         if (nom.isBlank() || descripcio.isBlank() || dataInici.isBlank() || dataFi.isBlank() || limit.isBlank()) {
-                            Toast.makeText(context, "Tots els camps són obligatoris", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, getString(context, R.string.ob_camp, currentLocale), Toast.LENGTH_SHORT).show()
                         } else {
                             onSubmit(nom, descripcio, dataInici, dataFi, limit)
                             onDismiss()
                         }
                     }) {
-                        Text("Crear")
+                        Text(text = getString(context, R.string.crear, currentLocale))
                     }
                 }
             }
@@ -430,6 +446,11 @@ fun EventDetailsDialog(
 
     var editMode by remember { mutableStateOf(false) }
 
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+    val context = LocalContext.current
+    var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
+
     var nom by remember { mutableStateOf(event.nom ?: "") }
     var descripcio by remember { mutableStateOf(event.descripcio ?: "") }
     var dataInici by remember { mutableStateOf(formatISOToReadable(event.data_inici) ?: "") }
@@ -445,29 +466,29 @@ fun EventDetailsDialog(
             tonalElevation = 8.dp
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Detalls de l'activitat", style = MaterialTheme.typography.titleLarge)
+                Text(text = getString(context, R.string.act_det, currentLocale), style = MaterialTheme.typography.titleLarge)
                 Spacer(modifier = Modifier.height(8.dp))
 
                 if (editMode) {
-                    OutlinedTextField(value = nom, onValueChange = { nom = it }, label = { Text("Nom") })
-                    OutlinedTextField(value = descripcio, onValueChange = { descripcio = it }, label = { Text("Descripció") })
-                    OutlinedTextField(value = dataInici, onValueChange = { dataInici = it }, label = { Text("Data inici") })
-                    OutlinedTextField(value = dataFi, onValueChange = { dataFi = it }, label = { Text("Data fi") })
-                    OutlinedTextField(value = limit, onValueChange = { limit = it }, label = { Text("Límit") })
+                    OutlinedTextField(value = nom, onValueChange = { nom = it }, label = { Text(text = getString(context, R.string.nom, currentLocale)) })
+                    OutlinedTextField(value = descripcio, onValueChange = { descripcio = it }, label = { Text(text = getString(context, R.string.desc, currentLocale)) })
+                    OutlinedTextField(value = dataInici, onValueChange = { dataInici = it }, label = { Text(text = getString(context, R.string.dat_ini, currentLocale)) })
+                    OutlinedTextField(value = dataFi, onValueChange = { dataFi = it }, label = { Text(text = getString(context, R.string.dat_fi, currentLocale)) })
+                    OutlinedTextField(value = limit, onValueChange = { limit = it }, label = { Text(text = getString(context, R.string.limit, currentLocale)) })
                 } else {
-                    Text("Nom: $nom")
-                    Text("Descripció: $descripcio")
-                    Text("Data inici: $dataInici")
-                    Text("Data fi: $dataFi")
-                    Text("Límit: $limit")
+                    Text(text = getString(context, R.string.nom, currentLocale)+": $nom")
+                    Text(text = getString(context, R.string.desc, currentLocale)+": $descripcio")
+                    Text(text = getString(context, R.string.dat_ini, currentLocale)+": $dataInici")
+                    Text(text = getString(context, R.string.dat_fi, currentLocale)+": $dataFi")
+                    Text(text = getString(context, R.string.limit, currentLocale)+": $limit")
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                    TextButton(onClick = onDismiss) { Text("Tancar") }
+                    TextButton(onClick = onDismiss) { Text(text = getString(context, R.string.cerrar, currentLocale)) }
 
                     if (isAuthor && !editMode) {
-                        TextButton(onClick = { editMode = true }) { Text("Editar") }
+                        TextButton(onClick = { editMode = true }) { Text(text = getString(context, R.string.edit, currentLocale)) }
                     }
 
                     if (editMode) {
@@ -484,14 +505,14 @@ fun EventDetailsDialog(
                             editMode = false
                             onDismiss()
                         }) {
-                            Text("Actualitzar")
+                            Text(text = getString(context, R.string.actualizar, currentLocale))
                         }
                     } else {
                         val context = LocalContext.current
                         Button(onClick = {
                             if (isParticipant) onAbandonar() else onApuntar(context)
                         }) {
-                            Text(if (isParticipant) "Abandonar" else "Apuntar-se")
+                            Text(if (isParticipant) getString(context, R.string.abandon, currentLocale) else getString(context, R.string.apunt, currentLocale))
                         }
                     }
                 }

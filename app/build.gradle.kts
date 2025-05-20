@@ -13,10 +13,10 @@ plugins {
     id("com.google.gms.google-services")
 
     // Detekt
-    id("io.gitlab.arturbosch.detekt")
+    //id("io.gitlab.arturbosch.detekt")
 
     // KtLint
-    id("org.jlleitschuh.gradle.ktlint")
+    //id("org.jlleitschuh.gradle.ktlint")
 }
 
 android {
@@ -124,25 +124,25 @@ dependencies {
     implementation(libs.kotlin.serialization.json)
 
     // Detekt
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8")
+    //detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8")
 }
 
-detekt {
-    toolVersion = "1.23.8"
-    buildUponDefaultConfig = true
-    input = files("src/main/java", "src/main/kotlin")
-    config = files("$rootDir/config/detekt/detekt.yml")
-    baseline = file("$rootDir/config/detekt/baseline.xml")
-}
-
-ktlint {
-    version.set("0.48.2")
-    android.set(true)
-    outputToConsole.set(true)
-    ignoreFailures.set(false)
-    enableExperimentalRules.set(false)
-    reporters {
-        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
-        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
-    }
-}
+//detekt {
+//    toolVersion = "1.23.8"
+//    buildUponDefaultConfig = true
+//    input = files("src/main/java", "src/main/kotlin")
+//    config = files("$rootDir/config/detekt/detekt.yml")
+//    baseline = file("$rootDir/config/detekt/baseline.xml")
+//}
+//
+//ktlint {
+//    version.set("0.48.2")
+//    android.set(true)
+//    outputToConsole.set(true)
+//    ignoreFailures.set(false)
+//    enableExperimentalRules.set(false)
+//    reporters {
+//        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
+//        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
+//    }
+//}

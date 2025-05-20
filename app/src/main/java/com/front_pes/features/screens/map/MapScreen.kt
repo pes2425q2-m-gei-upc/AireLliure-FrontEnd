@@ -103,6 +103,29 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
         }
     }
 
+    val currentLocation = userLocation
+    val currentRuta = selectedRuta
+
+    val distanciaARuta by remember(currentLocation, selectedRuta) {
+        mutableStateOf(
+            if (currentLocation != null && selectedRuta != null) {
+                FloatArray(1).also {
+                    if (currentRuta != null) {
+                        Location.distanceBetween(
+                            currentLocation.latitude,
+                            currentLocation.longitude,
+                            currentRuta.punt.latitud,
+                            currentRuta.punt.longitud,
+                            it
+                        )
+                    }
+                }[0]
+            } else Float.MAX_VALUE
+        )
+    }
+
+    val puedeRecorrer = distanciaARuta <= 1000f
+
     LaunchedEffect(isTracking) {
         if (isTracking) {
             totalDistance = 0f
@@ -365,7 +388,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                             contentAlignment = Alignment.TopCenter
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                if (!isTracking) {
+                                if (!isTracking && puedeRecorrer) {
                                     Button(
                                         onClick = {
                                             viewModel.startTracking()

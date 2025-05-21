@@ -24,6 +24,8 @@ import com.front_pes.network.RetrofitClient.apiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 
 
@@ -45,6 +47,9 @@ class MapViewModel : ViewModel() {
     var trackingStartTime by mutableStateOf<Long?>(null)
     var elapsedTime by mutableStateOf(0L) // en milisegundos
     private var timerJob: Job? = null
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
     fun startTracking() {
         isTracking = true
@@ -122,6 +127,7 @@ class MapViewModel : ViewModel() {
         stations: List<EstacioQualitatAireResponse>,
         onComplete: () -> Unit = {}
     ) {
+        _isLoading.value = true;
         viewModelScope.launch {
             val tempMap = mutableMapOf<Int, Double>()
             val tempValuesMap = mutableMapOf<Int, Map<Int, Double>>()
@@ -177,6 +183,7 @@ class MapViewModel : ViewModel() {
 
             Log.d("Conts", "${tempValuesMap}")
             Log.d("Testing", "averageMap: ${averageMap}")
+            _isLoading.value = false;
             onComplete()
         }
     }

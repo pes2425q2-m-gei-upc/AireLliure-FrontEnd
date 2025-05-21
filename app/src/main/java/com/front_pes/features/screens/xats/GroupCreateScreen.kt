@@ -27,6 +27,7 @@ fun GroupCreateScreen(
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
+    val isLoading by viewModel.isLoading.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.carregarAmistats()
@@ -39,7 +40,7 @@ fun GroupCreateScreen(
 
     Column(modifier = Modifier
         .fillMaxSize()
-        .padding(16.dp)) {
+        .padding(top = 48.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)) {
 
         Text(text = (getString(context, R.string.creagrup, selectedLanguage)), style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(12.dp))
@@ -109,6 +110,15 @@ fun GroupCreateScreen(
             ) {
                 Text(text = (getString(context, R.string.creagrup, selectedLanguage)))
             }
+        }
+    }
+    if (isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
         }
     }
 }

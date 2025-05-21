@@ -70,6 +70,7 @@ fun RankingScreen(onChatClick: (Int) -> Unit, viewModel: RankingViewModel = view
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
+    val isLoading by viewModel.isLoading.collectAsState()
 
     LaunchedEffect(usuaris_all) {
         viewModel.ranking_tt_users()
@@ -125,6 +126,15 @@ fun RankingScreen(onChatClick: (Int) -> Unit, viewModel: RankingViewModel = view
                     )
                 }
             }
+        }
+    }
+    if (isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
         }
     }
 }

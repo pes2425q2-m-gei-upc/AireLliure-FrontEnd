@@ -37,6 +37,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.content.Intent
 import android.provider.CalendarContract
+import androidx.compose.foundation.background
 import com.front_pes.R
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.getString
@@ -93,7 +94,7 @@ fun EventScreen(viewModel: eventViewModel = viewModel()) {
     var showAddToCalendarDialog by remember { mutableStateOf(false) }
     var showRemoveFromCalendarDialog by remember { mutableStateOf(false) }
 
-
+    val isLoading by viewModel.isLoading.collectAsState()
 
 
     LaunchedEffect(Unit) {
@@ -267,6 +268,15 @@ fun EventScreen(viewModel: eventViewModel = viewModel()) {
         }
 
 
+    }
+    if (isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
     }
 }
 

@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -80,6 +81,8 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
 
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+
+    val isLoading by viewModel.isLoading.collectAsState()
 
     var isTracking = viewModel.isTracking
     var totalDistance = viewModel.totalDistance;
@@ -495,6 +498,16 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                                 .zIndex(1f)
                         )
                     }
+                }
+            }
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.6f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
             }
         }

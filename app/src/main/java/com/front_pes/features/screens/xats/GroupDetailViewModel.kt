@@ -1,10 +1,14 @@
 package com.front_pes.features.screens.xats
 
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.util.UnstableApi
 import com.front_pes.CurrentUser
+import com.front_pes.features.screens.ActivitatsEvents.ActivityPrivRequest
+import com.front_pes.features.screens.ActivitatsEvents.ActivityResponse
 import com.front_pes.features.screens.xamistat.LlistaAmistatResponse
 import com.front_pes.network.RetrofitClient
 import kotlinx.coroutines.launch
@@ -25,6 +29,34 @@ class GroupDetailViewModel : ViewModel() {
     var membres by mutableStateOf<List<String>>(emptyList())
     var amistats by mutableStateOf<List<LlistaAmistatResponse>>(emptyList())
     var errorMessage by mutableStateOf<String?>(null)
+    var activitats by mutableStateOf<List<ActivityResponse>>(emptyList())
+
+    @OptIn(UnstableApi::class)
+    suspend fun carregar_activitats(id:Int){
+        val resposta = RetrofitClient.apiService.get_activitats_by_xat(id)
+        activitats = resposta
+    }
+
+    fun crearActivitatPrivada(
+        nom: String,
+        desc: String,
+        data_inici: String,
+        data_fi: String,
+        groupId: Int
+    )=viewModelScope.launch {
+        try{
+            val resposta = RetrofitClient.apiService.create_new_event_privat(ActivityPrivRequest(nom=nom, descripcio = desc, data_inici= data_inici, data_fi = data_fi, creador = CurrentUser.correu, xat=groupId))
+            Log.d("resp",resposta.code().toString())
+            if (resposta.isSuccessful){
+                Log.d("resp","Perfecte")
+            } else {
+                Log.d("resp","Error al crear event privat: código ${resposta.code()}, errorBody: ${resposta.errorBody()?.string()}")
+            }
+            carregar_activitats(groupId)
+        }catch(e:Exception){
+            Log.d("resp","Error al crear event public: ${e.message}")
+        }
+    }
 
     fun carregarGrup(id: Int) {
         RetrofitClient.apiService.getXatGrupalById(id)
@@ -126,7 +158,7 @@ class GroupDetailViewModel : ViewModel() {
         val client = OkHttpClient()
         val request = Request.Builder().url("wss://airelliure-backend.onrender.com/ws/modelos/").build() // Asegúrate de usar tu URL real
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
-            override fun onOpen(webSocket: WebSocket, response: okhttp3.Response?) {
+            override fun onOpen(webSocket: WebSocket, response: okhttp3.Response) {
                 Log.d("WebSocket", "Conexión abierta")
             }
 

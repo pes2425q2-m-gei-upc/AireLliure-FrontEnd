@@ -8,6 +8,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,6 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.graphics.scale
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.R
 import com.front_pes.features.screens.settings.LanguageViewModel
@@ -78,6 +82,8 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
 
+    val isLoading by viewModel.isLoading.collectAsState()
+
     var isTracking = viewModel.isTracking
     var totalDistance = viewModel.totalDistance;
     var previousLocation by remember { mutableStateOf<Location?>(null) }
@@ -99,6 +105,29 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
             }
         }
     }
+
+    val currentLocation = userLocation
+    val currentRuta = selectedRuta
+
+    val distanciaARuta by remember(currentLocation, selectedRuta) {
+        mutableStateOf(
+            if (currentLocation != null && selectedRuta != null) {
+                FloatArray(1).also {
+                    if (currentRuta != null) {
+                        Location.distanceBetween(
+                            currentLocation.latitude,
+                            currentLocation.longitude,
+                            currentRuta.punt.latitud,
+                            currentRuta.punt.longitud,
+                            it
+                        )
+                    }
+                }[0]
+            } else Float.MAX_VALUE
+        )
+    }
+
+    val puedeRecorrer = distanciaARuta <= 1000f
 
     LaunchedEffect(isTracking) {
         if (isTracking) {
@@ -362,7 +391,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                             contentAlignment = Alignment.TopCenter
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                if (!isTracking) {
+                                if (!isTracking && puedeRecorrer) {
                                     Button(
                                         onClick = {
                                             viewModel.startTracking()
@@ -388,11 +417,15 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
         }
     }
         // Mapa
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(WindowInsets.statusBars.asPaddingValues())
+        ) {
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState,
-                properties = MapProperties(isMyLocationEnabled = locationPermissionGranted)
+                properties = MapProperties(isMyLocationEnabled = locationPermissionGranted),
+                contentPadding = PaddingValues(top = 8.dp)
             ) {
                 if (selectedFiltre == 0) {
                     estacions.forEach { estacio ->
@@ -408,11 +441,15 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                         )
                     }
                 } else if (selectedFiltre == 1) {
+                    val drawable = AppCompatResources.getDrawable(context, R.drawable.img_6)
+                    val original = drawable?.toBitmap()
+                    val scaled = original?.scale(84, 84)
+                    val iconSized = scaled?.let { BitmapDescriptorFactory.fromBitmap(it) }
                     rutesAmbPunt.forEach { (ruta, punt) ->
                         Marker(
                             state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
                             title = ruta.nom,
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE),
+                            icon = iconSized,
                             onClick = {
                                 selectedRuta = RutaAmbPunt(ruta, punt)
                                 isBottomSheetVisible = true
@@ -433,11 +470,15 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                             }
                         )
                     }
+                    val drawable = AppCompatResources.getDrawable(context, R.drawable.img_6)
+                    val original = drawable?.toBitmap()
+                    val scaled = original?.scale(84, 84)
+                    val iconSized = scaled?.let { BitmapDescriptorFactory.fromBitmap(it) }
                     rutesAmbPunt.forEach { (ruta, punt) ->
                         Marker(
                             state = MarkerState(position = LatLng(punt.latitud, punt.longitud)),
                             title = ruta.nom,
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE),
+                            icon = iconSized,
                             onClick = {
                                 selectedRuta = RutaAmbPunt(ruta, punt)
                                 isBottomSheetVisible = true
@@ -457,6 +498,16 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                                 .zIndex(1f)
                         )
                     }
+                }
+            }
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.6f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
             }
         }

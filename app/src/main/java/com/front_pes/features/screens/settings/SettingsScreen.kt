@@ -86,18 +86,18 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = { Text("Confirm Delete") },
-            text = { Text("Are you sure you want to delete your account? This action is not reversible.") },
+            text = { Text(text = getString(context, R.string.sidelete, currentLocale)) },
             confirmButton = {
                 TextButton (onClick = {
                     showDialog = false
                     deleteUser(context) { onNavigateToLogin() }
                 }) {
-                    Text("Yes")
+                    Text(text = getString(context, R.string.si, currentLocale))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDialog = false }) {
-                    Text("No")
+                    Text(text = getString(context, R.string.no, currentLocale))
                 }
             }
         )
@@ -164,7 +164,7 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF05C7F2)),
                         enabled = selectedLanguage != "es"
                     ) {
-                        Text("Español")
+                        Text("ESP")
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -178,7 +178,7 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF05C7F2)),
                         enabled = selectedLanguage != "ca"
                     ) {
-                        Text("Català")
+                        Text("CAT")
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -192,7 +192,7 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF05C7F2)),
                         enabled = selectedLanguage != "en"
                     ) {
-                        Text("English")
+                        Text("ENG")
                     }
                 }
 

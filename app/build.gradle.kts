@@ -75,7 +75,6 @@ dependencies {
     //Guardar Idioma
     implementation ("androidx.datastore:datastore-preferences:1.0.0")
 
-
     //Login API
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
@@ -86,7 +85,6 @@ dependencies {
     implementation(libs.google.maps.compose)
     implementation(libs.play.services.maps)
     implementation("com.google.maps.android:android-maps-utils:3.11.2")
-
 
     //Google Services
     implementation ("com.google.android.gms:play-services-auth:20.7.0")
@@ -101,5 +99,21 @@ dependencies {
     //Kotlin
     implementation(libs.kotlin.serialization.json)
 
+    //Resources
+    implementation("androidx.appcompat:appcompat-resources:1.7.0")
+
+    //S3
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
+    // Testing dependencies
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("org.mockito:mockito-core:5.2.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.22")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.22")
+    testImplementation ("com.squareup.okhttp3:mockwebserver:4.12.0")
+
+    implementation(libs.androidx.media3.common.ktx)
 
 }

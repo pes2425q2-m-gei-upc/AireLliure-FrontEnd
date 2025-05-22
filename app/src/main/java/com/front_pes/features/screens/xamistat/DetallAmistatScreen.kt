@@ -1,15 +1,12 @@
 package com.front_pes.features.screens.xamistat
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -18,7 +15,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,29 +28,36 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.front_pes.R
 import com.front_pes.features.screens.settings.LanguageViewModel
-import com.front_pes.features.screens.user.EditProfileDialog
-import com.front_pes.features.screens.user.updateUserProfile
 import com.front_pes.getString
 import java.util.Locale
 
 
 const val DetallAmistatScreen = "DetallAmistatListScreen"
+
+@Composable
+fun FotoUsuari(url: String?) {
+    AsyncImage(
+        model = url ?: "", // por si es null
+        contentDescription = "user picture",
+        modifier = Modifier
+            .size(100.dp)
+            .padding(bottom = 8.dp)
+            .clip(CircleShape),
+        placeholder = painterResource(R.drawable.ic_user), // imagen por defecto mientras carga
+        error = painterResource(R.drawable.ic_user)         // imagen por defecto si falla
+    )
+}
+
 @Composable
 fun DetallAmistatScreen(userId: String, onBack: () -> Unit, viewModel: DetallAmistatViewModel = viewModel()) {
 
@@ -64,6 +68,7 @@ fun DetallAmistatScreen(userId: String, onBack: () -> Unit, viewModel: DetallAmi
     var currentLocale by remember { mutableStateOf(Locale.getDefault().language) }
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -74,13 +79,18 @@ fun DetallAmistatScreen(userId: String, onBack: () -> Unit, viewModel: DetallAmi
             verticalArrangement = Arrangement.Top
         ) {
 
-            Image(
-                painter = painterResource(id = R.drawable.ic_user), //para que ésto os funcione, poned el nombre de una foto que metáis en res/drawable, una vez conectemos back y front convertiré éste composable para que use API para obtener los valores
-                contentDescription = "user picture",
-                modifier = Modifier
-                    .size(175.dp)
-                    .clip(CircleShape)
-            )
+            if(user?.imatge != null){
+                com.front_pes.features.screens.FotoUsuari(url = user.imatge)
+            }
+            else {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_user), //para que ésto os funcione, poned el nombre de una foto que metáis en res/drawable, una vez conectemos back y front convertiré éste composable para que use API para obtener los valores
+                    contentDescription = "user picture",
+                    modifier = Modifier
+                        .size(175.dp)
+                        .clip(CircleShape)
+                )
+            }
 
             Text(text = user?.nom ?: "", fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
             Text(text = user?.correu ?: "", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
@@ -140,6 +150,15 @@ fun DetallAmistatScreen(userId: String, onBack: () -> Unit, viewModel: DetallAmi
                     fontSize = 14.sp
                 )
             }
+        }
+    }
+    if (isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
         }
     }
 }

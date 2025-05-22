@@ -4,5 +4,6 @@ data class DetallUsuari(
     val correu: String?=null,
     val nom: String?= null,
     val about: String?=null,
-    val punts: Int?=null
+    val punts: Int?=null,
+    val imatge: String?=null
 )

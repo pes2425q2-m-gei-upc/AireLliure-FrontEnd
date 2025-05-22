@@ -10,6 +10,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.front_pes.CurrentUser
 import com.front_pes.network.RetrofitClient
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -34,26 +36,36 @@ class HabilitacionsViewModel : ViewModel() {
     VARIABLE DE TOTS ELS USUARIS HABILITATS
      */
     var errorMessage by mutableStateOf<String?>(null)
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     fun get_all_usuaris_habilitats()=viewModelScope.launch {
+        _isLoading.value = true;
         try {
             val resposta = RetrofitClient.apiService.gethabilitats()
             println("1    " + resposta)
             habilitats = resposta.map { item ->  detallUser(correu = item.correu, nom = item.nom)}
+            _isLoading.value = false;
         } catch(e:Exception){
             println("Error al carregar tots els usuaris habilitats de l'APP: ${e.message}")
+            _isLoading.value = false;
         }
     }
     fun get_all_usuaris_deshabilitats()= viewModelScope.launch {
+        _isLoading.value = true;
         try {
-
             val respost = RetrofitClient.apiService.getdeshabilitats()
             println("2   " + respost)
             deshabilitats = respost.map { item -> detallUser(correu = item.correu, nom = item.nom)}
+            _isLoading.value = false;
         } catch(e:Exception){
             println("Error al carregar els usuaris deshabilitats de l'APP: ${e.message}")
+            _isLoading.value = false;
         }
     }
     fun deshabilitar(correu: String)=viewModelScope.launch {
+        _isLoading.value = true;
         try{
             println("entro deshabilitar" + "correu: " + correu)
             val resp = RetrofitClient.apiService.deshabilitar(CurrentUser.correu, correu)
@@ -64,6 +76,7 @@ class HabilitacionsViewModel : ViewModel() {
         }
     }
     fun rehabilitar(correu: String)= viewModelScope.launch {
+        _isLoading.value = true;
         try{
             println("entro rehabilitar" + "correu: " + correu)
 
@@ -81,7 +94,7 @@ class HabilitacionsViewModel : ViewModel() {
         val client = OkHttpClient()
         val request = Request.Builder().url("wss://airelliure-backend.onrender.com/ws/modelos/").build() // Asegúrate de usar tu URL real
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
-            override fun onOpen(webSocket: WebSocket, response: okhttp3.Response?) {
+            override fun onOpen(webSocket: WebSocket, response: okhttp3.Response) {
                 Log.d("WebSocket", "Conexión abierta")
             }
 

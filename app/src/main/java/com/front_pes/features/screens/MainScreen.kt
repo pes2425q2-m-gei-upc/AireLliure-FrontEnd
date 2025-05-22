@@ -1,5 +1,7 @@
 package com.front_pes.features.screens
 
+import android.content.Intent
+import android.net.Uri
 import com.front_pes.features.screens.xats.ChatListScreen
 import android.util.Log
 import androidx.activity.compose.BackHandler
@@ -10,6 +12,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import coil.compose.AsyncImage
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +33,10 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MailOutline
+import androidx.compose.material.icons.filled.ThumbUp
+
+import com.front_pes.features.screens.ActivitatsEvents.EventScreen
+import com.front_pes.features.screens.ActivitatsEvents.eventScreen
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -108,6 +119,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.NavigationBarItemDefaults
 
 
@@ -125,6 +137,20 @@ import com.front_pes.features.screens.map.RutaAmbPunt
 import com.front_pes.ui.theme.LocalCustomColors
 
 const val MainScreenDestination = "Main"
+
+@Composable
+fun FotoUsuari(url: String?) {
+    AsyncImage(
+        model = url ?: "", // por si es null
+        contentDescription = "user picture",
+        modifier = Modifier
+            .size(100.dp)
+            .padding(bottom = 8.dp)
+            .clip(CircleShape),
+        placeholder = painterResource(R.drawable.ic_user), // imagen por defecto mientras carga
+        error = painterResource(R.drawable.ic_user)         // imagen por defecto si falla
+    )
+}
 
 @Composable
 fun ContentScreen(
@@ -201,6 +227,7 @@ fun ContentScreen(
         6-> BloqueigScreen(
             onNavigateToRelations={onChangeIndex(4)})
         7-> HabilitacionsScreen()
+        8 -> EventScreen()
     }
 }
 
@@ -216,7 +243,9 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
         2 to (getString(context, R.string.settings, selectedLanguage) to Icons.Default.Settings),
         3 to (getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email),
         4 to (getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face),
-        5 to (getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info)
+        5 to (getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info),
+        6 to (getString(context, R.string.calendar, selectedLanguage) to Icons.Default.Info),
+        8 to (getString(context, R.string.event_identif, selectedLanguage) to Icons.Default.ThumbUp)
     )
 
     val adminDrawerItems = if (CurrentUser.administrador) {
@@ -238,14 +267,16 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
 
     ) {
         Spacer(modifier = Modifier.height(25.dp))
-        Icon(
-            painter = painterResource(id = R.drawable.ic_user), // Usa una imagen aquí
-            contentDescription = "User Image",
-            modifier = Modifier
-                .size(100.dp) // Tamaño más grande
-                .padding(bottom = 8.dp),
-            tint = Color.Unspecified
-        )
+        if(CurrentUser.imatge != null)FotoUsuari(url = CurrentUser.imatge)
+        else{
+            Image(
+                painter = painterResource(id = R.drawable.ic_user), //para que ésto os funcione, poned el nombre de una foto que metáis en res/drawable, una vez conectemos back y front convertiré éste composable para que use API para obtener los valores
+                contentDescription = "user picture",
+                modifier = Modifier
+                    .size(175.dp)
+                    .clip(CircleShape)
+            )
+        }
         Text(CurrentUser.nom, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
         Text(CurrentUser.correu, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
 
@@ -403,9 +434,18 @@ fun MainScreen(
             DrawerContent(
                 selectedIndex = selectedIndex,
                 onItemClicked = { index ->
-                    selectedIndex = index
+                    if (index == 6) {
+                        val intent = Intent(Intent.ACTION_VIEW).apply {
+                            data = Uri.parse("content://com.android.calendar/time/")
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                        context.startActivity(intent)
+                    } else {
+                        selectedIndex = index
+                    }
                     scope.launch { drawerState.close() }
                 }
+
             )
         },
         gesturesEnabled = drawerState.isOpen
@@ -416,7 +456,7 @@ fun MainScreen(
                 if (selectedRutaInt == null) {
                     Box(
                         modifier = Modifier
-                            .padding(start = 16.dp, top = 32.dp)
+                            .padding(start = 16.dp, top = 40.dp)
                             .background(
                                 MaterialTheme.colorScheme.surface,
                                 shape = RoundedCornerShape(16.dp)
@@ -793,12 +833,33 @@ fun FilterDialog(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         title = { Text(text =(getString(context, R.string.f_p_cont, selectedLanguage)), fontWeight = FontWeight.Bold) },
         text = {
-            Column (
-                verticalArrangement = Arrangement.spacedBy((-5).dp)
+            LazyColumn (
+                verticalArrangement = Arrangement.spacedBy((-5).dp),
+                modifier = Modifier
+                    .heightIn(max = 350.dp)
+
             )
             {
-                contaminantes.forEachIndexed { index, contaminante ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                itemsIndexed(contaminantes) { index, contaminante ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                val isChecked = !checkedStates.value[index]
+                                checkedStates.value = checkedStates.value.toMutableList().also {
+                                    it[index] = isChecked
+                                }
+                                if (isChecked) {
+                                    SelectedContaminants.selected.add(contaminante)
+                                    Log.d("FilterDialog", "Added: $contaminante, Selected=${SelectedContaminants.selected}")
+                                } else {
+                                    SelectedContaminants.selected.remove(contaminante)
+                                    Log.d("FilterDialog", "Removed: $contaminante, Selected=${SelectedContaminants.selected}")
+                                }
+                            }
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Checkbox(
                             checked = checkedStates.value[index],
                             onCheckedChange = { isChecked ->

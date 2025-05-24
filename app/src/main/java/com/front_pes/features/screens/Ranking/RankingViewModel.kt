@@ -12,8 +12,6 @@ import com.front_pes.features.screens.login.LoginRequest
 import com.front_pes.features.screens.login.LoginResponse
 import com.front_pes.features.screens.xats.LlistaXatResponse
 import com.front_pes.network.RetrofitClient
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -34,19 +32,15 @@ class RankingViewModel: ViewModel() {
     /* VARAIBLE DE ERRORS */
     var errorMessage by mutableStateOf <String?>("")
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
     init{
         ranking_tt_users()
         ranking_n_amics()
     }
 
     fun ranking_tt_users()= viewModelScope.launch{
-        _isLoading.value = true;
-        try {
-            val call = RetrofitClient.apiService.get_all_ranking()
-            call.enqueue(object: Callback<List<RankingResponse>>{
+       try {
+           val call = RetrofitClient.apiService.get_all_ranking()
+           call.enqueue(object: Callback<List<RankingResponse>>{
                override fun onResponse(
                    call: Call<List<RankingResponse>>,
                    response: Response<List<RankingResponse>>
@@ -56,30 +50,26 @@ class RankingViewModel: ViewModel() {
                        resposta?.let{
                            ranking_all_users = it.map { item -> ranking(name = item.nom, points = item.punts) }
                        }
-                       _isLoading.value = false;
                    } else {
                        errorMessage = when (response.code()) {
                            404 -> "usuari no existeix"
                            401 -> "contrasenya incorrecta"
                            else -> "Error desconocido: ${response.code()}"
                        }
-                       _isLoading.value = false;
                    }
                }
                override fun onFailure(call: Call<List<RankingResponse>>, t: Throwable) {
                    errorMessage = "Error al carregar el Ranking: ${t.message}"
-                   _isLoading.value = false;
                }
-            })
-        } catch(e:Exception){
+           })
+       } catch(e:Exception){
            println("Error al intentar carregar el ranking: ${e.message}")
-            _isLoading.value = false;
-        }
+       }
     }
 
     fun ranking_n_amics()= viewModelScope.launch{
         try{
-            _isLoading.value = true;
+
             val call = RetrofitClient.apiService.get_ranking_amistats(CurrentUser.correu)
             call.enqueue(object: Callback<List<RankingResponse>>{
 
@@ -93,24 +83,20 @@ class RankingViewModel: ViewModel() {
                         resposta?.let {
                             ranking_amics = it.map { item -> ranking(name = item.nom, points = item.punts) }
                         }
-                        _isLoading.value = false;
                     } else {
                         errorMessage = when (response.code()) {
                             404 -> "usuari no existeix"
                             401 -> "contrasenya incorrecta"
                             else -> "Error desconocido: ${response.code()}"
                         }
-                        _isLoading.value = false;
                     }
                 }
                 override fun onFailure(call: Call<List<RankingResponse>>, t: Throwable) {
                     println("Error al carregar el ranking d'amics: ${t.message}")
-                    _isLoading.value = false;
                 }
             })
         } catch(e:Exception){
             println("Error en carregar el ranking d'amics: ${e.message}")
-            _isLoading.value = false;
         }
     }
 

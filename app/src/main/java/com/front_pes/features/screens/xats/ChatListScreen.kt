@@ -66,7 +66,6 @@ fun ChatListScreen(
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
-    val isLoading by viewModel.isLoading.collectAsState()
 
     LaunchedEffect(chatList.size) {
         viewModel.carregarXats()
@@ -126,15 +125,6 @@ fun ChatListScreen(
                 }
             }
 
-        }
-    }
-    if (isLoading) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
         }
     }
 }

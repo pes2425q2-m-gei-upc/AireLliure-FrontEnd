@@ -119,8 +119,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.NavigationBarItemDefaults
 
 
@@ -245,7 +243,7 @@ fun DrawerContent(selectedIndex: Int, onItemClicked: (Int) -> Unit) {
         3 to (getString(context, R.string.chats, selectedLanguage) to Icons.Default.Email),
         4 to (getString(context, R.string.friends, selectedLanguage) to Icons.Default.Face),
         5 to (getString(context, R.string.ranking, selectedLanguage) to Icons.Default.Info),
-        6 to (getString(context, R.string.calendar, selectedLanguage) to Icons.Default.DateRange),
+        6 to (getString(context, R.string.calendar, selectedLanguage) to Icons.Default.Info),
         8 to (getString(context, R.string.event_identif, selectedLanguage) to Icons.Default.ThumbUp)
     )
 
@@ -457,7 +455,7 @@ fun MainScreen(
                 if (selectedRutaInt == null) {
                     Box(
                         modifier = Modifier
-                            .padding(start = 16.dp, top = 40.dp)
+                            .padding(start = 16.dp, top = 32.dp)
                             .background(
                                 MaterialTheme.colorScheme.surface,
                                 shape = RoundedCornerShape(16.dp)
@@ -834,33 +832,12 @@ fun FilterDialog(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         title = { Text(text =(getString(context, R.string.f_p_cont, selectedLanguage)), fontWeight = FontWeight.Bold) },
         text = {
-            LazyColumn (
-                verticalArrangement = Arrangement.spacedBy((-5).dp),
-                modifier = Modifier
-                    .heightIn(max = 350.dp)
-
+            Column (
+                verticalArrangement = Arrangement.spacedBy((-5).dp)
             )
             {
-                itemsIndexed(contaminantes) { index, contaminante ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                val isChecked = !checkedStates.value[index]
-                                checkedStates.value = checkedStates.value.toMutableList().also {
-                                    it[index] = isChecked
-                                }
-                                if (isChecked) {
-                                    SelectedContaminants.selected.add(contaminante)
-                                    Log.d("FilterDialog", "Added: $contaminante, Selected=${SelectedContaminants.selected}")
-                                } else {
-                                    SelectedContaminants.selected.remove(contaminante)
-                                    Log.d("FilterDialog", "Removed: $contaminante, Selected=${SelectedContaminants.selected}")
-                                }
-                            }
-                            .padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                contaminantes.forEachIndexed { index, contaminante ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(
                             checked = checkedStates.value[index],
                             onCheckedChange = { isChecked ->

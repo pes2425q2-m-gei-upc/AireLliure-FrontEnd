@@ -99,8 +99,7 @@ class LoginViewModel : ViewModel() {
                                         CurrentUser.estat = userData.estat
                                         CurrentUser.punts = userData.punts
                                         CurrentUser.administrador = userData.administrador
-                                        if (userData.imatge != null)CurrentUser.imatge = userData.imatge
-                                        else CurrentUser.imatge = ""
+                                        CurrentUser.imatge = userData.imatge
                                     }
                                     _isLoading.value = false
                                     home()
@@ -190,8 +189,7 @@ class LoginViewModel : ViewModel() {
                             CurrentUser.estat = userData.estat
                             CurrentUser.punts = userData.punts
                             CurrentUser.administrador = userData.administrador
-                            if (userData.imatge != null)CurrentUser.imatge = userData.imatge
-                            else CurrentUser.imatge = ""
+                            CurrentUser.imatge = userData.imatge
                         }
                         _isLoading.value = false
                         onSuccess()

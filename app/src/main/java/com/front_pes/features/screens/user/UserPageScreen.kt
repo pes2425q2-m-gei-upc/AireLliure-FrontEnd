@@ -98,14 +98,14 @@ fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit, o
                 OutlinedTextField(value = newName, onValueChange = { newName = it }, label = { Text(text = getString(context, R.string.username, selectedLanguage)) })
                 OutlinedTextField(value = newAbout, onValueChange = { newAbout = it }, label = { Text(text = getString(context, R.string.about, selectedLanguage)) })
                 Button(onClick = { imagePickerLauncher.launch("image/*") }) {
-                    Text(text = getString(context, R.string.selim, selectedLanguage))
+                    Text("Seleccionar imatge")
                 }
 
                 selectedImageUri?.let {
-                    Text(text = getString(context, R.string.imsel, selectedLanguage)+": ${it.lastPathSegment}")
+                    Text("Imatge seleccionada: ${it.lastPathSegment}")
                     Spacer(Modifier.height(8.dp))
                     Button(onClick = { onUploadImage(it) }) {
-                        Text(text = getString(context, R.string.subim, selectedLanguage))
+                        Text("Pujar imatge")
                     }
                 }
             }
@@ -113,12 +113,12 @@ fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit, o
 
         confirmButton = {
             Button(onClick = { onSave(newName, newAbout) }) {
-                Text(text = getString(context, R.string.guard, selectedLanguage))
+                Text("Save")
             }
         },
         dismissButton = {
             Button(onClick = onDismiss) {
-                Text(text = getString(context, R.string.cancel, selectedLanguage))
+                Text("Cancel")
             }
         }
     )
@@ -164,7 +164,6 @@ fun uploadProfileImage(
     val contentResolver = context.contentResolver
     val inputStream = contentResolver.openInputStream(imageUri)
     val requestBody = inputStream?.readBytes()?.toRequestBody("image/*".toMediaTypeOrNull())
-
     inputStream?.close()
 
     if (requestBody != null) {

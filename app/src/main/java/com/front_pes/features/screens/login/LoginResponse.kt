@@ -8,5 +8,5 @@ data class LoginResponse(
     val estat: String,
     val punts: Int,
     val administrador: Boolean,
-    val imatge: String? = null
+    val imatge: String
 )

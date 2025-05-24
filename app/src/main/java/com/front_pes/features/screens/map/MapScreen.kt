@@ -421,6 +421,8 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
             .fillMaxSize()
             .padding(WindowInsets.statusBars.asPaddingValues())
         ) {
+
+
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState,
@@ -486,6 +488,12 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                             }
                         )
                     }
+
+                    val drawableAct = AppCompatResources.getDrawable(context, R.drawable.fb36) // tu icono
+                    val originalAct = drawableAct?.toBitmap()
+                    val scaledAct = originalAct?.scale(84, 84)
+                    val iconAct = scaledAct?.let { BitmapDescriptorFactory.fromBitmap(it) }
+
                 }
 
                 MapEffect(key1 = estacions.toList(), key2 = averagesReady) { googleMap ->

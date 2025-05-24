@@ -313,7 +313,4 @@ interface ApiService {
     suspend fun get_activitats_by_xat(
         @Path("pk") pk: Int
     ): List<ActivityResponse>
-
-
-
 }

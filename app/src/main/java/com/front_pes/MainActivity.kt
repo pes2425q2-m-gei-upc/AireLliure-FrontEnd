@@ -221,11 +221,10 @@ private fun AppNavigation(currentLocale: String) {
                     navController.navigate("chat/$chatId/$userName")
                 },
                 onBack = {
-                    navController.navigate(ChatListScreenDestination) {
+                    navController.navigate("$MainScreenDestination?selectedTab=3") {
                         popUpTo("chat-create") { inclusive = true }
                     }
                 }
-
             )
         }
         composable("chat-group-create") {
@@ -234,10 +233,12 @@ private fun AppNavigation(currentLocale: String) {
                     navController.navigate("chat/$chatId/$groupName")
                 },
                 onBack = {
-                    navController.navigate(ChatListScreenDestination) {
-                        popUpTo("chat-group-create") { inclusive = true }
+                    navController.navigate("$MainScreenDestination?selectedTab=3") {
+                        popUpTo("chat-create") { inclusive = true }
                     }
                 }
+
+
             )
         }
         composable("group-detail/{groupId}") { backStackEntry ->

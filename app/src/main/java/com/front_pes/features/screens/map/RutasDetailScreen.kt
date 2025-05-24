@@ -1,24 +1,24 @@
 package com.front_pes.features.screens.map
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.front_pes.CurrentUser
 import com.front_pes.R
 import com.front_pes.features.screens.settings.LanguageViewModel
@@ -39,18 +40,53 @@ const val RutasDetailScreenDestination = "RutasDetail"
 @OptIn(ExperimentalMaterial3Api::class)
 
 @Composable
-fun ComentariUsuari(nom: String,
-                    rating: Int,
-                    comentari: String,
-                    esMeu: Boolean,
-                    onEdit: () -> Unit,
-                    onDelete: () -> Unit) {
+fun FotoUsuari(url: String) {
+    AsyncImage(
+        model = url,
+        contentDescription = "user picture",
+        modifier = Modifier
+            .size(40.dp)
+            .clip(CircleShape),
+        placeholder = painterResource(R.drawable.ic_user), // opcional
+        error = painterResource(R.drawable.ic_user)         // opcional
+    )
+}
+
+@Composable
+fun ComentariUsuari(
+    nom: String,
+    rating: Int,
+    comentari: String,
+    esMeu: Boolean,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    imatge: String?
+) {
 
         var expanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
 
-        Column(modifier = Modifier.padding(16.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.Person, contentDescription = "User")
+        Column(modifier = Modifier
+            .padding(16.dp)
+        ) {
+        Row(
+            modifier = Modifier
+                .horizontalScroll(rememberScrollState()),
+            verticalAlignment = Alignment.CenterVertically) {
+            if (imatge != null) {
+                com.front_pes.features.screens.xamistat.FotoUsuari(url = imatge)
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "User Icon",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(end = 5.dp)
+                )
+            }
             Spacer(modifier = Modifier.width(8.dp))
             Text(nom, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.width(8.dp))
@@ -67,14 +103,14 @@ fun ComentariUsuari(nom: String,
                     onDismissRequest = { expanded = false }
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Editar") },
+                        text = { Text(text = (getString(context, R.string.edit, selectedLanguage))) },
                         onClick = {
                             expanded = false
                             onEdit()
                         }
                     )
                     DropdownMenuItem(
-                        text = { Text("Eliminar") },
+                        text = { Text(text = (getString(context, R.string.elim, selectedLanguage))) },
                         onClick = {
                             expanded = false
                             onDelete()
@@ -101,12 +137,16 @@ fun ClasificacioDialog(
     var selectedAccesibilitat by remember { mutableStateOf(currentAccesibilitat) }
     var expandedAccesibilitat by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
+    val languageViewModel: LanguageViewModel = viewModel()
+    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Classificació de la Ruta") },
+        title = { Text(text = (getString(context, R.string.clasru, selectedLanguage))) },
         text = {
             Column {
-                Text("Dificultat Esportiva")
+                Text(text = (getString(context, R.string.dificultat, selectedLanguage)))
                 ExposedDropdownMenuBox(
                     expanded = expandedDificultat,
                     onExpandedChange = { expandedDificultat = !expandedDificultat }
@@ -115,7 +155,7 @@ fun ClasificacioDialog(
                         value = selectedDificultat,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Selecciona dificultat") },
+                        label = { Text(text = (getString(context, R.string.seldif, selectedLanguage))) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedDificultat) },
                         modifier = Modifier.menuAnchor()
                     )
@@ -137,7 +177,7 @@ fun ClasificacioDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text("Accessibilitat Respiratòria")
+                Text(text = (getString(context, R.string.accesresp, selectedLanguage)))
                 ExposedDropdownMenuBox(
                     expanded = expandedAccesibilitat,
                     onExpandedChange = { expandedAccesibilitat = !expandedAccesibilitat }
@@ -146,7 +186,7 @@ fun ClasificacioDialog(
                         value = selectedAccesibilitat,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Selecciona accessibilitat") },
+                        label = { Text(text = (getString(context, R.string.selac, selectedLanguage))) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedAccesibilitat) },
                         modifier = Modifier.menuAnchor()
                     )
@@ -171,12 +211,12 @@ fun ClasificacioDialog(
             Button(onClick = {
                 // Aquí puedes guardar los valores seleccionados
                 onGuardar(selectedDificultat, selectedAccesibilitat)            }) {
-                Text("Guardar")
+                Text(text = (getString(context, R.string.guard, selectedLanguage)))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel·lar")
+                Text(text = (getString(context, R.string.cancel, selectedLanguage)))
             }
         }
     )
@@ -199,6 +239,10 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
     val context = LocalContext.current
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+
+    BackHandler {
+        onBack()
+    }
 
     var showEditDialog by remember { mutableStateOf(false) }
     var valoracioSeleccionada by remember { mutableStateOf<valoracions?>(null) }
@@ -371,23 +415,6 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Button(
-                    onClick = { },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF07F285))
-                ) {
-                    Text(text = (getString(context, R.string.inir, selectedLanguage)), color = Color.Black)
-                }
-                Button(
-                    onClick = { },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF07F285))
-                ) {
-                    Text(text = (getString(context, R.string.finr, selectedLanguage)), color = Color.Black)
-                }
-            }
 
             if (CurrentUser.administrador) {
                 if(viewModel.dificultatRuta == null || viewModel.accesibilitatRuta == null) {
@@ -449,6 +476,7 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
                             ComentariUsuari(
                                 nom = valoracio.nom_usuari,
                                 rating = valoracio.puntuacio.toInt(),
+                                imatge = valoracio.imatge_usuari,
                                 comentari = valoracio.comentari,
                                 esMeu = valoracio.usuari == CurrentUser.correu,
                                 onEdit = {
@@ -529,7 +557,8 @@ fun RutasDetailScreen(onBack: () -> Unit, ruta_id: Int) {
                 onClick = { showRatingDialog = true },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 40.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF07F285))
             ) {
                 Text(text = (getString(context, R.string.auval, selectedLanguage)), color = Color.Black)

@@ -130,5 +130,12 @@
     <string name="selim">Select image</string>
     <string name="subim">Upload image</string>
     <string name="imsel">Selected Image</string>
+    <string name="selac">Selecciona accesibilidad</string>
+    <string name="seldif">Selecciona dificultad</string>
+    <string name="clasru">Clasificación de la ruta</string>
+    <string name="fac">Low</string>
+    <string name="med">Medium</string>
+    <string name="dif">Difficult</string>
+    <string name="mod">Moderated</string>
 
 </resources>

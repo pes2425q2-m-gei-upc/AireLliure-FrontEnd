@@ -130,4 +130,11 @@
     <string name="selim">Seleccionar imatge</string>
     <string name="subim">Pujar imatge</string>
     <string name="imsel">Imatge Seleccionada</string>
+    <string name="selac">Selecciona accessibilitat</string>
+    <string name="seldif">Selecciona dificultat</string>
+    <string name="clasru">Classificació de la ruta</string>
+    <string name="fac">Baixa</string>
+    <string name="med">Mitja</string>
+    <string name="dif">Difícil</string>
+    <string name="mod">Moderada</string>
 </resources>

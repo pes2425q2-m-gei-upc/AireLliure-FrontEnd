@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.front_pes.CurrentUser
 import com.front_pes.features.screens.xamistat.LlistaAmistatResponse
 import com.front_pes.network.RetrofitClient
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -23,13 +25,19 @@ class GroupCreateViewModel : ViewModel() {
     var membresSeleccionats = mutableStateListOf<String>()
     var errorMessage by mutableStateOf<String?>(null)
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     fun carregarAmistats() {
+        _isLoading.value = true;
         viewModelScope.launch {
             try {
                 val result = RetrofitClient.apiService.getAmistatUsuarybyCorreu(CurrentUser.correu)
                 amistats = result
+                _isLoading.value = false;
             } catch (e: Exception) {
                 errorMessage = "Error de xarxa: ${e.message}"
+                _isLoading.value = false;
             }
         }
     }

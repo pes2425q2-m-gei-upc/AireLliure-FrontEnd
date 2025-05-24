@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.front_pes.CurrentUser
 import com.front_pes.network.RetrofitClient
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -30,6 +32,9 @@ class LlistatAmistatViewModel: ViewModel() {
     var all_enviades by mutableStateOf<List<AmistatLine>>(emptyList())
     /*  VAR PER ALS ERRORS */
     var errorMessage by mutableStateOf <String?>(null)
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
     init {
         getXatsAmics()
@@ -58,6 +63,7 @@ class LlistatAmistatViewModel: ViewModel() {
 
 
     fun get_usuaris() = viewModelScope.launch {
+        _isLoading.value = true;
         try {
             val resposta = RetrofitClient.apiService.get_all_usuaris(CurrentUser.correu)
             all_users = resposta.map { item ->
@@ -68,14 +74,17 @@ class LlistatAmistatViewModel: ViewModel() {
                     imatge = item.imatge
                 )
             }
+            _isLoading.value = false;
         } catch (e: Exception) {
             errorMessage = "Error al carregar els usuaris: ${e.message}"
             println(errorMessage)
+            _isLoading.value = false;
         }
     }
 
 
     fun get_rebudes() = viewModelScope.launch {
+        _isLoading.value = true;
         try {
             val resposta = RetrofitClient.apiService.get_all_rebudes(CurrentUser.correu)
             all_rebudes = resposta.map { item ->
@@ -87,14 +96,17 @@ class LlistatAmistatViewModel: ViewModel() {
                     imatge = item.imatge
                 )
             }
+            _isLoading.value = false;
         } catch (e: Exception) {
             errorMessage = "Error al carregar les peticions rebudes: ${e.message}"
             println(errorMessage)
+            _isLoading.value = false;
         }
     }
 
 
     fun get_enviades() = viewModelScope.launch {
+        _isLoading.value = true;
         try {
             val resposta = RetrofitClient.apiService.get_all_envaides(CurrentUser.correu)
             all_enviades = resposta.map { item ->
@@ -106,14 +118,17 @@ class LlistatAmistatViewModel: ViewModel() {
                     imatge = item.imatge
                 )
             }
+            _isLoading.value = false;
         } catch (e: Exception) {
             errorMessage = "Error al carregar les peticions enviades: ${e.message}"
             println(errorMessage)
+            _isLoading.value = false;
         }
     }
 
 
     fun seguir_usuari(accepta: String) = viewModelScope.launch {
+        _isLoading.value = true;
         try {
             val body = SolicitarAmistatRequest(
                 solicita = CurrentUser.correu,
@@ -129,10 +144,12 @@ class LlistatAmistatViewModel: ViewModel() {
         } catch (e: Exception) {
             errorMessage = "Error en seguir usuari: ${e.message}"
             println(errorMessage)
+            _isLoading.value = false;
         }
     }
 
     fun cancelar_solicitud_enviada(AmistatId: Int) = viewModelScope.launch {
+        _isLoading.value = true;
         try {
             RetrofitClient.apiService.delete_amistat(AmistatId)
             getXatsAmics()
@@ -143,10 +160,12 @@ class LlistatAmistatViewModel: ViewModel() {
         } catch (e: Exception) {
             errorMessage = "Error en cancel·lar la solicitud enviada: ${e.message}"
             println(errorMessage)
+            _isLoading.value = false;
         }
     }
 
     fun cancelar_solicitud_rebuda(AmistatId: Int) = viewModelScope.launch {
+        _isLoading.value = true;
         try {
             RetrofitClient.apiService.delete_amistat(AmistatId)
             getXatsAmics()
@@ -157,10 +176,12 @@ class LlistatAmistatViewModel: ViewModel() {
         } catch (e: Exception) {
             errorMessage = "Error en cancel·lar la solicitud enviada: ${e.message}"
             println(errorMessage)
+            _isLoading.value = false;
         }
     }
 
     fun aceptar_solicitud_rebuda(AmistatId: Int) = viewModelScope.launch {
+        _isLoading.value = true;
         try {
             val body_enviar = mapOf("pendent" to false)
             RetrofitClient.apiService.update_amistat(AmistatId, body_enviar)
@@ -171,10 +192,12 @@ class LlistatAmistatViewModel: ViewModel() {
         } catch (e: Exception) {
             errorMessage = "Error en acceptar la solicitud: ${e.message}"
             println(errorMessage)
+            _isLoading.value = false;
         }
     }
 
     fun delete_amistad(AmistatId: Int)=viewModelScope.launch {
+        _isLoading.value = true;
         try{
             RetrofitClient.apiService.delete_amistat(AmistatId)
             getXatsAmics()
@@ -183,6 +206,7 @@ class LlistatAmistatViewModel: ViewModel() {
             get_enviades()
         } catch(e:Exception){
             println("Error al eliminar la amistad: ${e.message}")
+            _isLoading.value = false;
         }
     }
 

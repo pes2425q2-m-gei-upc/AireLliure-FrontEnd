@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.LaunchedEffect
@@ -54,6 +55,7 @@ fun HabilitacionsScreen(viewModel: HabilitacionsViewModel = viewModel()) {
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
+    val isLoading by viewModel.isLoading.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.get_all_usuaris_habilitats();
@@ -122,6 +124,15 @@ fun HabilitacionsScreen(viewModel: HabilitacionsViewModel = viewModel()) {
                         user -> HabilitacioListItem(name = user.nom, onReHabilitar = {viewModel.rehabilitar(user.correu)})
                 }
             }
+        }
+    }
+    if (isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
         }
     }
 }

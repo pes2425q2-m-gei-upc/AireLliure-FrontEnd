@@ -22,5 +22,6 @@ data class valoracions(
     val comentari: String,
     val usuari: String,
     val ruta: Int,
-    val nom_usuari: String
+    val nom_usuari: String,
+    val imatge_usuari: String?
 )

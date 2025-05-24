@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.front_pes.CurrentUser
 import com.front_pes.network.RetrofitClient
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 
@@ -27,6 +29,9 @@ class eventViewModel: ViewModel() {
 
     var participacions by mutableStateOf<List<ActivityResponse>>(emptyList())
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     var apuntadoCorrectamente by mutableStateOf(false)
         private set
     init {
@@ -35,14 +40,18 @@ class eventViewModel: ViewModel() {
     }
 
     fun get_all_publiques()=viewModelScope.launch {
+        _isLoading.value = true;
         try{
             val resposta = RetrofitClient.apiService.all_events()
             events = resposta
+            _isLoading.value = false;
         } catch(e:Exception){
             println("Error al carregar les activitats publiques: ${e.message}")
+            _isLoading.value = false;
         }
     }
     fun crear_activitat_event_public(nom:String, desc: String, data_inici:String, data_fi:String, limit:Int)=viewModelScope.launch {
+        _isLoading.value = true;
         try{
             val resposta = RetrofitClient.apiService.create_new_event(
                 ActivityRequest(
@@ -64,9 +73,11 @@ class eventViewModel: ViewModel() {
             get_all_publiques()
         }catch(e:Exception){
             println("Error al crear event public: ${e.message}")
+            _isLoading.value = false;
         }
     }
     fun apuntarse_activitat(id_event: Int,  onSuccess: () -> Unit = {})=viewModelScope.launch {
+        _isLoading.value = true;
         try{
             val resposta = RetrofitClient.apiService.apuntarse(ApuntarseRequest(event = id_event, usuari = CurrentUser.correu))
             apuntadoCorrectamente = true
@@ -75,28 +86,35 @@ class eventViewModel: ViewModel() {
             get_participacions()
         }catch(e:Exception){
             println("Error al apuntar-se: ${e.message}")
+            _isLoading.value = false;
         }
     }
     fun eliminar_event(id: Int)=viewModelScope.launch {
+        _isLoading.value = true;
         try{
             val resposta = RetrofitClient.apiService.eliminar_event_public(id)
             get_all_publiques()
             get_participacions()
         }catch(e:Exception){
             println("Error al eliminar event: ${e.message}")
+            _isLoading.value = false;
         }
     }
     fun get_participacions()=viewModelScope.launch {
+        _isLoading.value = true;
         try {
             val resposta = RetrofitClient.apiService.get_on_participo(CurrentUser.correu)
             participacions = resposta
             println("YEHHHHHHHHHHHHHHHHHHHHHAAAAAAA2")
             println(participacions)
+            _isLoading.value = false;
         } catch(e:Exception){
             println("error al agafar les teves participacions")
+            _isLoading.value = false;
         }
     }
     fun abandonar(id_event:Int,  onSuccess: () -> Unit = {})=viewModelScope.launch {
+        _isLoading.value = true;
         try{
             val resposta = RetrofitClient.apiService.eliminar_participacio(CurrentUser.correu,id_event)
             if(resposta.isSuccessful){
@@ -109,9 +127,11 @@ class eventViewModel: ViewModel() {
             onSuccess()
         } catch(e:Exception){
             println("Error al abandonar event: ${e.message}")
+            _isLoading.value = false;
         }
     }
     fun editar_event(event_id: Int, nom:String, desc: String, data_inici:String, data_fi:String, limit:Int)=viewModelScope.launch {
+        _isLoading.value = true;
         try{
             val resposta =RetrofitClient.apiService.editar_event_public(event_id, ActivityRequest(
                 nom = nom,
@@ -127,9 +147,11 @@ class eventViewModel: ViewModel() {
                 println("Yupi!!")
             } else {
                 println("Error al abandonar: código ${resposta.code()}, errorBody: ${resposta.errorBody()?.string()}")
+                _isLoading.value = false;
             }
         }catch(e:Exception){
             println("Error al editar l'event: ${e.message}")
+            _isLoading.value = false;
         }
     }
 }

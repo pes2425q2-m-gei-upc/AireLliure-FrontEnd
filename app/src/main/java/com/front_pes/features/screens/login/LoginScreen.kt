@@ -43,6 +43,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 
 import com.front_pes.features.screens.settings.updateUserStatus
 import androidx.compose.ui.platform.LocalContext
+import com.front_pes.UserPreferences
 
 const val LoginScreenDestination = "Login"
 
@@ -66,12 +67,19 @@ fun LoginScreen(
         try {
             val account = task.getResult(ApiException::class.java)
             val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-            viewModel.signInWithGoogleCredential(credential) {
+            viewModel.signInWithGoogleCredential(context, credential) {
+                UserPreferences.saveUser(context)
                 onNavigateToMap()
             }
         }
         catch (ex: Exception) {
             Log.d("AireLliure", "GoogleSignIn ha fallat")
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (UserPreferences.loadUser(context)) {
+            onNavigateToMap()
         }
     }
 
@@ -123,7 +131,7 @@ fun LoginScreen(
             else {
                 Button(
                     onClick = {
-                        viewModel.login {
+                        viewModel.login(context) {
                             updateUserStatus(context, newEstat = "actiu") {
                                 onNavigateToMap()
                             }

@@ -69,8 +69,8 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
     var locationPermissionGranted by remember { mutableStateOf(false) }
     var showLocationDeniedDialog by remember { mutableStateOf(false) }
 
-    val estacions = remember { mutableStateListOf<EstacioQualitatAireResponse>() }
-    val rutesAmbPunt = remember { mutableStateListOf<RutaAmbPunt>() }
+    val estacions by viewModel.estacions.collectAsState()
+    val rutesAmbPunt by viewModel.rutesAmbPunt.collectAsState()
 
     val cameraPositionState = rememberCameraPositionState()
     val plazaCatalunya = LatLng(41.3825, 2.1912)
@@ -172,51 +172,22 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
 
     var averagesReady by remember { mutableStateOf(false) }
 
-    LaunchedEffect(reloadTrigger) {
+    LaunchedEffect(estacions, reloadTrigger) {
         if (estacions.isNotEmpty()) {
             averagesReady = false
             viewModel.fetchAveragesForStations(estacions) {
                 averagesReady = true
             }
-            Log.d("LoadingMapScreen", "MapScreen cargado o recargado")
         }
     }
 
     // Cargar datos de la API
     LaunchedEffect(Unit) {
         viewModel.fetchEstacionsQualitatAire(
-            onSuccess = { estaciones ->
-                estacions.clear()
-                estacions.addAll(estaciones)
-
-                averagesReady = false
-                viewModel.fetchAveragesForStations(estaciones) {
-                    averagesReady = true
-                    Log.d("MAP_SCREEN", "Averages cargados correctamente")
-                }
-            },
-            onError = { errorMessage -> }
+            onError = { Log.e("MAP_SCREEN", it) }
         )
-
         viewModel.fetchRutes(
-            onSuccess = { rutesList ->
-                rutesList.forEach { ruta ->
-                    ruta.punt_inici?.let { puntId ->
-                        viewModel.fetchPuntByID(
-                            pk = puntId,
-                            onSuccess = { punt ->
-                                rutesAmbPunt.add(RutaAmbPunt(ruta = ruta, punt = punt))
-                            },
-                            onError = { errorMsg ->
-                                Log.e("MAP_SCREEN", "Error obteniendo punt_inici: $errorMsg")
-                            }
-                        )
-                    }
-                }
-            },
-            onError = { errorMsg ->
-                Log.e("MAP_SCREEN", "Error cargando rutas: $errorMsg")
-            }
+            onError = { Log.e("MAP_SCREEN", it) }
         )
     }
 

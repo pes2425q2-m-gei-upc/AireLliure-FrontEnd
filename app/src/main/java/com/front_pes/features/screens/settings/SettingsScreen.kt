@@ -63,6 +63,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import androidx.compose.ui.platform.LocalContext
+import com.front_pes.UserPreferences
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -203,7 +204,10 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
                     horizontalArrangement = Arrangement.Center // Centra los elementos en la fila
                 ) {
                     Button(
-                        onClick = {onNavigateToLogin()},
+                        onClick = {
+                            UserPreferences.clear(context)
+                            onNavigateToLogin()
+                                  },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFA500)),
                         shape = RoundedCornerShape(8.dp)
                     ) {

@@ -7,7 +7,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.front_pes.network.RetrofitClient
@@ -23,6 +22,8 @@ import com.front_pes.features.screens.user.UpdateProfileResponse
 import com.front_pes.network.RetrofitClient.apiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -50,6 +51,15 @@ class MapViewModel : ViewModel() {
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _estacions = MutableStateFlow<List<EstacioQualitatAireResponse>>(emptyList())
+    val estacions: StateFlow<List<EstacioQualitatAireResponse>> = _estacions
+
+    private val _rutesAmbPunt = MutableStateFlow<List<RutaAmbPunt>>(emptyList())
+    val rutesAmbPunt: StateFlow<List<RutaAmbPunt>> = _rutesAmbPunt
+
+    var averagesFetched = false
+        private set
 
     fun startTracking() {
         isTracking = true
@@ -146,13 +156,13 @@ class MapViewModel : ViewModel() {
 
                     val validResponses = if (response.isSuccessful) {
                         response.body()
-                            ?.filter { it.valor != null && !it.valor!!.isNaN() }
+                            ?.filter { it.valor_iqa != null && !it.valor_iqa!!.isNaN() }
                             ?: emptyList()
                     } else emptyList()
 
                     val avgValue = if (response.isSuccessful) {
                         val validValues = response.body()
-                            ?.mapNotNull { it.valor } // solo valores no nulos
+                            ?.mapNotNull { it.valor_iqa } // solo valores no nulos
                             ?.filter { !it.isNaN() }   // ignora NaN explícitos
                             ?: emptyList()
 
@@ -164,7 +174,7 @@ class MapViewModel : ViewModel() {
                     val avgByContaminant: Map<Int, Double> = validResponses
                         .groupBy { it.contaminant }
                         .mapValues { entry ->
-                            val vals = entry.value.map { it.valor!! }
+                            val vals = entry.value.map { it.valor_iqa!! }
                             if (vals.isNotEmpty()) vals.average() else Double.NaN
                         }
 
@@ -183,12 +193,13 @@ class MapViewModel : ViewModel() {
 
             Log.d("Conts", "${tempValuesMap}")
             Log.d("Testing", "averageMap: ${averageMap}")
+            averagesFetched = true
             _isLoading.value = false;
             onComplete()
         }
     }
 
-    fun fetchEstacionsQualitatAire(onSuccess: (List<EstacioQualitatAireResponse>) -> Unit, onError: (String) -> Unit) {
+    fun fetchEstacionsQualitatAire(onError: (String) -> Unit) {
         viewModelScope.launch {
             val call = RetrofitClient.apiService.getEstacionsQualitatAire()
             call.enqueue(object : Callback<List<EstacioQualitatAireResponse>> {
@@ -197,11 +208,7 @@ class MapViewModel : ViewModel() {
                     response: Response<List<EstacioQualitatAireResponse>>
                 ) {
                     if (response.isSuccessful) {
-                        response.body()?.let { estacions ->
-                            onSuccess(estacions)
-                        } ?: run {
-                            onError("Respuesta vacía de la API")
-                        }
+                        _estacions.value = response.body() ?: emptyList()
                     } else {
                         onError("Error desconocido: ${response.code()}")
                     }
@@ -214,31 +221,49 @@ class MapViewModel : ViewModel() {
         }
     }
 
-    fun fetchRutes(onSuccess: (List<RutasResponse>) -> Unit, onError: (String) -> Unit) {
+    fun fetchRutes(onError: (String) -> Unit) {
         viewModelScope.launch {
-            val call = RetrofitClient.apiService.getRutas()
-            call.enqueue(object : Callback<List<RutasResponse>> {
-                override fun onResponse(
-                    call: Call<List<RutasResponse>>,
-                    response: Response<List<RutasResponse>>
-                ) {
-                    if (response.isSuccessful) {
-                        response.body()?.let { rutas ->
-                            onSuccess(rutas)
-                        } ?: run {
-                            onError("Respuesta vacía de la API")
+            try {
+                val rutasResponse = withContext(Dispatchers.IO) {
+                    RetrofitClient.apiService.getRutas().execute()
+                }
+
+                if (!rutasResponse.isSuccessful || rutasResponse.body().isNullOrEmpty()) {
+                    onError("Error al obtener rutas")
+                    return@launch
+                }
+
+                val rutasList = rutasResponse.body()!!
+                val listaPunts = mutableListOf<RutaAmbPunt>()
+
+                withContext(Dispatchers.IO) {
+                    rutasList.mapNotNull { ruta ->
+                        ruta.punt_inici?.let { puntId ->
+                            async {
+                                try {
+                                    val puntResponse = RetrofitClient.apiService.getPuntByID(puntId).execute()
+                                    puntResponse.body()?.let { punt ->
+                                        RutaAmbPunt(ruta, punt)
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e("MAP_SCREEN", "Error obteniendo punt_inici $puntId", e)
+                                    null
+                                }
+                            }
                         }
-                    } else {
-                        onError("Error: ${response.code()}")
+                    }.awaitAll().filterNotNull().let {
+                        listaPunts.addAll(it)
                     }
                 }
 
-                override fun onFailure(call: Call<List<RutasResponse>>, t: Throwable) {
-                    onError("Error de red: ${t.message}")
-                }
-            })
+                _rutesAmbPunt.value = listaPunts
+            } catch (e: Exception) {
+                onError("Fallo general al obtener rutas: ${e.localizedMessage}")
+            }
         }
     }
+
+
 
     fun fetchPuntByID(
         pk: Int,

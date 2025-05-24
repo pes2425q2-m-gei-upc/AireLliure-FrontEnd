@@ -270,4 +270,32 @@ class MapViewModel : ViewModel() {
     }
     var alreadyAskedPermission = false
     var hasShownPermissionWarning = false
+
+    fun fetchActivitatsCulturals(
+        onSuccess: (List<ActivitatCulturalResponse>) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            val call = RetrofitClient.apiService.getActivitatsCulturals()
+            call.enqueue(object : Callback<List<ActivitatCulturalResponse>> {
+                override fun onResponse(
+                    call: Call<List<ActivitatCulturalResponse>>,
+                    response: Response<List<ActivitatCulturalResponse>>
+                ) {
+                    if (response.isSuccessful) {
+                        val activitats = response.body().orEmpty()
+                        Log.d("MAP_VM", "Activitats culturals rebudes (${activitats.size}): $activitats")
+                        onSuccess(activitats)
+                    } else {
+                        onError("Error ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<List<ActivitatCulturalResponse>>, t: Throwable) {
+                    onError("Error de red: ${t.message}")
+                }
+            })
+        }
+    }
+
 }

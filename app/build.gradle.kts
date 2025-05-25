@@ -12,7 +12,14 @@ plugins {
     //Google
     id("com.google.gms.google-services")
 
+    //Detekt
+    id("io.gitlab.arturbosch.detekt")
 
+    // KtLint
+    id("org.jlleitschuh.gradle.ktlint")
+
+    //Jacoco
+    id("jacoco")
 
 }
 
@@ -28,6 +35,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["MAPS_API_KEY"] = System.getenv("MAPS_API_KEY") ?: "MISSING_KEY"
     }
 
     buildTypes {
@@ -49,6 +57,10 @@ android {
     buildFeatures {
         compose = true
     }
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
+
 }
 
 dependencies {
@@ -114,6 +126,63 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.22")
     testImplementation ("com.squareup.okhttp3:mockwebserver:4.12.0")
 
+    //Detekt
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8")
+
     implementation(libs.androidx.media3.common.ktx)
 
+}
+
+detekt {
+    toolVersion = "1.23.8"
+    buildUponDefaultConfig = true
+    input = files("src/main/java", "src/main/kotlin")
+    config = files("$rootDir/config/detekt/detekt.yml")
+    baseline = file("$rootDir/config/detekt/baseline.xml")
+}
+
+ktlint {
+    version.set("0.48.2")
+    android.set(true)
+    outputToConsole.set(true)
+    ignoreFailures.set(false)
+    enableExperimentalRules.set(false)
+    reporters {
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.10"
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest")
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    val fileFilter = listOf(
+        "**/R.class",
+        "**/R$*.class",
+        "**/BuildConfig.*",
+        "**/Manifest*.*",
+        "**/*Test*.*",
+        "android/**/*.*"
+    )
+
+    val debugTree = fileTree("${buildDir}/intermediates/javac/debug/classes") {
+        exclude(fileFilter)
+    }
+
+    val kotlinDebugTree = fileTree("${buildDir}/tmp/kotlin-classes/debug") {
+        exclude(fileFilter)
+    }
+
+    classDirectories.setFrom(files(debugTree, kotlinDebugTree))
+    sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
+    executionData.setFrom(files("${buildDir}/jacoco/testDebugUnit.exec"))
 }

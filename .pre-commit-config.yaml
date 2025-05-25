@@ -1,0 +1,18 @@
+repos:
+  - repo: local
+    hooks:
+      # ---------- ktlint ----------
+      - id: ktlint
+        name: Run ktlint (Gradle task)
+        entry: cmd /c gradlew.bat ktlintCheck
+        language: system
+        types: [kotlin]
+        pass_filenames: false
+
+      # ---------- detekt ----------
+      - id: detekt
+        name: Run detekt (Gradle task)
+        entry: cmd /c gradlew.bat detekt
+        language: system
+        types: [kotlin]
+        pass_filenames: false

@@ -55,6 +55,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.util.Locale
 import coil.compose.AsyncImage
+import com.front_pes.UserPreferences
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -141,6 +142,7 @@ fun updateUserProfile(
                 if (updatedUser != null) {
                     CurrentUser.nom = updatedUser.nom
                     CurrentUser.about = updatedUser.about
+                    UserPreferences.saveUser(context)
                     onSuccess(updatedUser)
                     Toast.makeText(context, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
                 }
@@ -180,6 +182,7 @@ fun uploadProfileImage(
                     if (response.isSuccessful && response.body() != null) {
                         val updatedUser = response.body()!!
                         CurrentUser.imatge = updatedUser.imatge
+                        UserPreferences.saveUser(context)
                         onSuccess(updatedUser)
                         Toast.makeText(context, "Image updated successfully!", Toast.LENGTH_SHORT).show()
                     } else {

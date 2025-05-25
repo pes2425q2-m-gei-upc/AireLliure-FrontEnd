@@ -71,12 +71,16 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
 
     val estacions by viewModel.estacions.collectAsState()
     val rutesAmbPunt by viewModel.rutesAmbPunt.collectAsState()
+    val activitats by viewModel.activitats.collectAsState()
+
 
     val cameraPositionState = rememberCameraPositionState()
     val plazaCatalunya = LatLng(41.3825, 2.1912)
 
     var selectedEstacio by remember { mutableStateOf<EstacioQualitatAireResponse?>(null) }
     var selectedRuta by remember { mutableStateOf<RutaAmbPunt?>(null) }
+    var selectedActivitat by remember { mutableStateOf<ActivitatCulturalResponse?>(null) }
+
     var isBottomSheetVisible by remember { mutableStateOf(false) }
 
     val languageViewModel: LanguageViewModel = viewModel()
@@ -189,6 +193,9 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
         viewModel.fetchRutes(
             onError = { Log.e("MAP_SCREEN", it) }
         )
+        viewModel.fetchActivitatsCulturals(
+            onError = { Log.e("MAP_SCREEN", it) }
+        )
     }
 
     // Solicitar permiso de ubicación una sola vez por sesión
@@ -251,12 +258,14 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
 
     Surface(modifier = Modifier.fillMaxSize()) {
         // Modal inferior
-        if (isBottomSheetVisible && (selectedEstacio != null || selectedRuta != null)) {
+        if (isBottomSheetVisible && (selectedEstacio != null || selectedRuta != null || selectedActivitat != null)) {
             ModalBottomSheet(
                 onDismissRequest = {
                     isBottomSheetVisible = false
                     selectedEstacio = null
                     selectedRuta = null
+                    selectedActivitat = null
+
                 }
             ) {
                 Column(
@@ -383,6 +392,24 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                             }
                         }
                     }
+                    selectedActivitat?.let {
+                        Text(it.nom_activitat, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = it.descripcio,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
+
+                        Text(
+                            text = "Del ${it.data_inici} al ${it.data_fi}",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.SemiBold
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
                 }
             }
         }
@@ -392,6 +419,8 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
             .fillMaxSize()
             .padding(WindowInsets.statusBars.asPaddingValues())
         ) {
+
+
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState,
@@ -457,6 +486,30 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                             }
                         )
                     }
+
+
+                    val drawableAct = AppCompatResources.getDrawable(context, R.drawable.popcorn) // tu icono
+                    val originalAct = drawableAct?.toBitmap()
+                    val scaledAct = originalAct?.scale(84, 84)
+                    val iconAct = scaledAct?.let { BitmapDescriptorFactory.fromBitmap(it) }
+
+                    activitats.forEach { activitat ->
+                        Marker(
+                            state = MarkerState(position = LatLng(activitat.latitud, activitat.longitud)),
+                            title = activitat.nom_activitat,
+                            icon = iconAct,
+                            onClick = {
+                                Log.d("MAP_SCREEN", "Clic en activitat: ${activitat.nom_activitat}")
+                                selectedActivitat = activitat
+                                selectedEstacio = null
+                                selectedRuta = null
+                                isBottomSheetVisible = true
+                                true
+
+                            }
+                        )
+                    }
+
                 }
 
                 MapEffect(key1 = estacions.toList(), key2 = averagesReady) { googleMap ->

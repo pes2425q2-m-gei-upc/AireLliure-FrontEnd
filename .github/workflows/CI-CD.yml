@@ -93,8 +93,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: app/build/reports/jacoco/jacocoTestReport/
-      
+          path: app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+
       - name: List Jacoco output
         run: ls -la app/build/reports/jacoco/jacocoTestReport
 
@@ -135,4 +135,4 @@ jobs:
           args: >
             -Dsonar.projectKey=YOUR_PROJECT_KEY
             -Dsonar.organization=YOUR_ORG_KEY
-            -Dsonar.coverage.jacoco.xmlReportPaths=coverage-report/jacocoTestReport.xml
+            -Dsonar.coverage.jacoco.xmlReportPaths=app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml

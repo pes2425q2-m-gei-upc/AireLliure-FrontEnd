@@ -83,6 +83,9 @@ jobs:
       - name: Grant execute permission for Gradle wrapper
         run: chmod +x ./gradlew
 
+      - name: Clean project
+        run: ./gradlew clean
+
       - name: Run unit tests
         run: ./gradlew testDebugUnitTest --no-build-cache --rerun-tasks
 

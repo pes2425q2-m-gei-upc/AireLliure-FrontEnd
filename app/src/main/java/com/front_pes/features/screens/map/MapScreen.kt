@@ -265,6 +265,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                     selectedEstacio = null
                     selectedRuta = null
                     selectedActivitat = null
+
                 }
             ) {
                 Column(
@@ -487,7 +488,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                     }
 
 
-                    val drawableAct = AppCompatResources.getDrawable(context, R.drawable.fb36) // tu icono
+                    val drawableAct = AppCompatResources.getDrawable(context, R.drawable.popcorn) // tu icono
                     val originalAct = drawableAct?.toBitmap()
                     val scaledAct = originalAct?.scale(84, 84)
                     val iconAct = scaledAct?.let { BitmapDescriptorFactory.fromBitmap(it) }

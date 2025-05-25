@@ -38,87 +38,89 @@ fun GroupCreateScreen(
         viewModel.carregarAmistats()
     }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(top = 48.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)) {
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 48.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)) {
 
-        Text(text = (getString(context, R.string.creagrup, selectedLanguage)), style = MaterialTheme.typography.headlineSmall)
-        Spacer(modifier = Modifier.height(12.dp))
+            Text(text = (getString(context, R.string.creagrup, selectedLanguage)), style = MaterialTheme.typography.headlineSmall)
+            Spacer(modifier = Modifier.height(12.dp))
 
-        OutlinedTextField(
-            value = groupName,
-            onValueChange = { groupName = it },
-            label = { Text(text = (getString(context, R.string.nomgrup, selectedLanguage))) },
-            modifier = Modifier.fillMaxWidth()
-        )
+            OutlinedTextField(
+                value = groupName,
+                onValueChange = { groupName = it },
+                label = { Text(text = (getString(context, R.string.nomgrup, selectedLanguage))) },
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
-            value = groupDesc,
-            onValueChange = { groupDesc = it },
-            label = { Text(text = (getString(context, R.string.desc, selectedLanguage))) },
-            modifier = Modifier.fillMaxWidth()
-        )
+            OutlinedTextField(
+                value = groupDesc,
+                onValueChange = { groupDesc = it },
+                label = { Text(text = (getString(context, R.string.desc, selectedLanguage))) },
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-        Text(text = (getString(context, R.string.selectmem, selectedLanguage)), style = MaterialTheme.typography.titleMedium)
+            Text(text = (getString(context, R.string.selectmem, selectedLanguage)), style = MaterialTheme.typography.titleMedium)
 
-        LazyColumn(modifier = Modifier.weight(1f)) {
-            items(viewModel.amistats) { item ->
-                val checked = item.correu in viewModel.membresSeleccionats
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            if (checked) viewModel.membresSeleccionats.remove(item.correu)
-                            else viewModel.membresSeleccionats.add(item.correu)
-                        }
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                items(viewModel.amistats) { item ->
+                    val checked = item.correu in viewModel.membresSeleccionats
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                if (checked) viewModel.membresSeleccionats.remove(item.correu)
+                                else viewModel.membresSeleccionats.add(item.correu)
+                            }
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = checked,
+                            onCheckedChange = null
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(item.nom)
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Button(onClick = onBack) {
+                    Text(text = (getString(context, R.string.volver, selectedLanguage)))
+                }
+
+                Button(
+                    onClick = {
+                        viewModel.crearGrup(
+                            nom = groupName,
+                            descripcio = groupDesc,
+                            onSuccess = { chatId ->
+                                onGroupCreated(chatId, groupName)
+                            },
+                            onError = { println("Error: $it") }
+                        )
+                    },
+                    enabled = groupName.isNotBlank() && viewModel.membresSeleccionats.isNotEmpty()
                 ) {
-                    Checkbox(
-                        checked = checked,
-                        onCheckedChange = null
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(item.nom)
+                    Text(text = (getString(context, R.string.creagrup, selectedLanguage)))
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Button(onClick = onBack) {
-                Text(text = (getString(context, R.string.volver, selectedLanguage)))
-            }
-
-            Button(
-                onClick = {
-                    viewModel.crearGrup(
-                        nom = groupName,
-                        descripcio = groupDesc,
-                        onSuccess = { chatId ->
-                            onGroupCreated(chatId, groupName)
-                        },
-                        onError = { println("Error: $it") }
-                    )
-                },
-                enabled = groupName.isNotBlank() && viewModel.membresSeleccionats.isNotEmpty()
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-                Text(text = (getString(context, R.string.creagrup, selectedLanguage)))
+                CircularProgressIndicator()
             }
-        }
-    }
-    if (isLoading) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
         }
     }
 }

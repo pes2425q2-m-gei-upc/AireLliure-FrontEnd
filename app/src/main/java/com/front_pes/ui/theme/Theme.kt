@@ -15,18 +15,18 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-val LightGray = Color(0xFFC4C4C4)
-val DarkGray = Color(0xFF343434)
-val LightSelectedGray = Color(0xFFB0B0B0)
-val DarkSelectedGray = Color(0xFF5D5D5D)
+val LightGray = Color(0xFFE7E7E7)
+val DarkGray = Color(0xFF232323)
+val LightSelectedGray = Color(0xFFF5F5F5)
+val DarkSelectedGray = Color(0xFF3F3F3F)
 
 private val DarkColorScheme = darkColorScheme(
     primary = Color(0xFF6DFFCD),
     secondary = Color.Black,
     tertiary = Color.Black,
-    surface = Color(0xFF0C0C0C),
+    surface = Color(0xFF151515),
     surfaceVariant = Color(0xFF2C2C2C),
-    surfaceTint = Color(0xFF545454),
+    surfaceTint = Color(0xFF3F3F3F),
     onSurface = Color.White,
     onSurfaceVariant = Color.White
 )
@@ -37,7 +37,7 @@ private val LightColorScheme = lightColorScheme(
     tertiary = Color.Black,
     surface = Color(0xFFEAEAEA),
     surfaceVariant = Color(0xFFAFAFAF),
-    surfaceTint = Color(0xFF818181),
+    surfaceTint = Color(0xFFEEEEEE),
     onSurface = Color.Black,
     onSurfaceVariant = Color.Black
 )

@@ -258,12 +258,13 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
 
     Surface(modifier = Modifier.fillMaxSize()) {
         // Modal inferior
-        if (isBottomSheetVisible && (selectedEstacio != null || selectedRuta != null)) {
+        if (isBottomSheetVisible && (selectedEstacio != null || selectedRuta != null || selectedActivitat != null)) {
             ModalBottomSheet(
                 onDismissRequest = {
                     isBottomSheetVisible = false
                     selectedEstacio = null
                     selectedRuta = null
+                    selectedActivitat = null
                 }
             ) {
                 Column(

@@ -59,6 +59,10 @@ class MapViewModel : ViewModel() {
     private val _rutesAmbPunt = MutableStateFlow<List<RutaAmbPunt>>(emptyList())
     val rutesAmbPunt: StateFlow<List<RutaAmbPunt>> = _rutesAmbPunt
 
+    private val _activitats = MutableStateFlow<List<ActivitatCulturalResponse>>(emptyList())
+    val activitats: StateFlow<List<ActivitatCulturalResponse>> = _activitats
+
+
     var averagesFetched = false
         private set
 
@@ -296,4 +300,26 @@ class MapViewModel : ViewModel() {
     }
     var alreadyAskedPermission = false
     var hasShownPermissionWarning = false
+
+    fun fetchActivitatsCulturals(onError: (String) -> Unit) {
+        viewModelScope.launch {
+            val call = RetrofitClient.apiService.getActivitatsCulturals()
+            call.enqueue(object : Callback<List<ActivitatCulturalResponse>> {
+                override fun onResponse(
+                    call: Call<List<ActivitatCulturalResponse>>,
+                    response: Response<List<ActivitatCulturalResponse>>
+                ) {
+                    if (response.isSuccessful) {
+                        _activitats.value = response.body() ?: emptyList()
+                    } else {
+                        onError("Error desconocido: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<List<ActivitatCulturalResponse>>, t: Throwable) {
+                    onError("Network error: ${t.message}")
+                }
+            })
+        }
+    }
 }

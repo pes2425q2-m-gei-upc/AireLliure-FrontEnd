@@ -9,7 +9,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.front_pes.CurrentUser
-import com.front_pes.UserPreferences
 import com.front_pes.features.screens.login.LoginRequest
 import com.front_pes.features.screens.login.LoginResponse
 import com.front_pes.features.screens.register.RegisterRequest
@@ -36,7 +35,7 @@ class LoginViewModel : ViewModel() {
     var password by mutableStateOf("")
         private set
 
-    private fun registerUserGoogle(context: Context, correu: String, nom: String, password: String, home: () -> Unit) {
+    private fun registerUserGoogle(correu: String, nom: String, password: String, home: () -> Unit) {
         val call = RetrofitClient.apiService.register(
             com.front_pes.features.screens.register.RegisterRequest(
                 correu = correu,
@@ -49,11 +48,11 @@ class LoginViewModel : ViewModel() {
                 if (response.isSuccessful || response.code() == 201) {
                     response.body()?.let { userData ->
                         CurrentUser.correu = userData.correu
+                        CurrentUser.password = userData.password
                         CurrentUser.nom = userData.nom
                         CurrentUser.about = userData.about
                         CurrentUser.estat = userData.estat
                         CurrentUser.punts = userData.punts
-                        UserPreferences.saveUser(context)
                     }
                     _isLoading.value = false
                     home()
@@ -70,7 +69,7 @@ class LoginViewModel : ViewModel() {
         })
     }
 
-    fun signInWithGoogleCredential(context: Context, credential: AuthCredential, home:() -> Unit)
+    fun signInWithGoogleCredential(credential: AuthCredential, home:() -> Unit)
     = viewModelScope.launch {
         try {
             _isLoading.value = true
@@ -94,6 +93,7 @@ class LoginViewModel : ViewModel() {
                                     // Ya existe → guarda y entra
                                     response.body()?.let { userData ->
                                         CurrentUser.correu = userData.correu
+                                        CurrentUser.password = userData.password
                                         CurrentUser.nom = userData.nom
                                         CurrentUser.about = userData.about
                                         CurrentUser.estat = userData.estat
@@ -106,7 +106,7 @@ class LoginViewModel : ViewModel() {
                                     home()
                                 } else {
                                     // Si no existe → intenta registrarlo
-                                    registerUserGoogle(context, correu, nom, password, home)
+                                    registerUserGoogle(correu, nom, password, home)
                                 }
                             }
 
@@ -143,7 +143,7 @@ class LoginViewModel : ViewModel() {
             // Ya hay una autenticación en curso
             pendingResultTask
                 .addOnSuccessListener { authResult ->
-                    handleGitHubAuthResult(context, authResult, onSuccess, onError)
+                    handleGitHubAuthResult(authResult, onSuccess, onError)
                 }
                 .addOnFailureListener { e ->
                     _isLoading.value = false
@@ -153,7 +153,7 @@ class LoginViewModel : ViewModel() {
             Firebase.auth
                 .startActivityForSignInWithProvider(context as Activity, provider.build())
                 .addOnSuccessListener { authResult ->
-                    handleGitHubAuthResult(context, authResult, onSuccess, onError)
+                    handleGitHubAuthResult(authResult, onSuccess, onError)
                 }
                 .addOnFailureListener { e ->
                     _isLoading.value = false
@@ -163,7 +163,6 @@ class LoginViewModel : ViewModel() {
     }
 
     private fun handleGitHubAuthResult(
-        context: Context,
         authResult: AuthResult,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
@@ -185,6 +184,7 @@ class LoginViewModel : ViewModel() {
                     if (response.isSuccessful) {
                         response.body()?.let { userData ->
                             CurrentUser.correu = userData.correu
+                            CurrentUser.password = userData.password
                             CurrentUser.nom = userData.nom
                             CurrentUser.about = userData.about
                             CurrentUser.estat = userData.estat
@@ -192,7 +192,6 @@ class LoginViewModel : ViewModel() {
                             CurrentUser.administrador = userData.administrador
                             if (userData.imatge != null)CurrentUser.imatge = userData.imatge
                             else CurrentUser.imatge = ""
-                            UserPreferences.saveUser(context)
                         }
                         _isLoading.value = false
                         onSuccess()
@@ -209,6 +208,7 @@ class LoginViewModel : ViewModel() {
                                 if (response.isSuccessful) {
                                     response.body()?.let { userData ->
                                         CurrentUser.correu = userData.correu
+                                        CurrentUser.password = userData.password
                                         CurrentUser.nom = userData.nom
                                         CurrentUser.about = userData.about
                                         CurrentUser.estat = userData.estat
@@ -262,7 +262,7 @@ class LoginViewModel : ViewModel() {
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
-    fun login(context: Context, onSuccess: () -> Unit) {
+    fun login(onSuccess: () -> Unit) {
         _isLoading.value = true
         val hashedPassword = hashPassword(password)
         Log.d("hash", hashedPassword)
@@ -282,7 +282,6 @@ class LoginViewModel : ViewModel() {
                             CurrentUser.administrador = userData.administrador
                             if (userData.imatge != null)CurrentUser.imatge = userData.imatge
                             else CurrentUser.imatge = ""
-                            UserPreferences.saveUser(context)
                         }
                         onSuccess();
                     } else {

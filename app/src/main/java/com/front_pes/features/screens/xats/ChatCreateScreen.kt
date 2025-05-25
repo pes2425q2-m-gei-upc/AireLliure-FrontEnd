@@ -44,59 +44,57 @@ fun ChatCreateScreen(
     }
 
 
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 48.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(top = 48.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)) {
 
-            Text(text = (getString(context, R.string.creaconv, selectedLanguage)), style = MaterialTheme.typography.headlineSmall)
-            Spacer(modifier = Modifier.height(12.dp))
+        Text(text = (getString(context, R.string.creaconv, selectedLanguage)), style = MaterialTheme.typography.headlineSmall)
+        Spacer(modifier = Modifier.height(12.dp))
 
-            if (error != null) {
-                Text("Error: $error", color = MaterialTheme.colorScheme.error)
-            }
+        if (error != null) {
+            Text("Error: $error", color = MaterialTheme.colorScheme.error)
+        }
 
-            val amistatsDisponibles = amistats.filter { amistat ->
-                viewModel.xatsExistents.none { xat -> xat.nom == amistat.nom }
-            }
+        val amistatsDisponibles = amistats.filter { amistat ->
+            viewModel.xatsExistents.none { xat -> xat.nom == amistat.nom }
+        }
 
-            LazyColumn {
-                items(amistatsDisponibles) { item ->
-                    Button(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        onClick = {
-                            viewModel.crearXatIndividual(
-                                nom = item.nom,
-                                usuari2 = item.correu,
-                                onSuccess = { chatId ->
-                                    onChatCreated(chatId, item.nom)
-                                },
-                                onError = { println("Error creant xat: $it") }
-                            )
-                        }
-                    ) {
-                        Text(item.nom)
+        LazyColumn {
+            items(amistatsDisponibles) { item ->
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    onClick = {
+                        viewModel.crearXatIndividual(
+                            nom = item.nom,
+                            usuari2 = item.correu,
+                            onSuccess = { chatId ->
+                                onChatCreated(chatId, item.nom)
+                            },
+                            onError = { println("Error creant xat: $it") }
+                        )
                     }
+                ) {
+                    Text(item.nom)
                 }
             }
-
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(onClick = onBack, modifier = Modifier.align(Alignment.End)) {
-                Text(text = (getString(context, R.string.volver, selectedLanguage)))
-            }
         }
-        if (isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
+
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = onBack, modifier = Modifier.align(Alignment.End)) {
+            Text(text = (getString(context, R.string.volver, selectedLanguage)))
+        }
+    }
+    if (isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
         }
     }
 }

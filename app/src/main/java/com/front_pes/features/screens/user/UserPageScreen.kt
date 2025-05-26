@@ -1,3 +1,4 @@
+@file:Suppress("detekt")
 package com.front_pes.features.screens.user
 
 import android.content.Context

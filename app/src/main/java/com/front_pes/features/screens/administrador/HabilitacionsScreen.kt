@@ -1,3 +1,4 @@
+@file:Suppress("detekt")
 package com.front_pes.features.screens.administrador
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column

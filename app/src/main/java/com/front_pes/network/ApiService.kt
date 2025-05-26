@@ -1,3 +1,4 @@
+@file:Suppress("detekt")
 package com.front_pes.network
 
 import com.front_pes.features.screens.ActivitatsEvents.ActivityPrivRequest

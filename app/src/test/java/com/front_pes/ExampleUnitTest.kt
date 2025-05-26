@@ -1,3 +1,4 @@
+@file:Suppress("detekt")
 package com.front_pes
 
 import org.junit.Test

@@ -50,7 +50,7 @@ jobs:
   test:
     name: Run Unit Tests and Coverage
     runs-on: ubuntu-latest
-    #needs: lint
+    needs: lint
     env:
       MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
     

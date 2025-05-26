@@ -1,3 +1,4 @@
+@file:Suppress("detekt")
 package com.front_pes.features.screens.ActivitatsEvents
 
 data class ApuntarseRequest(

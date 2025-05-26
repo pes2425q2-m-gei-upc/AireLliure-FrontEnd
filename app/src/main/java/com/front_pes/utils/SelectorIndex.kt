@@ -1,3 +1,4 @@
+@file:Suppress("detekt")
 package com.front_pes.utils
 
 import androidx.compose.runtime.mutableStateOf

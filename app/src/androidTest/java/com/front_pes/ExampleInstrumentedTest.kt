@@ -1,3 +1,4 @@
+@file:Suppress("detekt")
 package com.front_pes
 
 import androidx.test.platform.app.InstrumentationRegistry

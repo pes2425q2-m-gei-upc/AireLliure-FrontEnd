@@ -1,3 +1,4 @@
+@file:Suppress("detekt")
 package com.front_pes.ui.theme
 
 import androidx.compose.material3.Typography

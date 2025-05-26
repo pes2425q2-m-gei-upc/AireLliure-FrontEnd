@@ -1,4 +1,3 @@
-@file:Suppress("detekt")
 package com.front_pes.features.screens.xamistat
 
 import androidx.compose.foundation.clickable
@@ -25,7 +24,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -52,7 +50,6 @@ fun BloqueigScreen(onNavigateToRelations: () -> Unit, viewModel: BloqueigViewMod
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
     val context = LocalContext.current
-    val isLoading by viewModel.isLoading.collectAsState()
 
     val labelRelacions = getString(context, R.string.Relacions, selectedLanguage)
     val labelBloqueigs = getString(context, R.string.bloqueo, selectedLanguage)
@@ -112,15 +109,6 @@ fun BloqueigScreen(onNavigateToRelations: () -> Unit, viewModel: BloqueigViewMod
                 selected = selected_nav == BottomNavItem.Bloqueigs,
                 onClick = { }
             )
-        }
-    }
-    if (isLoading) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
         }
     }
 }

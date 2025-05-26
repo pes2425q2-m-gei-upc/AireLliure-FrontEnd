@@ -1,4 +1,3 @@
-@file:Suppress("detekt")
 package com.front_pes.features.screens.login
 
 data class LoginResponse(
@@ -9,5 +8,5 @@ data class LoginResponse(
     val estat: String,
     val punts: Int,
     val administrador: Boolean,
-    val imatge: String? = null
+    val imatge: String
 )

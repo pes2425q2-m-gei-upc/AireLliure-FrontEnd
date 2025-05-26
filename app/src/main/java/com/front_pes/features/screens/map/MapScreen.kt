@@ -1,4 +1,3 @@
-@file:Suppress("detekt")
 package com.front_pes.features.screens.map
 
 import android.Manifest
@@ -10,7 +9,6 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -70,28 +68,18 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
     var locationPermissionGranted by remember { mutableStateOf(false) }
     var showLocationDeniedDialog by remember { mutableStateOf(false) }
 
-
-    val estacions by viewModel.estacions.collectAsState()
-    val rutesAmbPunt by viewModel.rutesAmbPunt.collectAsState()
-    val activitats by viewModel.activitats.collectAsState()
-
-
-
-
+    val estacions = remember { mutableStateListOf<EstacioQualitatAireResponse>() }
+    val rutesAmbPunt = remember { mutableStateListOf<RutaAmbPunt>() }
 
     val cameraPositionState = rememberCameraPositionState()
     val plazaCatalunya = LatLng(41.3825, 2.1912)
 
     var selectedEstacio by remember { mutableStateOf<EstacioQualitatAireResponse?>(null) }
     var selectedRuta by remember { mutableStateOf<RutaAmbPunt?>(null) }
-    var selectedActivitat by remember { mutableStateOf<ActivitatCulturalResponse?>(null) }
-
     var isBottomSheetVisible by remember { mutableStateOf(false) }
 
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
-
-    val isLoading by viewModel.isLoading.collectAsState()
 
     var isTracking = viewModel.isTracking
     var totalDistance = viewModel.totalDistance;
@@ -114,29 +102,6 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
             }
         }
     }
-
-    val currentLocation = userLocation
-    val currentRuta = selectedRuta
-
-    val distanciaARuta by remember(currentLocation, selectedRuta) {
-        mutableStateOf(
-            if (currentLocation != null && selectedRuta != null) {
-                FloatArray(1).also {
-                    if (currentRuta != null) {
-                        Location.distanceBetween(
-                            currentLocation.latitude,
-                            currentLocation.longitude,
-                            currentRuta.punt.latitud,
-                            currentRuta.punt.longitud,
-                            it
-                        )
-                    }
-                }[0]
-            } else Float.MAX_VALUE
-        )
-    }
-
-    val puedeRecorrer = distanciaARuta <= 1000f
 
     LaunchedEffect(isTracking) {
         if (isTracking) {
@@ -227,9 +192,6 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                 Log.e("MAP_SCREEN", "Error cargando rutas: $errorMsg")
             }
         )
-        viewModel.fetchActivitatsCulturals(
-            onError = { Log.e("MAP_SCREEN", it) }
-        )
     }
 
     // Solicitar permiso de ubicación una sola vez por sesión
@@ -292,14 +254,12 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
 
     Surface(modifier = Modifier.fillMaxSize()) {
         // Modal inferior
-        if (isBottomSheetVisible && (selectedEstacio != null || selectedRuta != null || selectedActivitat != null)) {
+        if (isBottomSheetVisible && (selectedEstacio != null || selectedRuta != null)) {
             ModalBottomSheet(
                 onDismissRequest = {
                     isBottomSheetVisible = false
                     selectedEstacio = null
                     selectedRuta = null
-                    selectedActivitat = null
-
                 }
             ) {
                 Column(
@@ -405,7 +365,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                             contentAlignment = Alignment.TopCenter
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                if (!isTracking && puedeRecorrer) {
+                                if (!isTracking) {
                                     Button(
                                         onClick = {
                                             viewModel.startTracking()
@@ -426,40 +386,16 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                             }
                         }
                     }
-                    selectedActivitat?.let {
-                        Text(it.nom_activitat, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
-                            text = it.descripcio,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(bottom = 12.dp)
-                        )
-
-                        Text(
-                            text = "Del ${it.data_inici} al ${it.data_fi}",
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.SemiBold
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
                 }
             }
         }
     }
         // Mapa
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(WindowInsets.statusBars.asPaddingValues())
-        ) {
-
-
+        Box(modifier = Modifier.fillMaxSize()) {
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState,
-                properties = MapProperties(isMyLocationEnabled = locationPermissionGranted),
-                contentPadding = PaddingValues(top = 8.dp)
+                properties = MapProperties(isMyLocationEnabled = locationPermissionGranted)
             ) {
                 if (selectedFiltre == 0) {
                     estacions.forEach { estacio ->
@@ -520,30 +456,6 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                             }
                         )
                     }
-
-
-                    val drawableAct = AppCompatResources.getDrawable(context, R.drawable.popcorn) // tu icono
-                    val originalAct = drawableAct?.toBitmap()
-                    val scaledAct = originalAct?.scale(84, 84)
-                    val iconAct = scaledAct?.let { BitmapDescriptorFactory.fromBitmap(it) }
-
-                    activitats.forEach { activitat ->
-                        Marker(
-                            state = MarkerState(position = LatLng(activitat.latitud, activitat.longitud)),
-                            title = activitat.nom_activitat,
-                            icon = iconAct,
-                            onClick = {
-                                Log.d("MAP_SCREEN", "Clic en activitat: ${activitat.nom_activitat}")
-                                selectedActivitat = activitat
-                                selectedEstacio = null
-                                selectedRuta = null
-                                isBottomSheetVisible = true
-                                true
-
-                            }
-                        )
-                    }
-
                 }
 
                 MapEffect(key1 = estacions.toList(), key2 = averagesReady) { googleMap ->
@@ -556,16 +468,6 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
                                 .zIndex(1f)
                         )
                     }
-                }
-            }
-            if (isLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.6f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
                 }
             }
         }

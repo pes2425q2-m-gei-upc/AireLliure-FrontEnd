@@ -1,4 +1,3 @@
-@file:Suppress("detekt")
 package com.front_pes.network
 
 import retrofit2.Retrofit

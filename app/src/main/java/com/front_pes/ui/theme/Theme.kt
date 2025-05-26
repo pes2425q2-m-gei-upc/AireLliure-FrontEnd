@@ -1,4 +1,3 @@
-@file:Suppress("detekt")
 package com.front_pes.ui.theme
 
 import android.app.Activity
@@ -27,7 +26,6 @@ private val DarkColorScheme = darkColorScheme(
     tertiary = Color.Black,
     surface = Color(0xFF0C0C0C),
     surfaceVariant = Color(0xFF2C2C2C),
-    surfaceTint = Color(0xFF545454),
     onSurface = Color.White,
     onSurfaceVariant = Color.White
 )
@@ -36,9 +34,8 @@ private val LightColorScheme = lightColorScheme(
     primary = Color(0xBA22A908),
     secondary = Color.Black,
     tertiary = Color.Black,
-    surface = Color(0xFFEAEAEA),
-    surfaceVariant = Color(0xFFAFAFAF),
-    surfaceTint = Color(0xFF818181),
+    surface = Color.White,
+    surfaceVariant = Color.White,
     onSurface = Color.Black,
     onSurfaceVariant = Color.Black
 )

@@ -1,4 +1,3 @@
-@file:Suppress("detekt")
 // File: com/front_pes/utils/HeatmapUtils.kt
 package com.front_pes.utils
 

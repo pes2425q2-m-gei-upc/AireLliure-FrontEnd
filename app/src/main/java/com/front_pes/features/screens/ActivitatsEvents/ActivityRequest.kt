@@ -1,4 +1,3 @@
-@file:Suppress("detekt")
 package com.front_pes.features.screens.ActivitatsEvents
 
 import com.google.gson.annotations.SerializedName

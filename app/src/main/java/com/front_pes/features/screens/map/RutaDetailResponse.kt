@@ -1,4 +1,3 @@
-@file:Suppress("detekt")
 package com.front_pes.features.screens.map
 
 import com.google.gson.annotations.SerializedName
@@ -23,6 +22,5 @@ data class valoracions(
     val comentari: String,
     val usuari: String,
     val ruta: Int,
-    val nom_usuari: String,
-    val imatge_usuari: String?
+    val nom_usuari: String
 )

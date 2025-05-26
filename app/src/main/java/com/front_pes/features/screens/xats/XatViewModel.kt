@@ -1,4 +1,3 @@
-@file:Suppress("detekt")
 package com.front_pes.features.screens.xats
 
 import android.util.Log
@@ -9,8 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.front_pes.CurrentUser
 import com.front_pes.network.RetrofitClient
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import okhttp3.*
 import org.json.JSONObject
@@ -25,16 +22,14 @@ class XatViewModel: ViewModel() {
     /* VARIABLE EN CAS D'ERROR*/
     var errorMessage by mutableStateOf<String?>(null)
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
     init {
         carregarXats()
     }
 
+
     fun carregarXats() = viewModelScope.launch {
-        _isLoading.value = true;
         try {
+
             val call = RetrofitClient.apiService.getXatsUsuaribyCorreu(CurrentUser.correu) // aqui poder nomes cal pasar l'idnetificador.
             call.enqueue(object : Callback<List<LlistaXatResponse>>{
                 override fun onResponse(
@@ -48,24 +43,20 @@ class XatViewModel: ViewModel() {
                                 item -> Xat(id = item.id, nom= item.nom, imatge = item.imatge)
                             }
                         }
-                        _isLoading.value = false;
                     } else {
                         errorMessage = when (response.code()) {
                             404 -> "usuari no existeix"
                             401 -> "contrasenya incorrecta"
                             else -> "Error desconocido: ${response.code()}"
                         }
-                        _isLoading.value = false;
                     }
                 }
                 override fun onFailure(call: Call<List<LlistaXatResponse>>, t: Throwable) {
                     errorMessage = "Network error: ${t.message}"
-                    _isLoading.value = false;
                 }
             })
         } catch (e: Exception) {
             println("Error carregant xats: ${e.message}")
-            _isLoading.value = false;
         }
     }
 

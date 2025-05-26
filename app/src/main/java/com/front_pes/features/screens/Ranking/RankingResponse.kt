@@ -1,4 +1,3 @@
-@file:Suppress("detekt")
 package com.front_pes.features.screens.Ranking
 
 import org.w3c.dom.Text

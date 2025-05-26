@@ -1,4 +1,3 @@
-@file:Suppress("detekt")
 package com.front_pes.features.screens.xats
 
 import android.util.Log
@@ -8,8 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.front_pes.CurrentUser
 import com.front_pes.features.screens.xamistat.LlistaAmistatResponse // ✅ IMPORT CORREGIDO
 import com.front_pes.network.RetrofitClient
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -28,19 +25,13 @@ class ChatCreateViewModel : ViewModel() {
     var amistats by mutableStateOf<List<LlistaAmistatResponse>>(emptyList())
     var errorMessage by mutableStateOf<String?>(null)
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
     fun carregarAmistats() {
-        _isLoading.value = true;
         viewModelScope.launch {
             try {
                 val result = RetrofitClient.apiService.getAmistatUsuarybyCorreu(CurrentUser.correu)
                 amistats = result
-                _isLoading.value = false;
             } catch (e: Exception) {
                 errorMessage = "Error de xarxa: ${e.message}"
-                _isLoading.value = false;
             }
         }
     }
@@ -73,7 +64,6 @@ class ChatCreateViewModel : ViewModel() {
             }
         })
     }
-
     fun carregarXats() {
         val call = RetrofitClient.apiService.getXatsUsuaribyCorreu(CurrentUser.correu)
         call.enqueue(object : Callback<List<LlistaXatResponse>> {

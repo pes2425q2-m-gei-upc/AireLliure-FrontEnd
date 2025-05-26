@@ -1,9 +1,7 @@
-@file:Suppress("detekt")
 package com.front_pes.features.screens.xamistat
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +14,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -69,7 +66,6 @@ fun DetallAmistatScreen(userId: String, onBack: () -> Unit, viewModel: DetallAmi
     var currentLocale by remember { mutableStateOf(Locale.getDefault().language) }
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -151,15 +147,6 @@ fun DetallAmistatScreen(userId: String, onBack: () -> Unit, viewModel: DetallAmi
                     fontSize = 14.sp
                 )
             }
-        }
-    }
-    if (isLoading) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
         }
     }
 }

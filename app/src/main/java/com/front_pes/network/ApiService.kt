@@ -1,4 +1,3 @@
-@file:Suppress("detekt")
 package com.front_pes.network
 
 import com.front_pes.features.screens.ActivitatsEvents.ActivityPrivRequest
@@ -10,7 +9,6 @@ import com.front_pes.features.screens.administrador.HabResponse
 import com.front_pes.features.screens.login.LoginRequest
 import com.front_pes.features.screens.login.LoginResponse
 import com.front_pes.features.screens.map.AccessibilitatResponse
-import com.front_pes.features.screens.map.ActivitatCulturalResponse
 import com.front_pes.features.screens.map.AssignacioAccessibilitatRequest
 import com.front_pes.features.screens.map.AssignacioDificultatRequest
 import com.front_pes.features.screens.map.DificultatResponse
@@ -316,6 +314,6 @@ interface ApiService {
         @Path("pk") pk: Int
     ): List<ActivityResponse>
 
-    @GET("activitats-culturals/")
-    fun getActivitatsCulturals(): Call<List<ActivitatCulturalResponse>>
+
+
 }

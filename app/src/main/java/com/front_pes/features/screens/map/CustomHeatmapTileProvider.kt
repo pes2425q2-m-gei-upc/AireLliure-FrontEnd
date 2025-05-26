@@ -1,4 +1,3 @@
-@file:Suppress("detekt")
 // File: com/front_pes/heatmap/CustomHeatmapTileProvider.kt
 package com.front_pes.features.screens.map
 

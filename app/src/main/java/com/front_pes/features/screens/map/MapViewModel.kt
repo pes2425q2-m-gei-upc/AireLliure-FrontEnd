@@ -1,4 +1,3 @@
-@file:Suppress("detekt")
 package com.front_pes.features.screens.map
 
 import android.content.Context
@@ -6,7 +5,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,8 +24,6 @@ import com.front_pes.network.RetrofitClient.apiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 
 
@@ -49,24 +45,6 @@ class MapViewModel : ViewModel() {
     var trackingStartTime by mutableStateOf<Long?>(null)
     var elapsedTime by mutableStateOf(0L) // en milisegundos
     private var timerJob: Job? = null
-
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
-
-    private val _estacions = MutableStateFlow<List<EstacioQualitatAireResponse>>(emptyList())
-    val estacions: StateFlow<List<EstacioQualitatAireResponse>> = _estacions
-
-    private val _rutesAmbPunt = MutableStateFlow<List<RutaAmbPunt>>(emptyList())
-    val rutesAmbPunt: StateFlow<List<RutaAmbPunt>> = _rutesAmbPunt
-
-    private val _activitats = MutableStateFlow<List<ActivitatCulturalResponse>>(emptyList())
-    val activitats: StateFlow<List<ActivitatCulturalResponse>> = _activitats
-
-
-    var averagesFetched = false
-        private set
-
 
     fun startTracking() {
         isTracking = true
@@ -144,7 +122,6 @@ class MapViewModel : ViewModel() {
         stations: List<EstacioQualitatAireResponse>,
         onComplete: () -> Unit = {}
     ) {
-        _isLoading.value = true;
         viewModelScope.launch {
             val tempMap = mutableMapOf<Int, Double>()
             val tempValuesMap = mutableMapOf<Int, Map<Int, Double>>()
@@ -200,7 +177,6 @@ class MapViewModel : ViewModel() {
 
             Log.d("Conts", "${tempValuesMap}")
             Log.d("Testing", "averageMap: ${averageMap}")
-            _isLoading.value = false;
             onComplete()
         }
     }
@@ -287,26 +263,4 @@ class MapViewModel : ViewModel() {
     }
     var alreadyAskedPermission = false
     var hasShownPermissionWarning = false
-
-    fun fetchActivitatsCulturals(onError: (String) -> Unit) {
-        viewModelScope.launch {
-            val call = RetrofitClient.apiService.getActivitatsCulturals()
-            call.enqueue(object : Callback<List<ActivitatCulturalResponse>> {
-                override fun onResponse(
-                    call: Call<List<ActivitatCulturalResponse>>,
-                    response: Response<List<ActivitatCulturalResponse>>
-                ) {
-                    if (response.isSuccessful) {
-                        _activitats.value = response.body() ?: emptyList()
-                    } else {
-                        onError("Error desconocido: ${response.code()}")
-                    }
-                }
-
-                override fun onFailure(call: Call<List<ActivitatCulturalResponse>>, t: Throwable) {
-                    onError("Network error: ${t.message}")
-                }
-            })
-        }
-    }
 }

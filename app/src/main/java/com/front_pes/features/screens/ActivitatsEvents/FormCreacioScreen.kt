@@ -1,4 +1,3 @@
-@file:Suppress("detekt")
 package com.front_pes.features.screens.ActivitatsEvents
 
 import android.app.DatePickerDialog
@@ -158,10 +157,6 @@ fun FormCreacioScreen(viewModel: eventViewModel = viewModel()) {
     var limit by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
 
-    val languageViewModel: LanguageViewModel = viewModel()
-    val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
-    var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
-
     // DatePickers
     val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     val calendar = Calendar.getInstance()
@@ -194,14 +189,14 @@ fun FormCreacioScreen(viewModel: eventViewModel = viewModel()) {
         OutlinedTextField(
             value = nom,
             onValueChange = { nom = it },
-            label = { Text(text = getString(context, R.string.nom, selectedLanguage)) },
+            label = { Text("Nom") },
             modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
             value = descripcio,
             onValueChange = { descripcio = it },
-            label = { Text(text = getString(context, R.string.desc, selectedLanguage)) },
+            label = { Text("Descripció") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -209,7 +204,7 @@ fun FormCreacioScreen(viewModel: eventViewModel = viewModel()) {
             OutlinedTextField(
                 value = dataInici,
                 onValueChange = {},
-                label = { Text(text = getString(context, R.string.dat_ini, selectedLanguage)) },
+                label = { Text("Data Inici") },
                 modifier = Modifier.weight(1f).clickable {
                     showDatePicker { selected -> dataInici = selected }
                 },
@@ -219,7 +214,7 @@ fun FormCreacioScreen(viewModel: eventViewModel = viewModel()) {
             OutlinedTextField(
                 value = dataFi,
                 onValueChange = {},
-                label = { Text(text = getString(context, R.string.dat_fi, selectedLanguage)) },
+                label = { Text("Data Fi") },
                 modifier = Modifier.weight(1f).clickable {
                     showDatePicker { selected -> dataFi = selected }
                 },
@@ -230,7 +225,7 @@ fun FormCreacioScreen(viewModel: eventViewModel = viewModel()) {
         OutlinedTextField(
             value = limit,
             onValueChange = { limit = it },
-            label = { Text(text = getString(context, R.string.lim_pers, selectedLanguage)) },
+            label = { Text("Límit de persones") },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
@@ -239,11 +234,11 @@ fun FormCreacioScreen(viewModel: eventViewModel = viewModel()) {
             onClick = { imagePickerLauncher.launch("image/*") },
             modifier = Modifier.padding(vertical = 8.dp)
         ) {
-            Text(text = getString(context, R.string.subim, selectedLanguage))
+            Text("Pujar imatge")
         }
 
         imageUri?.let {
-            Text(text = getString(context, R.string.imsel, selectedLanguage)+": ${it.lastPathSegment}", fontSize = 12.sp)
+            Text("Imatge seleccionada: ${it.lastPathSegment}", fontSize = 12.sp)
         }
 
         Button(
@@ -252,7 +247,7 @@ fun FormCreacioScreen(viewModel: eventViewModel = viewModel()) {
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = getString(context, R.string.creact, selectedLanguage))
+            Text("Crear activitat")
         }
     }
 }

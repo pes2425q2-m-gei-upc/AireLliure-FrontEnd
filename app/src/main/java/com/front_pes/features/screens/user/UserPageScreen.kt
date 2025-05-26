@@ -386,20 +386,6 @@ fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
                 }
                 Row(
                     modifier = Modifier.padding(16.dp),
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Text(
-                        text = getString(context, R.string.ratings, selectedLanguage) + ": ",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp
-                    )
-                    Text(
-                        text = "0",  //HA DE CONCORDAR AMBM EL NOMBRE DE VALORACIONS POSADES PER L'USUARI
-                        fontSize = 15.sp
-                    )
-                }
-                Row(
-                    modifier = Modifier.padding(16.dp),
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {

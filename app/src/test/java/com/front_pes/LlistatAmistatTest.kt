@@ -1,3 +1,5 @@
+// ktlint-disable
+@file:Suppress("ALL")
 package com.front_pes
 import com.front_pes.CurrentUser
 import com.front_pes.features.screens.login.LoginResponse

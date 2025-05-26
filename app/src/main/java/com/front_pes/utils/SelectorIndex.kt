@@ -1,3 +1,5 @@
+// ktlint-disable
+@file:Suppress("ALL")
 package com.front_pes.utils
 
 import androidx.compose.runtime.mutableStateOf

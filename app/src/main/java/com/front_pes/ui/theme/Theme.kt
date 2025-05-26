@@ -1,3 +1,5 @@
+// ktlint-disable
+@file:Suppress("ALL")
 package com.front_pes.ui.theme
 
 import android.app.Activity

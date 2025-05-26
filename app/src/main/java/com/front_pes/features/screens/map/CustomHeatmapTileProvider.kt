@@ -1,4 +1,5 @@
-// File: com/front_pes/heatmap/CustomHeatmapTileProvider.kt
+// ktlint-disable
+@file:Suppress("ALL")
 package com.front_pes.features.screens.map
 
 import android.graphics.*

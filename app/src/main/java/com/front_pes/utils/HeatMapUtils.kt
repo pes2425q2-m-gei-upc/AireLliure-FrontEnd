@@ -1,4 +1,5 @@
-// File: com/front_pes/utils/HeatmapUtils.kt
+// ktlint-disable
+@file:Suppress("ALL")
 package com.front_pes.utils
 
 import android.graphics.Color

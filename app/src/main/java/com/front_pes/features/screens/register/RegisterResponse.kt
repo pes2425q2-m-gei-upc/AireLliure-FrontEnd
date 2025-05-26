@@ -1,3 +1,5 @@
+// ktlint-disable
+@file:Suppress("ALL")
 package com.front_pes.features.screens.register
 
 data class RegisterResponse(

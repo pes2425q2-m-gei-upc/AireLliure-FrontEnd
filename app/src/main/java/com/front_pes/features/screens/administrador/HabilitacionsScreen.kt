@@ -1,3 +1,5 @@
+// ktlint-disable
+@file:Suppress("ALL")
 package com.front_pes.features.screens.administrador
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column

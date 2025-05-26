@@ -69,9 +69,13 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
     var locationPermissionGranted by remember { mutableStateOf(false) }
     var showLocationDeniedDialog by remember { mutableStateOf(false) }
 
+
     val estacions by viewModel.estacions.collectAsState()
     val rutesAmbPunt by viewModel.rutesAmbPunt.collectAsState()
     val activitats by viewModel.activitats.collectAsState()
+
+
+
 
 
     val cameraPositionState = rememberCameraPositionState()
@@ -176,22 +180,51 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
 
     var averagesReady by remember { mutableStateOf(false) }
 
-    LaunchedEffect(estacions, reloadTrigger) {
+    LaunchedEffect(reloadTrigger) {
         if (estacions.isNotEmpty()) {
             averagesReady = false
             viewModel.fetchAveragesForStations(estacions) {
                 averagesReady = true
             }
+            Log.d("LoadingMapScreen", "MapScreen cargado o recargado")
         }
     }
 
     // Cargar datos de la API
     LaunchedEffect(Unit) {
         viewModel.fetchEstacionsQualitatAire(
-            onError = { Log.e("MAP_SCREEN", it) }
+            onSuccess = { estaciones ->
+                estacions.clear()
+                estacions.addAll(estaciones)
+
+                averagesReady = false
+                viewModel.fetchAveragesForStations(estaciones) {
+                    averagesReady = true
+                    Log.d("MAP_SCREEN", "Averages cargados correctamente")
+                }
+            },
+            onError = { errorMessage -> }
         )
+
         viewModel.fetchRutes(
-            onError = { Log.e("MAP_SCREEN", it) }
+            onSuccess = { rutesList ->
+                rutesList.forEach { ruta ->
+                    ruta.punt_inici?.let { puntId ->
+                        viewModel.fetchPuntByID(
+                            pk = puntId,
+                            onSuccess = { punt ->
+                                rutesAmbPunt.add(RutaAmbPunt(ruta = ruta, punt = punt))
+                            },
+                            onError = { errorMsg ->
+                                Log.e("MAP_SCREEN", "Error obteniendo punt_inici: $errorMsg")
+                            }
+                        )
+                    }
+                }
+            },
+            onError = { errorMsg ->
+                Log.e("MAP_SCREEN", "Error cargando rutas: $errorMsg")
+            }
         )
         viewModel.fetchActivitatsCulturals(
             onError = { Log.e("MAP_SCREEN", it) }

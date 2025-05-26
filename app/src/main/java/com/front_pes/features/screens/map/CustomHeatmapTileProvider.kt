@@ -34,7 +34,19 @@ class CustomHeatmapTileProvider(
         val scaleFactor = highResSize / tileSize.toFloat()
 
         stations.forEach { station ->
-
+//            val filters: Map<String, String> = SelectedContaminants
+//                .selected
+//                .associateWith { it }
+//
+//            val call = apiService.getPresencia(station.id, filters)
+//
+//            val response = call.execute()
+//
+//            var avgValue = if (response.isSuccessful) {
+//                response.body()?.map { it.valor }?.average() ?: 0.0
+//            } else {
+//                0.0
+//            }
             val avgValue = averages[station.id] ?: 0.0
             Log.d("Average", "Station ${station.id} → avg = $avgValue")
 
@@ -49,6 +61,11 @@ class CustomHeatmapTileProvider(
             val resolution = (156543.03392 * cos(station.latitud * PI / 180)) / (1 shl zoom)
             val pixelRadius = (radiusMeters / resolution).toFloat() * scaleFactor
 
+//            val paint = Paint().apply {
+//                isAntiAlias = true
+//                color = adjustAlpha(stationColor, dynamicAlpha)
+//                xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_OVER)
+//            }
             val gradient = RadialGradient(
                 localX, localY, pixelRadius,
                 intArrayOf(

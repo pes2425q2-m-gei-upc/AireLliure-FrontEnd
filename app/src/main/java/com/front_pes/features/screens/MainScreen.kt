@@ -375,8 +375,8 @@ fun MainScreen(
     val context = LocalContext.current
     val mapViewModel: MapViewModel = viewModel()
 
-    val estacions by mapViewModel.estacions.collectAsState()
-    val rutesAmbPunt by mapViewModel.rutesAmbPunt.collectAsState()
+    val estacions = remember { mutableStateListOf<EstacioQualitatAireResponse>() }
+    val rutesAmbPunt = remember { mutableStateListOf<RutaAmbPunt>() }
 
     val navItemListMap = listOf(
         NavItem(getString(context, R.string.airQ, selectedLanguage), Icons.Default.Person),
@@ -400,10 +400,27 @@ fun MainScreen(
     // Load estacions and rutas
     LaunchedEffect(Unit) {
         mapViewModel.fetchEstacionsQualitatAire(
+            onSuccess = {
+                estacions.clear()
+                estacions.addAll(it)
+            },
             onError = { Log.e("MainScreen", "Error cargando estaciones") }
         )
 
         mapViewModel.fetchRutes(
+            onSuccess = { rutas ->
+                rutas.forEach { ruta ->
+                    ruta.punt_inici?.let { puntId ->
+                        mapViewModel.fetchPuntByID(
+                            pk = puntId,
+                            onSuccess = { punt ->
+                                rutesAmbPunt.add(RutaAmbPunt(ruta = ruta, punt = punt))
+                            },
+                            onError = { Log.e("MainScreen", "Error cargando punto: $it") }
+                        )
+                    }
+                }
+            },
             onError = { Log.e("MainScreen", "Error cargando rutas") }
         )
     }

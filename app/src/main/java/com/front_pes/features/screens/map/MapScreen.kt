@@ -179,7 +179,7 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
     var averagesReady by remember { mutableStateOf(false) }
 
     LaunchedEffect(estacions, reloadTrigger) {
-        if (estacions.isNotEmpty()) {
+        if (estacions.isNotEmpty() && !viewModel.averagesFetched) {
             averagesReady = false
             viewModel.fetchAveragesForStations(estacions) {
                 averagesReady = true
@@ -189,15 +189,21 @@ fun MapScreen(viewModel: MapViewModel = viewModel(), onRutaClick: (Int) -> Unit,
 
     // Cargar datos de la API
     LaunchedEffect(Unit) {
-        viewModel.fetchEstacionsQualitatAire(
-            onError = { Log.e("MAP_SCREEN", it) }
-        )
-        viewModel.fetchRutes(
-            onError = { Log.e("MAP_SCREEN", it) }
-        )
-        viewModel.fetchActivitatsCulturals(
-            onError = { Log.e("MAP_SCREEN", it) }
-        )
+        if (viewModel.estacions.value.isEmpty()) {
+            viewModel.fetchEstacionsQualitatAire(
+                onError = { Log.e("MAP_SCREEN", it) }
+            )
+        }
+        if (viewModel.rutesAmbPunt.value.isEmpty()) {
+            viewModel.fetchRutes(
+                onError = { Log.e("MAP_SCREEN", it) }
+            )
+        }
+        if (viewModel.activitats.value.isEmpty()) {
+            viewModel.fetchActivitatsCulturals(
+                onError = { Log.e("MAP_SCREEN", it) }
+            )
+        }
     }
 
     // Solicitar permiso de ubicación una sola vez por sesión

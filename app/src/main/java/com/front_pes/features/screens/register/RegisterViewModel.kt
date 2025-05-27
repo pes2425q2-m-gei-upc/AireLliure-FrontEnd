@@ -41,6 +41,7 @@ class  RegisterViewModel : ViewModel() {
                         CurrentUser.about = userData.about
                         CurrentUser.estat = userData.estat
                         CurrentUser.punts = userData.punts
+                        CurrentUser.imatge = ""
                     }
                     onSuccess();
                 } else {

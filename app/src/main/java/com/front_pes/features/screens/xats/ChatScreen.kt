@@ -134,7 +134,8 @@ fun ChatScreen(chatId: Int, userName: String, onBack: () -> Unit, viewModel: Cha
                             )
                             Text(
                                 text = msg.text,
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Black
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(

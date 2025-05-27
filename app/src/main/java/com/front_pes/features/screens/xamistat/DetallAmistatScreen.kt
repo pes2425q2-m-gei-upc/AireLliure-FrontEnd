@@ -132,7 +132,7 @@ fun DetallAmistatScreen(userId: String, onBack: () -> Unit, viewModel: DetallAmi
             ) {
                 Text(
                     text = (getString(context, R.string.goback, selectedLanguage)),
-                    color = Color.White,
+                    color = Color.Black,
                     fontSize = 14.sp
                 )
             }

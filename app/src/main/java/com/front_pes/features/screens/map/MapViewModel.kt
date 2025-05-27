@@ -66,7 +66,6 @@ class MapViewModel : ViewModel() {
 
 
     var averagesFetched = false
-        private set
 
     fun startTracking() {
         isTracking = true

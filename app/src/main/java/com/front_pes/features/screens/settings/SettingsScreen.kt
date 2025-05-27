@@ -83,8 +83,6 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
         currentLocale = selectedLanguage
     }
 
-
-
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
@@ -131,7 +129,6 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
                 .fillMaxWidth(0.9f) // Adjust width
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp) // Rounded edges
-            //colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(
                 modifier = Modifier.padding(10.dp),
@@ -151,12 +148,6 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val gradientBrush = Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFF05C7F2),
-                            Color(0xFF07F285)
-                        )
-                    )
 
                     // Botón para Español
                     Button(
@@ -164,7 +155,7 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
                             languageViewModel.changeLanguage("es")
                             },
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF05C7F2)),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         enabled = selectedLanguage != "es"
                     ) {
                         Text("ESP")
@@ -178,7 +169,7 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
                             languageViewModel.changeLanguage("ca")
                         },
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF05C7F2)),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         enabled = selectedLanguage != "ca"
                     ) {
                         Text("CAT")
@@ -192,7 +183,7 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
                             languageViewModel.changeLanguage("en")
                         },
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF05C7F2)),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         enabled = selectedLanguage != "en"
                     ) {
                         Text("ENG")
@@ -235,30 +226,7 @@ fun SettingsScreen(onNavigateToLogin : () -> Unit, languageViewModel: LanguageVi
     }
 }
 
-@Composable
-fun SettingItem(text: String) { //A modificar para poder meter un icono/imagen especifica segun el item
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        val gradientBrush = Brush.linearGradient(
-            colors = listOf(Color(0xFF05C7F2), Color(0xFF07F285))
-        )
 
-        Icon(
-            painter = rememberVectorPainter(image = Icons.Default.Settings),
-            contentDescription = "Settings Icon",
-            tint = Color.White, // Ensures gradient applies correctly
-            modifier = Modifier
-                .size(24.dp)
-                .background(brush = gradientBrush, shape = RoundedCornerShape(4.dp))
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        Text(text = text, fontSize = 18.sp)
-    }
-}
 
 fun updateUserStatus(
     context: android.content.Context,

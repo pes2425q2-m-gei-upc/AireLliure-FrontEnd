@@ -568,7 +568,7 @@ fun MainScreen(
                                     },
                                     containerColor = customColors.selectedItem
                                 ) {
-                                    Icon(Icons.Default.Edit, contentDescription = "Filtro", tint = Color.White)
+                                    Icon(Icons.Default.Edit, contentDescription = "Filtro", tint = MaterialTheme.colorScheme.onSurface)
                                 }
                             }
 
@@ -584,7 +584,7 @@ fun MainScreen(
                                     },
                                     containerColor = customColors.selectedItem
                                 ) {
-                                    Icon(Icons.Default.List, contentDescription = "Lista", tint = Color.White)
+                                    Icon(Icons.Default.List, contentDescription = "Lista", tint = MaterialTheme.colorScheme.onSurface)
                                 }
                             }
 
@@ -603,6 +603,7 @@ fun MainScreen(
                         // Dialogo filtro
                         if (showFilterDialog) {
                             FilterDialog(onDismiss = {
+                                mapViewModel.averagesFetched = false
                                 reloadMap = !reloadMap
                                 showFilterDialog = false
                             })

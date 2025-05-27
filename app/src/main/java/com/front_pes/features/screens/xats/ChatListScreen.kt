@@ -27,6 +27,7 @@ import com.front_pes.getString
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImage
 
@@ -89,7 +90,7 @@ fun ChatListScreen(
             ) {
                 Text(
                     text = (getString(context, R.string.creaconv, selectedLanguage)),
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = Color.Black
                 )
             }
 
@@ -99,7 +100,7 @@ fun ChatListScreen(
             ) {
                 Text(
                     text = (getString(context, R.string.creagrup, selectedLanguage)),
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = Color.Black
                 )
             }
         }

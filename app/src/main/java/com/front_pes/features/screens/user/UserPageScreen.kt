@@ -103,19 +103,15 @@ fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit, o
                 Button(onClick = { imagePickerLauncher.launch("image/*") }) {
                     Text(text = getString(context, R.string.selim, selectedLanguage))
                 }
-
-                selectedImageUri?.let {
-                    Text(text = getString(context, R.string.imsel, selectedLanguage)+": ${it.lastPathSegment}")
-                    Spacer(Modifier.height(8.dp))
-                    Button(onClick = { onUploadImage(it) }) {
-                        Text(text = getString(context, R.string.subim, selectedLanguage))
-                    }
-                }
             }
         },
 
         confirmButton = {
-            Button(onClick = { onSave(newName, newAbout) }) {
+            Button(onClick = {
+                selectedImageUri?.let {
+                    onUploadImage(it)
+                }
+                onSave(newName, newAbout) }) {
                 Text(text = getString(context, R.string.guard, selectedLanguage))
             }
         },
@@ -214,13 +210,17 @@ fun UserPageScreen (title: String, onNavigateToLogin : () -> Unit) {
 
     var nom by remember { mutableStateOf(CurrentUser.nom) }
     var about by remember { mutableStateOf(CurrentUser.about) }
-    var image by remember { mutableStateOf(CurrentUser.imatge)}
+    var image by remember { mutableStateOf(CurrentUser.imatge) }
 
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
     var currentLocale by remember { mutableStateOf(Locale.getDefault().language)}
     val languageViewModel: LanguageViewModel = viewModel()
     val selectedLanguage by languageViewModel.selectedLanguage.collectAsState()
+
+    LaunchedEffect(image) {
+
+    }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(

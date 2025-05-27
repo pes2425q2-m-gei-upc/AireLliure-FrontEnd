@@ -40,6 +40,7 @@ import java.util.*
 import android.content.Intent
 import android.provider.CalendarContract
 import androidx.compose.foundation.background
+import androidx.compose.ui.zIndex
 import com.front_pes.R
 import com.front_pes.features.screens.settings.LanguageViewModel
 import com.front_pes.getString
@@ -274,7 +275,8 @@ fun EventScreen(viewModel: eventViewModel = viewModel()) {
     if (isLoading) {
         Box(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .zIndex(1f),
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator()

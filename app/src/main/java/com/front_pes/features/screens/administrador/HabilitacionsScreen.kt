@@ -155,14 +155,6 @@ fun AllListItem(name: String, onDeshabilitar: () -> Unit) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = "User Icon",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .size(40.dp)
-                    .padding(end = 16.dp)
-            )
             Text(
                 text = name,
                 style = MaterialTheme.typography.bodyLarge,

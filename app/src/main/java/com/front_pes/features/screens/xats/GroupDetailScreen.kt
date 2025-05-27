@@ -108,321 +108,324 @@ fun GroupDetailScreen(
         viewModel.carregarAmistats()
     }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp)) {
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)) {
 
-        Text(text = (getString(context, R.string.detgrup, selectedLanguage)), style = MaterialTheme.typography.headlineSmall)
-        Spacer(modifier = Modifier.height(12.dp))
+            Text(text = (getString(context, R.string.detgrup, selectedLanguage)), style = MaterialTheme.typography.headlineSmall)
+            Spacer(modifier = Modifier.height(12.dp))
 
-        // NOM
-        if (isAdmin) {
-            OutlinedTextField(
-                value = viewModel.nom,
-                onValueChange = { viewModel.nom = it },
-                label = { Text(text = (getString(context, R.string.nomgrup, selectedLanguage))) },
-                modifier = Modifier.fillMaxWidth()
-            )
-        } else {
-            Text(text = (getString(context, R.string.nomgrup, selectedLanguage)), style = MaterialTheme.typography.labelMedium)
-            Text(viewModel.nom, style = MaterialTheme.typography.bodyLarge)
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // DESCRIPCIÓ
-        if (isAdmin) {
-            OutlinedTextField(
-                value = viewModel.descripcio,
-                onValueChange = { viewModel.descripcio = it },
-                label = { Text(text = (getString(context, R.string.desc, selectedLanguage))) },
-                modifier = Modifier.fillMaxWidth()
-            )
-        } else {
-            Text(text = (getString(context, R.string.desc, selectedLanguage)), style = MaterialTheme.typography.labelMedium)
-            Text(
-                text = viewModel.descripcio.ifEmpty { (getString(context, R.string.sindesc, selectedLanguage)) },
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // TÍTOL + BOTÓ AFEGIR
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = (getString(context, R.string.mem, selectedLanguage)), style = MaterialTheme.typography.titleMedium)
-
+            // NOM
             if (isAdmin) {
-                Button(onClick = { showDropdown = !showDropdown }) {
-                    Text(text = (getString(context, R.string.addmem, selectedLanguage)))
+                OutlinedTextField(
+                    value = viewModel.nom,
+                    onValueChange = { viewModel.nom = it },
+                    label = { Text(text = (getString(context, R.string.nomgrup, selectedLanguage))) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                Text(text = (getString(context, R.string.nomgrup, selectedLanguage)), style = MaterialTheme.typography.labelMedium)
+                Text(viewModel.nom, style = MaterialTheme.typography.bodyLarge)
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // DESCRIPCIÓ
+            if (isAdmin) {
+                OutlinedTextField(
+                    value = viewModel.descripcio,
+                    onValueChange = { viewModel.descripcio = it },
+                    label = { Text(text = (getString(context, R.string.desc, selectedLanguage))) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                Text(text = (getString(context, R.string.desc, selectedLanguage)), style = MaterialTheme.typography.labelMedium)
+                Text(
+                    text = viewModel.descripcio.ifEmpty { (getString(context, R.string.sindesc, selectedLanguage)) },
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // TÍTOL + BOTÓ AFEGIR
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = (getString(context, R.string.mem, selectedLanguage)), style = MaterialTheme.typography.titleMedium)
+
+                if (isAdmin) {
+                    Button(onClick = { showDropdown = !showDropdown }) {
+                        Text(text = (getString(context, R.string.addmem, selectedLanguage)))
+                    }
                 }
             }
-        }
 
-        // LLISTA DE MEMBRES
-        val membresPerMostrar = if (isAdmin) {
-            viewModel.membres
-        } else {
-            (viewModel.membres + viewModel.creador).distinct()
-        }
+            // LLISTA DE MEMBRES
+            val membresPerMostrar = if (isAdmin) {
+                viewModel.membres
+            } else {
+                (viewModel.membres + viewModel.creador).distinct()
+            }
 
-        LazyColumn(modifier = Modifier.weight(1f)) {
-            items(membresPerMostrar.filter { it.isNotBlank() }) { correu ->
-                val isCurrentUser = correu == CurrentUser.correu
-                val isCreador = correu == viewModel.creador
-                val nomBase = viewModel.amistats.find { it.correu == correu }?.nom ?: correu
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                items(membresPerMostrar.filter { it.isNotBlank() }) { correu ->
+                    val isCurrentUser = correu == CurrentUser.correu
+                    val isCreador = correu == viewModel.creador
+                    val nomBase = viewModel.amistats.find { it.correu == correu }?.nom ?: correu
 
-                val nomMostrat = when {
-                    isCurrentUser && isCreador -> "Tu (admin)"
-                    isCurrentUser -> "Tu"
-                    isCreador -> "$nomBase (admin)"
-                    else -> nomBase
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
-                        Text(
-                            text = nomMostrat,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                    val nomMostrat = when {
+                        isCurrentUser && isCreador -> "Tu (admin)"
+                        isCurrentUser -> "Tu"
+                        isCreador -> "$nomBase (admin)"
+                        else -> nomBase
                     }
 
-                    if (isAdmin && correu != CurrentUser.correu) {
-                        TextButton(onClick = {
-                            viewModel.toggleMembre(correu)
-                        }) {
-                            Text(text = (getString(context, R.string.elim, selectedLanguage)), color = MaterialTheme.colorScheme.error)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                            Text(
+                                text = nomMostrat,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+
+                        if (isAdmin && correu != CurrentUser.correu) {
+                            TextButton(onClick = {
+                                viewModel.toggleMembre(correu)
+                            }) {
+                                Text(text = (getString(context, R.string.elim, selectedLanguage)), color = MaterialTheme.colorScheme.error)
+                            }
                         }
                     }
                 }
             }
-        }
 
-        // DESPLEGABLE AFEGIR MEMBRE
-        if (isAdmin) {
-            DropdownMenu(
-                expanded = showDropdown,
-                onDismissRequest = { showDropdown = false }
-            ) {
-                val amistatsDisponibles = viewModel.amistats.filterNot { viewModel.membres.contains(it.correu) }
+            // DESPLEGABLE AFEGIR MEMBRE
+            if (isAdmin) {
+                DropdownMenu(
+                    expanded = showDropdown,
+                    onDismissRequest = { showDropdown = false }
+                ) {
+                    val amistatsDisponibles = viewModel.amistats.filterNot { viewModel.membres.contains(it.correu) }
 
-                if (amistatsDisponibles.isEmpty()) {
-                    DropdownMenuItem(
-                        text = { Text(text = (getString(context, R.string.noamic, selectedLanguage))) },
-                        onClick = { }
-                    )
-                } else {
-                    amistatsDisponibles.forEach { user ->
+                    if (amistatsDisponibles.isEmpty()) {
                         DropdownMenuItem(
-                            text = { Text(user.nom) },
-                            onClick = {
-                                viewModel.toggleMembre(user.correu)
-                                showDropdown = false
-                            }
+                            text = { Text(text = (getString(context, R.string.noamic, selectedLanguage))) },
+                            onClick = { }
                         )
+                    } else {
+                        amistatsDisponibles.forEach { user ->
+                            DropdownMenuItem(
+                                text = { Text(user.nom) },
+                                onClick = {
+                                    viewModel.toggleMembre(user.correu)
+                                    showDropdown = false
+                                }
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
-        var selectedActivitat by remember { mutableStateOf<ActivityResponse?>(null) }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Activitats del grup",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            IconButton(onClick = { showCreateDialog = true }) {
-                Icon(Icons.Default.Add, contentDescription = "Crear activitat")
+            Spacer(modifier = Modifier.height(16.dp))
+            var selectedActivitat by remember { mutableStateOf<ActivityResponse?>(null) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Activitats del grup",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                IconButton(onClick = { showCreateDialog = true }) {
+                    Icon(Icons.Default.Add, contentDescription = "Crear activitat")
+                }
             }
-        }
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f, fill = false),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(viewModel.activitats) { activitat ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { selectedActivitat = activitat },
-                    shape = RoundedCornerShape(12.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(
-                            text = activitat.nom,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "Del ${formatISOToReadable(activitat.data_inici)} al ${formatISOToReadable(activitat.data_fi)}",
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                        Text(
-                            text = "Límit: ${activitat.limit}",
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                        if (!activitat.descripcio.isNullOrBlank()) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f, fill = false),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(viewModel.activitats) { activitat ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectedActivitat = activitat },
+                        shape = RoundedCornerShape(12.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Text(
+                                text = activitat.nom,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = activitat.descripcio,
-                                style = MaterialTheme.typography.bodyMedium,
-                                maxLines = 2
+                                text = "Del ${formatISOToReadable(activitat.data_inici)} al ${formatISOToReadable(activitat.data_fi)}",
+                                style = MaterialTheme.typography.bodySmall
                             )
+                            Text(
+                                text = "Límit: ${activitat.limit}",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                            if (!activitat.descripcio.isNullOrBlank()) {
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = activitat.descripcio,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    maxLines = 2
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
 
-        selectedActivitat?.let { activitat ->
-            EventDetailsDialog2(
-                nom = activitat.nom,
-                descripcio = activitat.descripcio,
-                dataInici = activitat.data_inici,
-                dataFi = activitat.data_fi,
-                onDismiss = { selectedActivitat = null }
-            )
-        }
-
-        if (showCreateDialog) {
-            CreatePrivateActivityDialog(
-                groupId = groupId,
-                onDismiss = { showCreateDialog = false },
-                onSubmit = { nom, descripcio, inici, fi ->
-                    viewModel.crearActivitatPrivada(nom, descripcio, inici, fi, groupId)
-                }
-            )
-        }
-        // BOTONS BOTTOM
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Button(onClick = onBack) {
-                Text(text = (getString(context, R.string.volver, selectedLanguage)))
+            selectedActivitat?.let { activitat ->
+                EventDetailsDialog2(
+                    nom = activitat.nom,
+                    descripcio = activitat.descripcio,
+                    dataInici = activitat.data_inici,
+                    dataFi = activitat.data_fi,
+                    onDismiss = { selectedActivitat = null }
+                )
             }
 
-            when {
-                isAdmin -> {
-                    Row {
-                        Button(onClick = {
-                            viewModel.actualitzarGrup(
-                                id = groupId,
-                                onSuccess = { onBack() },
-                                onError = { println("Error actualitzant grup") }
-                            )
-                        }) {
-                            Text(text = (getString(context, R.string.guardcamb, selectedLanguage)))
+            if (showCreateDialog) {
+                CreatePrivateActivityDialog(
+                    groupId = groupId,
+                    onDismiss = { showCreateDialog = false },
+                    onSubmit = { nom, descripcio, inici, fi ->
+                        viewModel.crearActivitatPrivada(nom, descripcio, inici, fi, groupId)
+                    }
+                )
+            }
+            // BOTONS BOTTOM
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Button(onClick = onBack) {
+                    Text(text = (getString(context, R.string.volver, selectedLanguage)))
+                }
+
+                when {
+                    isAdmin -> {
+                        Column {
+                            Row {
+                                Button(onClick = {
+                                    viewModel.actualitzarGrup(
+                                        id = groupId,
+                                        onSuccess = { onBack() },
+                                        onError = { println("Error actualitzant grup") }
+                                    )
+                                }) {
+                                    Text(text = (getString(context, R.string.guardcamb, selectedLanguage)))
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            OutlinedButton(
+                                onClick = { showDeleteDialog = true },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.error
+                                )
+                            ) {
+                                Text(text = (getString(context, R.string.elimgrup, selectedLanguage)))
+                            }
                         }
+                    }
 
-                        Spacer(modifier = Modifier.width(8.dp))
-
+                    else -> {
                         OutlinedButton(
-                            onClick = { showDeleteDialog = true },
+                            onClick = { showLeaveDialog = true },
                             colors = ButtonDefaults.outlinedButtonColors(
                                 contentColor = MaterialTheme.colorScheme.error
                             )
                         ) {
-                            Text(text = (getString(context, R.string.elimgrup, selectedLanguage)))
+                            Text(text = (getString(context, R.string.abgrup, selectedLanguage)))
                         }
                     }
                 }
-
-                else -> {
-                    OutlinedButton(
-                        onClick = { showLeaveDialog = true },
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error
-                        )
-                    ) {
-                        Text(text = (getString(context, R.string.abgrup, selectedLanguage)))
-                    }
-                }
             }
-        }
 
-        // Diàleg confirmació eliminar grup (ADMIN)
-        if (showDeleteDialog) {
-            AlertDialog(
-                onDismissRequest = { showDeleteDialog = false },
-                title = { Text(text = (getString(context, R.string.confelim, selectedLanguage))) },
-                text = { Text(text = (getString(context, R.string.segelim, selectedLanguage))) },
-                confirmButton = {
-                    TextButton(onClick = {
-                        showDeleteDialog = false
-                        viewModel.esborrarGrup(
-                            id = groupId,
-                            onSuccess = { onBack() },
-                            onError = { println("Error eliminant grup") }
-                        )
-                    }) {
-                        Text(text = (getString(context, R.string.elim, selectedLanguage)), color = MaterialTheme.colorScheme.error)
+            // Diàleg confirmació eliminar grup (ADMIN)
+            if (showDeleteDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDeleteDialog = false },
+                    title = { Text(text = (getString(context, R.string.confelim, selectedLanguage))) },
+                    text = { Text(text = (getString(context, R.string.segelim, selectedLanguage))) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showDeleteDialog = false
+                            viewModel.esborrarGrup(
+                                id = groupId,
+                                onSuccess = { onBack() },
+                                onError = { println("Error eliminant grup") }
+                            )
+                        }) {
+                            Text(text = (getString(context, R.string.elim, selectedLanguage)), color = MaterialTheme.colorScheme.error)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDeleteDialog = false }) {
+                            Text(text = (getString(context, R.string.cancel, selectedLanguage)))
+                        }
                     }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDeleteDialog = false }) {
-                        Text(text = (getString(context, R.string.cancel, selectedLanguage)))
-                    }
-                }
-            )
-        }
+                )
+            }
 
-        // Diàleg confirmació abandonar grup (NO ADMIN)
-        if (showLeaveDialog) {
-            AlertDialog(
-                onDismissRequest = { showLeaveDialog = false },
-                title = { Text(text = (getString(context, R.string.confsort, selectedLanguage))) },
-                text = { Text(text = (getString(context, R.string.segsort, selectedLanguage))) },
-                confirmButton = {
-                    TextButton(onClick = {
-                        showLeaveDialog = false
-                        viewModel.abandonarGrup(
-                            id = groupId,
-                            onSuccess = { onBack() },
-                            onError = { println("Error abandonant grup") }
-                        )
-                    }) {
-                        Text(text = (getString(context, R.string.sort, selectedLanguage)), color = MaterialTheme.colorScheme.error)
+            // Diàleg confirmació abandonar grup (NO ADMIN)
+            if (showLeaveDialog) {
+                AlertDialog(
+                    onDismissRequest = { showLeaveDialog = false },
+                    title = { Text(text = (getString(context, R.string.confsort, selectedLanguage))) },
+                    text = { Text(text = (getString(context, R.string.segsort, selectedLanguage))) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showLeaveDialog = false
+                            viewModel.abandonarGrup(
+                                id = groupId,
+                                onSuccess = { onBack() },
+                                onError = { println("Error abandonant grup") }
+                            )
+                        }) {
+                            Text(text = (getString(context, R.string.sort, selectedLanguage)), color = MaterialTheme.colorScheme.error)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showLeaveDialog = false }) {
+                            Text(text = (getString(context, R.string.cancel, selectedLanguage)))
+                        }
                     }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showLeaveDialog = false }) {
-                        Text(text = (getString(context, R.string.cancel, selectedLanguage)))
-                    }
-                }
-            )
+                )
+            }
         }
     }
 }

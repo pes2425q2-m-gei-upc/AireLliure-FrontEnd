@@ -90,7 +90,7 @@ fun ComentariUsuari(
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Text(nom, fontWeight = FontWeight.Bold)
+            Text(nom, fontWeight = FontWeight.Bold, color = Color.Black)
             Spacer(modifier = Modifier.width(8.dp))
             repeat(rating) {
                 Icon(Icons.Default.Star, contentDescription = "Star", tint = Color.Yellow)
@@ -121,7 +121,7 @@ fun ComentariUsuari(
                 }
             }
         }
-        Text(text = comentari)
+        Text(text = comentari, color = Color.Black)
     }
 }
 
